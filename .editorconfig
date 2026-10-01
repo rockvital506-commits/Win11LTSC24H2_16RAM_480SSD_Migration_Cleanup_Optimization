@@ -1,0 +1,102 @@
+# .editorconfig
+# Машинное принуждение AR-101 / AR-102 / AR-103 / AR-104 / AR-406.
+# Проект: Win11LTSC24H2_16RAM_480SSD_Migration_Cleanup_Optimization
+# Схема: 3.0.0 | Норматив: docs/rules/AUTOMATION_RULES.md
+# ВАЖНО: кодировка и BOM задаются ПО КЛАССУ ФАЙЛА (см. матрицу AR-101).
+
+root = true
+
+[*]
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# --- AR-101: PowerShell — UTF-8 С BOM -------------------------------------
+# Windows PowerShell 5.1 без BOM читает .ps1 как ANSI/CP1251 -> кракозябры и
+# ошибки парсинга. BOM обязателен; pwsh 7 читает BOM-файлы корректно.
+[*.ps1]
+charset = utf-8-bom
+
+[*.psm1]
+charset = utf-8-bom
+
+[*.psd1]
+charset = utf-8-bom
+
+# --- AR-101: XML для WinPE/setup.exe и Ventoy — UTF-8 БЕЗ BOM --------------
+# Основание: research1/step1 (перенос в docs/research/step1.md):
+# setup.exe отклоняет файл ответов с сигнатурой BOM.
+[*.xml]
+charset = utf-8
+indent_size = 4
+
+# --- AR-101/AR-105: cmd.exe / WSH / INF — только ASCII, BOM недопустим -----
+[*.bat]
+charset = latin1
+
+[*.cmd]
+charset = latin1
+
+[*.vbs]
+charset = latin1
+
+[*.inf]
+charset = latin1
+
+# --- AR-101: реестр — формат regedit (Unicode) -----------------------------
+[*.reg]
+charset = utf-16le
+
+# --- AR-101: plain ASCII для гипервизора и Linux-парсеров ------------------
+[*.vmx]
+charset = latin1
+
+[*.conf]
+charset = latin1
+
+[.wslconfig]
+charset = latin1
+
+# --- AR-102: VCS-нативные и машинные форматы — LF, без BOM -----------------
+[*.md]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+trim_trailing_whitespace = false
+
+[*.json]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[*.yaml]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[*.yml]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[.gitignore]
+charset = utf-8
+end_of_line = lf
+
+[.gitattributes]
+charset = utf-8
+end_of_line = lf
+
+[.editorconfig]
+charset = utf-8
+end_of_line = lf
+
+# --- AR-102: тексты для Windows-потребителей — CRLF (наследуют [*]) --------
+[*.txt]
+charset = utf-8
+
+# --- AR-101: CSV для Excel — UTF-8 С BOM (иначе Excel портит кириллицу) ----
+[*.csv]
+charset = utf-8-bom

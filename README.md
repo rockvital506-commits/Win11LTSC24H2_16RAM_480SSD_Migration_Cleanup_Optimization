@@ -132,6 +132,12 @@
 | Recovery Procedure | `/docs/artifacts/Recovery_Procedure.md` |
 | Final Report | `/docs/artifacts/Final_Report.md` |
 | Partitioning Research | `/docs/storage/partitioning_research.md` |
+| Automation Rules | `/docs/rules/AUTOMATION_RULES.md` |
+| Rules Changelog | `/docs/rules/RULES_CHANGELOG.md` |
+| Research Material | `/docs/research/<NAME>.md` |
+| Tweak Index | `/docs/core-tweaks/TWEAK_INDEX.md` |
+| Package Index | `/docs/packages/PACKAGE_INDEX.md` |
+| DevOps Schema | `/docs/devops/<NAME>.md` |
 
 ### 3.3 Engineering Documentation Requirements
 
@@ -324,6 +330,9 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 ```
 /
 ├── README.md
+├── .editorconfig
+├── .gitattributes
+├── .gitignore
 │
 ├── algorithm/
 │   ├── manual/
@@ -342,6 +351,10 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │       └── Stage7_WSL_Docker_VMware.md
 │
 ├── docs/
+│   ├── rules/
+│   │   ├── README.md
+│   │   ├── AUTOMATION_RULES.md
+│   │   └── RULES_CHANGELOG.md
 │   ├── decisions/
 │   │   ├── README.md
 │   │   ├── ADR-0001-stage-sequencing.md
@@ -350,7 +363,30 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   ├── ADR-0004-ohook-vs-kms.md
 │   │   ├── ADR-0005-dual-stage-unattend.md
 │   │   ├── ADR-0006-fdrive-as-repository.md
-│   │   └── ADR-0007-partition-scheme.md
+│   │   ├── ADR-0007-partition-scheme.md
+│   │   ├── ADR-0008-repository-topology-domains.md
+│   │   ├── ADR-0009-automation-rules-baseline.md
+│   │   └── ADR-0010-pe-core-affinity-policy.md
+│   ├── research/
+│   │   ├── README.md
+│   │   ├── anchor1.md
+│   │   └── step1.md … step5.md
+│   ├── core-tweaks/
+│   │   ├── README.md
+│   │   ├── TWEAK_INDEX.md
+│   │   ├── REGISTRY_MAP.md
+│   │   ├── BCD_REFERENCE.md
+│   │   └── ACL_MATRIX.md
+│   ├── packages/
+│   │   ├── README.md
+│   │   ├── PACKAGE_INDEX.md
+│   │   ├── WINGET_POLICY.md
+│   │   └── SOURCES.md
+│   ├── devops/
+│   │   ├── README.md
+│   │   ├── WSL2_SCHEMA.md
+│   │   ├── HYPERVISOR_MATRIX.md
+│   │   └── P_E_CORE_AFFINITY.md
 │   ├── patterns/
 │   │   ├── README.md
 │   │   ├── PAT-INDEX.md
@@ -359,6 +395,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   └── PAT-NEW-7-partition-scheme.md
 │   ├── artifacts/
 │   │   ├── README.md
+│   │   ├── Stage0_Report.md
 │   │   ├── Stage1_Report.md
 │   │   ├── ...
 │   │   ├── Final_Report.md
@@ -378,24 +415,62 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   ├── Stage5_Sysprep_Prepare.ps1
 │   ├── Stage6_AutoSetup.bat
 │   ├── Stage6_Launcher.vbs
-│   └── Stage7_WSL_Docker_VMware.ps1
+│   ├── Stage7_WSL_Docker_VMware.ps1
+│   ├── common/
+│   │   ├── README.md
+│   │   ├── Logging.psm1
+│   │   ├── Backup.psm1
+│   │   ├── Verification.psm1
+│   │   └── Guard.psm1
+│   └── rules/
+│       ├── README.md
+│       └── Test-RepositoryConventions.ps1
+│
+├── tweaks/                          # Домен 1: твики ядра ОС и реестра
+│   ├── README.md
+│   ├── registry/                    # манифесты твиков реестра (*.json)
+│   ├── bcd/                         # флаги загрузчика (+ bcdedit /export)
+│   ├── services/                    # ServiceGate.json
+│   ├── tasks/                       # TaskManifest.json
+│   ├── acl/                         # AclManifest.json (NTFS Deny SYSTEM)
+│   ├── appx/                        # AppxRemoval.json
+│   └── apply/                       # Apply-Tweaks.ps1, Assert-TweakState.ps1
+│
+├── packages/                        # Домен 2: установка ПО (winget-first)
+│   ├── README.md
+│   ├── winget/                      # Baseline + Profiles (base/devops/admin)
+│   ├── lock/                        # Packages.lock.json
+│   ├── manifests/                   # <PackageId>.json
+│   ├── bootstrap/                   # Bootstrap-Packages.ps1, Invoke-PackageSync.ps1
+│   └── hashes/                      # PACKAGES_SHA256.txt
+│
+├── devops/                          # Домен 3: WSL2 / Hyper-V / VMware / P+E
+│   ├── README.md
+│   ├── wsl/                         # .wslconfig.template, Install-WslDistro.ps1
+│   ├── hypervisor/                  # Enable-HypervisorPlatform.ps1, vmware/VM.vmx.template
+│   ├── cpu-policy/                  # Get-PerformanceCoreMask.ps1, Set-WorkloadAffinity.ps1
+│   └── containers/                  # Install-DockerEngine.sh, compose/
 │
 ├── templates/
 │   ├── README.md
 │   ├── ADR-template.md
 │   ├── Pattern-template.md
 │   ├── Stage-Report-template.md
+│   ├── Script-template.ps1
+│   ├── rules-template.md
 │   ├── u_w11_ltsc_iot.xml.template
-│   └── unattend.xml.template
+│   ├── unattend.xml.template
+│   └── ventoy.json.template
+│
+├── tests/
+│   ├── README.md
+│   ├── RepoConventions.Tests.ps1
+│   └── fixtures/
+│       └── README.md
 │
 └── tools/
     ├── README.md
-    ├── ventoy-1.1.10-windows/
-    ├── DiskGenius/
-    ├── WinPE_Strelec_2026.02.05/
-    ├── LGPO/
-    ├── ohook/
-    └── Win11_LTSC_IoT_24H2_ISO/
+    └── <TOOL>/<VERSION>/             # бинарники в Git не хранятся (AR-804)
 ```
 
 ### 5.2 Directory Modification Rules
@@ -428,17 +503,26 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 
 ```
 НОВЫЙ ФАЙЛ
+├─ Правило автоматизации? → /docs/rules/AUTOMATION_RULES.md (+ RULES_CHANGELOG.md, ADR)
 ├─ Решение? → /docs/decisions/ADR-NNNN-<TITLE>.md
 ├─ Паттерн? → /docs/patterns/PAT[-NEW]-<N>-<NAME>.md
 ├─ Отчёт об этапе? → /docs/artifacts/Stage<N>_Report.md
 ├─ Схема накопителя? → /docs/storage/<DRIVE>_schema.md
-├─ Partitioning research? → /docs/storage/partitioning_research.md
+├─ Исследование? → /docs/research/<NAME>.md
+├─ Твик ядра/реестра?
+│  ├─ Декларация? → /tweaks/<registry|bcd|services|tasks|acl|appx>/<NAME>.json
+│  └─ Применение? → /tweaks/apply/<Script>.ps1
+├─ Пакет ПО?
+│  ├─ Версия/источник? → /packages/lock/Packages.lock.json
+│  └─ Описание пакета? → /packages/manifests/<PackageId>.json
+├─ DevOps-конфигурация? → /devops/<wsl|hypervisor|cpu-policy|containers>/<FILE>
 ├─ Ручной шаг? → /algorithm/manual/Stage<N>_<STEP>.md
 ├─ Автоматизированный шаг?
-│  ├─ Скрипт? → /scripts/Stage<N>_<PURPOSE>.<ext>
-│  └─ Исходный код? → /tools/<TOOL>/src/<FILE>.<ext>
+│  ├─ Оркестрация этапа? → /scripts/Stage<N>_<PURPOSE>.<ext>
+│  └─ Общий модуль? → /scripts/common/<Name>.psm1
+├─ Проверка конвенций или тест? → /scripts/rules/<NAME>.ps1 или /tests/<NAME>.Tests.ps1
 ├─ Шаблон? → /templates/<NAME>.<ext>.template
-├─ Бинарник? → /tools/<TOOL>/<VERSION>/<FILE>.exe
+├─ Бинарник? → /tools/<TOOL>/<VERSION>/<FILE>.exe (в Git не коммитится — AR-804)
 ├─ Recovery-процедура? → /docs/artifacts/Recovery_Procedure.md
 └─ Схема вендорского мусора? → /docs/artifacts/<VENDOR>_bloat.md
 ```
@@ -455,15 +539,17 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 
 ### 5.6 Stage-to-Artifact Mapping
 
-| Stage | Algorithm | Script | Patterns | Artifact |
-|---|---|---|---|---|
-| 1 | `manual/Stage1_Hardware_Preparation.md` + `auto/Stage1_DiskGenius_Partition.md` | `Stage1_DiskGenius_Partition.ps1` | `PAT-NEW-6, PAT-NEW-7` | `Stage1_Report.md`, `C_drive_schema.md`, `partitioning_research.md` |
-| 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
-| 3 | `manual/Stage3_Windows_Update.md` | — | — | `Stage3_Report.md` |
-| 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
-| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `PAT-16` | `Stage5_Report.md` |
-| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
-| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
+| Stage | Algorithm | Orchestration | Domain modules | Patterns | Artifact |
+|---|---|---|---|---|---|
+| 1 | `manual/Stage1_Hardware_Preparation.md` + `auto/Stage1_DiskGenius_Partition.md` | `Stage1_DiskGenius_Partition.ps1` | — | `PAT-NEW-6, PAT-NEW-7` | `Stage1_Report.md`, `C_drive_schema.md`, `partitioning_research.md` |
+| 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `templates/` (`u_w11_ltsc_iot.xml`, `ventoy.json`) | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
+| 3 | `manual/Stage3_Windows_Update.md` | — | — | — | `Stage3_Report.md` |
+| 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
+| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml` | `PAT-16` | `Stage5_Report.md` |
+| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `tweaks/{acl,services}` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
+| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
+
+---
 
 ### 5.7 F_Drive_Repository (внешний накопитель)
 
