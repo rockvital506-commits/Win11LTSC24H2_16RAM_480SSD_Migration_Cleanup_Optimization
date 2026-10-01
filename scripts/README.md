@@ -9,8 +9,9 @@
 | `Stage6_Immunity_Prepare.ps1` | Подготовка контура Stage 6: Defender → рантайм → задача → замки → верификация (ADR-0015) |
 | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | Рантайм контура (ASCII-only, AR-105); разворачиваются в `D:\GD_Tool` |
 | `Stage7_WSL_Docker_VMware.ps1` | DevOps-контур: компоненты виртуализации, WSL2, Docker, VMware (WHP), P+E, пакеты |
+| `Stage8_Runtime_Deploy.ps1` | Рабочая среда `C:\Vitality\`: предусловия, развёртывание по манифесту, верификация (ADR-0017) |
 | `Stage2_Ventoy_Template_Setup.ps1` | Валидация и рендер Ventoy-контура (шаблоны, ISO, кодировки); размещение на `F:` — только с `-AcknowledgeFDriveModification` (GATE_FDRIVE_MODIFICATION) |
-| `Final_Acceptance.ps1` | Финальная приёмка (§9.8): агрегация верификаторов этапов, сводка `Final_Acceptance.md`; только чтение |
+| `Final_Acceptance.ps1` | Финальная приёмка (§9.9): агрегация верификаторов этапов 1–8, сводка `Final_Acceptance.md`; только чтение |
 | `common/` | Общие модули: логирование, бэкап, верификация, guard (без предметной логики) |
 | `rules/` | `Test-RepositoryConventions.ps1` — исполняемые правила репозитория |
 

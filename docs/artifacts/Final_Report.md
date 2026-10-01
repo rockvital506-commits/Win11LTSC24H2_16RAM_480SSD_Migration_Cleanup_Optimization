@@ -8,7 +8,7 @@
 | `DATE_END` | — (закрывается после прогона всех этапов и подтверждения критериев §1.4 README) |
 | `AUTHOR` | AI-агент (Arena.ai) |
 | `SCHEMA_VERSION` | 3.0.0 |
-| `RELATED` | README §1.4, §9.8, `Stage1_Report.md` … `Stage7_Report.md` |
+| `RELATED` | README §1.4, §9.9, `Stand_Runbook.md`, `Stage1_Report.md` … `Stage8_Report.md` |
 
 ---
 
@@ -24,6 +24,7 @@
 | 5 | Запечатывание Sysprep, CopyProfile, «тихий» OOBE | `Stage5_Sysprep_Prepare.ps1`, `ADR-0014`, `PAT-16` | DONE (запуск Sysprep — владелец) |
 | 6 | Иммунизация: NTFS-замки, задача контура, LGPO, брандмауэр, активация | `Stage6_Immunity_Prepare.ps1`, `ADR-0003/0004/0015`, `PAT-11`, `PAT-NEW-4` | DONE (окно активации — владелец) |
 | 7 | DevOps-контур: WSL2, нативный Docker, VMware через WHP, P+E, пакеты | `Stage7_WSL_Docker_VMware.ps1`, `ADR-0002/0010/0016`, `PAT-07/21/22` | DONE (установка — владелец) |
+| 8 | Рабочая среда `C:\Vitality\`: манифест состава, развёртывание, верификация | `Stage8_Runtime_Deploy.ps1`, `ADR-0017`, `docs/runtime/RUNTIME_SCHEMA.md` | DONE (развёртывание — владелец) |
 
 ## 2. Критерии успеха (§1.4 README)
 
@@ -66,6 +67,9 @@
 | `S7-OPEN-2` | Пиннинг Docker Engine (apt) | Зафиксировать версию в `Stage7_Report.md` по факту |
 | `S7-OPEN-3` | `coreinfo64.exe` для перекрёстной проверки P/E | Поставить офлайн в `F:\TOOLS\Audit\` |
 | `S7-OPEN-4` | Схема питания | Решить: сверять (по умолчанию) или применять `-ApplyPowerPlan` |
+| `S8-OPEN-1` | Состав рабочей среды (`RuntimeManifest.json`, статус `PROPOSED`) | Ратифицировать, перевести в `RATIFIED` |
+| `S8-OPEN-2` | Модули рантайма и их хэши | Разместить с `F:` в `bin\`, внести SHA256 в `packages/hashes` |
+| `S8-OPEN-3` | Задачи и службы рантайма | Оформить декларацией при необходимости (агент сам не создаёт) |
 | `FINAL-OPEN-1` | Сводная приёмка на стенде | `pwsh -File ./scripts/Final_Acceptance.ps1` (все этапы), результат — `Final_Acceptance.md` |
 | — | ~~`Recovery_Procedure.md`~~ | Закрыт: `docs/artifacts/Recovery_Procedure.md` (PAT-19) |
 
@@ -76,8 +80,9 @@
 3. Stage 7 при открытом окне сети: компоненты → дистрибутив → Docker → ВМ → P+E → пакеты
    (`Stage7_WSL_Docker_VMware.ps1` + `Bootstrap-Packages.ps1`).
 4. Закрытие окна сети, финальная верификация `Assert-ImmunityState.ps1`, `Assert-TweakState.ps1` и сводная
-   приёмка `Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL (README §9.8).
-5. Заполнение `Stage7_Report.md` и этого отчёта, перевод в `DONE`.
+   приёмка `Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL (README §9.9).
+5. Прогон Stage 8: ратификация состава → `Stage8_Runtime_Deploy.ps1` → `Stage8_runtime.md` без FAIL.
+6. Заполнение `Stage7_Report.md`, `Stage8_Report.md` и этого отчёта, перевод в `DONE`.
 
 ## 6. Коммиты этапов
 
@@ -88,4 +93,5 @@
 | 5 | `7a03b45` |
 | 6 | `92fbf30`, `9bde37c` |
 | 7 | `367355f`, `75911b7`, `91d714c` |
-| Финализация | `654947b` (приёмка §9.8, `Recovery_Procedure.md`, верификатор Stage 2) |
+| Финализация | `654947b`, `3470382` (приёмка §9.9, `Recovery_Procedure.md`, верификатор Stage 2) |
+| 8 (рабочая среда) | коммит Stage 8 в текущей ветке (см. `git log`) |

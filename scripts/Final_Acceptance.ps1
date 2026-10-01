@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Финальная приёмка проекта: агрегация верификаций всех этапов (README §9.8).
+    Финальная приёмка проекта: агрегация верификаций всех этапов (README §9.9).
 
 .DESCRIPTION
     Скрипт только читает состояние системы и делегирует проверки штатным
@@ -12,6 +12,7 @@
       F6  контур защиты   tweaks/apply/Assert-ImmunityState.ps1
       F7  пакеты          packages/bootstrap/Invoke-PackageSync.ps1 -Verify
       F7  DevOps (опция)  scripts/Stage7_WSL_Docker_VMware.ps1 -Audit
+      F8  рабочая среда   runtime/bootstrap/Assert-RuntimeState.ps1
 
     Дополнительно проверяется документарная полнота (AR-402, AR-805, §3.2),
     состояние lock-файла пакетов (AR-602) и наличие отчётов этапов.
@@ -43,6 +44,9 @@
 .PARAMETER IncludeStage7
     Дополнительно прогнать Stage7_WSL_Docker_VMware.ps1 -Audit (компоненты, WSL2,
     Docker, VMware, P+E — только чтение).
+
+.PARAMETER SkipRuntime
+    Не проверять рабочую среду C:\Vitality (Stage 8).
 
 .EXAMPLE
     pwsh -File ./scripts/Final_Acceptance.ps1
@@ -77,6 +81,8 @@ param(
 
     [switch]$SkipPackages,
 
+    [switch]$SkipRuntime,
+
     [switch]$IncludeStage7
 )
 
@@ -108,7 +114,7 @@ function Invoke-Verifier {
 
 try {
     Start-LogSession -RepoRoot $RepoRoot -ScriptId $scriptId | Out-Null
-    $context = New-VerificationContext -Title 'Финальная приёмка (README §9.8)'
+    $context = New-VerificationContext -Title 'Финальная приёмка (README §9.9)'
 
     # --- F0: документарная полнота и состояние репозитория ---
     $mandatory = @(
@@ -118,6 +124,9 @@ try {
         'docs/patterns/PAT-INDEX.md',
         'docs/artifacts/Final_Report.md',
         'docs/artifacts/Recovery_Procedure.md',
+        'docs/artifacts/Stand_Runbook.md',
+        'docs/runtime/RUNTIME_SCHEMA.md',
+        'runtime/manifests/RuntimeManifest.json',
         'algorithm/manual/Stage7_DevOps_Install.md',
         'algorithm/auto/Stage7_WSL_Docker_VMware.md'
     )
@@ -134,9 +143,9 @@ try {
     Add-VerificationCheck -Context $context -Id 'F0.3' -Check 'Документы паттернов' -Expected '≥ 21' -Actual ([string]$patternFiles.Count) `
         -Status $(if ($patternFiles.Count -ge 21) { 'PASS' } else { 'FAIL' }) -Note 'M_PATTERN_COVERAGE: план — 28.'
 
-    $stageReports = @(0..7 | ForEach-Object { 'docs/artifacts/Stage{0}_Report.md' -f $_ })
+    $stageReports = @(0..8 | ForEach-Object { 'docs/artifacts/Stage{0}_Report.md' -f $_ })
     $missingReports = @($stageReports | Where-Object { -not (Test-Path -LiteralPath (Join-Path $RepoRoot $_)) })
-    Add-VerificationCheck -Context $context -Id 'F0.4' -Check 'Отчёты этапов 0–7' -Expected '8 отчётов' `
+    Add-VerificationCheck -Context $context -Id 'F0.4' -Check 'Отчёты этапов 0–8' -Expected '9 отчётов' `
         -Actual $(if ($missingReports.Count -eq 0) { 'все на месте' } else { 'нет: ' + ($missingReports -join ', ') }) `
         -Status $(if ($missingReports.Count -eq 0) { 'PASS' } else { 'FAIL' }) -Note 'AR-904: отчёт этапа обязателен.'
 
@@ -159,6 +168,7 @@ try {
     if (-not $SkipTweaks) { $delegates.Add(@{ Id = 'F4'; Name = 'Твики и службы (Stage 4)'; Path = 'tweaks/apply/Assert-TweakState.ps1'; RepoRootParam = $true; Args = @{ ExportReport = (Join-Path $RepoRoot 'docs/artifacts/Stage4_tweakstate.md') } }) }
     if (-not $SkipImmunity) { $delegates.Add(@{ Id = 'F6'; Name = 'Контур защиты (Stage 6)'; Path = 'tweaks/apply/Assert-ImmunityState.ps1'; RepoRootParam = $true; Args = @{ ExportReport = (Join-Path $RepoRoot 'docs/artifacts/Stage6_immunity.md') } }) }
     if (-not $SkipPackages) { $delegates.Add(@{ Id = 'F7a'; Name = 'Пакеты: сверка с lock-файлом'; Path = 'packages/bootstrap/Invoke-PackageSync.ps1'; RepoRootParam = $true; Args = @{ Verify = $true } }) }
+    if (-not $SkipRuntime) { $delegates.Add(@{ Id = 'F8'; Name = 'Рабочая среда C:\Vitality (Stage 8)'; Path = 'runtime/bootstrap/Assert-RuntimeState.ps1'; RepoRootParam = $true; Args = @{ ExportReport = (Join-Path $RepoRoot 'docs/artifacts/Stage8_runtime.md') } }) }
     if ($IncludeStage7) { $delegates.Add(@{ Id = 'F7b'; Name = 'DevOps-контур (Stage 7, -Audit)'; Path = 'scripts/Stage7_WSL_Docker_VMware.ps1'; RepoRootParam = $true; Args = @{ Audit = $true; VerificationReport = (Join-Path $RepoRoot 'docs/artifacts/Stage7_preflight.md') } }) }
 
     foreach ($d in $delegates) {

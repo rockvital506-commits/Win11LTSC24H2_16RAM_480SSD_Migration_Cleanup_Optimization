@@ -138,6 +138,8 @@
 | Tweak Index | `/docs/core-tweaks/TWEAK_INDEX.md` |
 | Package Index | `/docs/packages/PACKAGE_INDEX.md` |
 | DevOps Schema | `/docs/devops/<NAME>.md` |
+| Runtime Schema | `/docs/runtime/<NAME>.md` |
+| Stand Runbook | `/docs/artifacts/Stand_Runbook.md` |
 
 ### 3.3 Engineering Documentation Requirements
 
@@ -390,6 +392,9 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   ├── WSL2_SCHEMA.md
 │   │   ├── HYPERVISOR_MATRIX.md
 │   │   └── P_E_CORE_AFFINITY.md
+│   ├── runtime/
+│   │   ├── README.md
+│   │   └── RUNTIME_SCHEMA.md
 │   ├── patterns/
 │   │   ├── README.md
 │   │   ├── PAT-INDEX.md
@@ -401,6 +406,9 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   ├── Stage0_Report.md
 │   │   ├── Stage1_Report.md
 │   │   ├── ...
+│   │   ├── Stage8_Report.md
+│   │   ├── Stand_Runbook.md
+│   │   ├── Final_Acceptance.md
 │   │   ├── Final_Report.md
 │   │   └── Recovery_Procedure.md
 │   └── storage/
@@ -420,6 +428,8 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   ├── Stage6_Immunity_Prepare.ps1
 │   ├── Stage6_Launcher.vbs
 │   ├── Stage7_WSL_Docker_VMware.ps1
+│   ├── Stage8_Runtime_Deploy.ps1
+│   ├── Final_Acceptance.ps1
 │   ├── common/
 │   │   ├── README.md
 │   │   ├── Logging.psm1
@@ -456,6 +466,11 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   └── vmware/                  # VM.vmx.template (изоляция кэша, PAT-22)
 │   ├── cpu-policy/                  # Get-PerformanceCoreMask.ps1, Set-WorkloadAffinity.ps1, power-plan.json
 │   └── containers/                  # Install-DockerEngine.sh, compose/dev-stack.yaml.template
+│
+├── runtime/                         # Домен 4: рабочая среда C:\Vitality (ADR-0017)
+│   ├── README.md
+│   ├── manifests/                   # RuntimeManifest.json (единственный источник состава)
+│   └── bootstrap/                   # Deploy-Runtime.ps1, Assert-RuntimeState.ps1
 │
 ├── templates/
 │   ├── README.md
@@ -555,6 +570,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 | 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
 | 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml.template` | `PAT-16, PAT-NEW-1` | `Stage5_Report.md` |
 | 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_Immunity_Prepare.ps1`; рантайм `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs`, `templates/ImmunityCore.ps1.template` | `tweaks/{acl,firewall,tasks,registry}`, `tweaks/apply` | `PAT-04, PAT-06, PAT-08, PAT-09, PAT-11, PAT-17, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4` | `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md` |
+| 8 | `manual/Stage8_Runtime_Handoff.md` + `auto/Stage8_Runtime_Deploy.md` | `Stage8_Runtime_Deploy.ps1`; рантайм `runtime/bootstrap/{Deploy-Runtime.ps1,Assert-RuntimeState.ps1}` | `runtime/` (манифест `RuntimeManifest.json`), `C:\Vitality\` | — | `Stage8_Report.md`, `Stage8_preflight.md`, `Stage8_runtime.md` |
 | 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1`; шаблоны `devops/wsl/.wslconfig.template`, `wsl.conf.template`, `hypervisor/vmware/VM.vmx.template`; рантайм `devops/containers/Install-DockerEngine.sh`; пакеты `packages/bootstrap/{Bootstrap-Packages.ps1,Invoke-PackageSync.ps1}` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Stage7_preflight.md`, `Final_Report.md` |
 
 ---
@@ -808,7 +824,14 @@ C:\
 │   │   └── Sysprep\                   (unattend.xml в Stage 5)
 │   ├── WinSxS\                       (сжат после ResetBase в Stage 4)
 │   └── ...
-├── Vitality\                         (runtime, после Stage 8)
+├── Vitality\                         (рабочая среда, Stage 8: ADR-0017, docs/runtime/RUNTIME_SCHEMA.md)
+│   ├── bin\                          (модули рантайма; офлайн с F:, не в Git)
+│   ├── config\                       (конфигурация; секреты — файлами, STRUC_009)
+│   ├── logs\                         (журналы, ротация)
+│   ├── state\                        (состояние и индексы)
+│   ├── workspace\                    (рабочие каталоги проектов)
+│   ├── backup\                       (локальные слепки, PAT-19)
+│   └── .vitality.json                (маркер развёртывания: SHA256 манифеста)
 ├── Drivers\                          (INF-драйверы в Stage 4)
 ├── GD_Tool\                           (инструменты в Stage 6)
 └── Recovery\                          (WinRE)
@@ -1013,11 +1036,27 @@ D:\
 - [ ] `Stage7_preflight.md` — без FAIL; `Stage6_immunity` подтверждён после этапа
 - [ ] Окно сети закрыто владельцем; `Stage7_Report.md` переведён в DONE, `Final_Report.md` заполнен
 
-### 9.8 All Stages Verification
+### 9.8 Stage 8 (Runtime Workspace) Verification
 
-- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0016)
+Выполняется при закрытом окне сети (этап сети не требует). Оркестратор — `scripts/Stage8_Runtime_Deploy.ps1`.
+
+- [ ] Состав ратифицирован: `RuntimeManifest.json` → `status: RATIFIED` (`S8-OPEN-1`)
+- [ ] `P0.1`–`P0.3` без FAIL; контуры Stage 6 и Stage 7 не затронуты
+- [ ] `Deploy-Runtime.ps1` создал отсутствующие каталоги, существующие не изменены (AR-201)
+- [ ] Маркер `.vitality.json` содержит SHA256 текущего манифеста; повторный прогон ничего не меняет (AR-301)
+- [ ] Права применены (`-ApplyAcl`) и подтверждены чтением `icacls` (SYSTEM FullControl, Administrators чтение)
+- [ ] `Stage8_runtime.md` без FAIL; дрейф отсутствует или объяснён в отчёте
+- [ ] Модули рантайма размещены в `bin\`, хэши внесены в `packages/hashes/PACKAGES_SHA256.txt` (`S8-OPEN-2`)
+- [ ] Секреты — файлами в `config\`, в Git отсутствуют (`STRUC_009`)
+- [ ] Задачи/службы рантайма (если нужны) оформлены декларацией, а не созданы скриптом (`S8-OPEN-3`)
+- [ ] `Stage8_Report.md` переведён в DONE; `Stand_Runbook.md` заполнен по факту прогона
+
+### 9.9 All Stages Verification
+
+- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0017)
 - [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 23/28)
-- [ ] Все отчёты созданы (Stage1..Stage7 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
+- [ ] Все отчёты созданы (Stage0..Stage8 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
 - [ ] `Recovery_Procedure.md` создан и соответствует фактическим бэкапам (PAT-19)
-- [ ] `pwsh -File ./scripts/Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL
+- [ ] `Stand_Runbook.md` использован при прогоне, отклонения зафиксированы
+- [ ] `pwsh -File ./scripts/Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL (проверки `F0.*`, `F1`–`F8`)
 - [ ] README.md обновлён

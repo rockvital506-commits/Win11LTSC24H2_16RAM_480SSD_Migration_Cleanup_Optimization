@@ -20,5 +20,6 @@
 | `ADR-0014-sysprep-seal.md` | Запечатывание Sysprep: размещение файла ответов, CopyProfile, предпролётные защиты | **ACCEPTED** |
 | `ADR-0015-stage6-immunity-contour.md` | Контур самозащиты Stage 6: порядок фаз, доверенная зона, транзакция | **ACCEPTED** |
 | `ADR-0016-stage7-devops-contour.md` | Контур Stage 7: поставка дистрибутива, лимиты WSL2, нативный Docker, P+E | **ACCEPTED** |
+| `ADR-0017-runtime-workspace.md` | Рабочая среда `C:\Vitality\`: домен `runtime/`, манифест состава, права без Deny | **ACCEPTED** (Stage 8) |
 
 **Правило:** ADR-0001…ADR-0007 создаются на соответствующих этапах; ранние номера не занимаются задним числом без записи в отчёте.

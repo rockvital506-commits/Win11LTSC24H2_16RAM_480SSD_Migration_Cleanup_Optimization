@@ -65,7 +65,9 @@ C:\
 │   └── ...
 ├── Drivers\                             (INF-драйверы, Stage 4: PAT-15)
 ├── GD_Tool\                             (AutoSetup.bat, LGPO, CleanLTSCPolicy: Stage 6)
-├── Vitality\                            (runtime-каталог, Stage 8)
+├── Vitality\                            (рабочая среда, Stage 8: ADR-0017, docs/runtime/RUNTIME_SCHEMA.md)
+│   ├── bin\ config\ logs\ state\ workspace\ backup\   (состав — runtime/manifests/RuntimeManifest.json)
+│   └── .vitality.json                   (маркер: SHA256 манифеста, AR-301)
 └── Recovery\                            (WinRE)
 ```
 
