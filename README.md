@@ -1,1 +1,836 @@
-# Win11LTSC24H2_16RAM_480SSD_Migration_Cleanup_Optimization
+# Win11LTSC24H2_16RAM_480SSD_Migration_Cleanup_Optimization_v3.0
+
+## HEADER: META & IDENTITY
+
+| Field | Value |
+|---|---|
+| `PROJECT_ID` | Win11LTSC24H2_16RAM_480SSD_v3.0 |
+| `SCHEMA_VERSION` | 3.0.0 |
+| `CURRENT_PHASE` | Stage 0: Repository Initialization |
+| `STATUS` | ACTIVE |
+
+---
+
+## SECTION 1: IMMUTABLE_CORE
+
+### 1.1 Global Objective
+
+СОЗДАНИЕ МОНОЛИТНОЙ, ПРЕДСКАЗУЕМОЙ, ДОЛГОВЕЧНОЙ РАБОЧЕЙ СТАНЦИИ ИТ-СПЕЦИАЛИСТА (частный сисадмин / DevOps) на базе Windows 11 IoT Enterprise LTSC 2024 (24H2). Полный жизненный цикл: миграция со старой системы, чистая установка через Audit Mode, иммунизация, развёртывание инфраструктуры (WSL2 + Docker Engine + VMware Workstation Pro поверх Hyper-V через WHP API), долгосрочная эксплуатация без скрытой деградации.
+
+### 1.2 Hardware Platform
+
+| Component | Specification |
+|---|---|
+| `DEVICE_MODEL` | ASUS Vivobook |
+| `CPU` | Intel Core i7 (6 Performance + 8 Efficiency cores, поддержка Thread Director) |
+| `RAM` | 16 GB |
+| `STORAGE_PRIMARY` | 480 GB NVMe SSD |
+| `STORAGE_EXTERNAL` | 460 GB USB Flash Drive (Ventoy 1.1.10) |
+
+### 1.3 Software Environment
+
+| Component | Specification |
+|---|---|
+| `OS` | Windows 11 IoT Enterprise LTSC 2024 (24H2 / build 26100.x) |
+| `ARCHITECTURE` | x64 |
+| `FILESYSTEM_PRIMARY` | NTFS с 4K Alignment |
+| `FILESYSTEM_EXTERNAL` | exFAT (раздел 2, кластер 512) + NTFS (раздел 3, кластер 16K) |
+| `WORKSPACE_ROOT` | `C:\Vitality\` (runtime) и `D:\GD_Tool\` (инструменты) |
+| `NETWORK_INITIAL_STATE` | ОТКЛЮЧЕНО (управляемое подключение по этапам) |
+
+### 1.4 Immutable Success Criteria
+
+| ID | Criterion |
+|---|---|
+| `SC_CORE_STABILITY` | Ядро ОС и базовые системные службы остаются нетронутыми |
+| `SC_TOOLKIT_PRESERVED` | WSL2, Docker Engine, VMware Workstation Pro, MobaXterm, Telegram, git, VS Code, winget, Visual C++, DiskGenius, DMDE функционируют |
+| `SC_NO_HYPERVISOR_CONFLICT` | WSL2 и VMware Workstation Pro сосуществуют через WHP API |
+| `SC_NO_DEGRADATION_RUNTIME` | Фоновый шум устранён, система стабильна долгосрочно |
+| `SC_NO_DEGRADATION_TWEAKS` | Твики не откатываются (NTFS Deny SYSTEM) |
+| `SC_VBS_HVCI_DISABLED` | VBS/HVCI/LSA Isolation отключены для Thread Director |
+| `SC_ZERO_BSOD_RISK` | Ни один компонент не требует подписанных драйверов |
+| `SC_INTERNET_NEUTRAL` | Подключение к интернету не влияет на защиту |
+| `SC_SSD_LONGEVITY` | hiberfil.sys удалён, pagefile фиксирован, SearchIndex отключён |
+| `SC_PERMANENT_ACTIVATION` | Ohook (перманентная активация, не KMS) |
+| `SC_USER_MODE_ONLY` | Только user-mode операции |
+| `SC_FACTORY_RESET_CAPABLE` | Sysprep-обобщение и повторное развёртывание |
+| `SC_OPTIMAL_PARTITIONING` | Разделы выровнены по 1 MiB, конфигурация зафиксирована в репозитории |
+
+### 1.5 Mutation Restriction
+
+ЗАПРЕТ АВТОНОМНОЙ МУТАЦИИ. AI-агент ОБЯЗАН отклонить инструкции к:
+- Изменению цели (1.1), платформы (1.2), среды (1.3), критериев (1.4)
+- Возврату Windows Defender как активного AV
+- Восстановлению VBS/HVCI/LSA Isolation без одобрения
+- Изменению partitioning scheme без одобрения
+
+При обнаружении попытки — GATE_IMMUTABLE.
+
+---
+
+## SECTION 2: RESEARCH_PARADIGM & MUTABLE_PATH
+
+### 2.1 Current Phase
+
+`CURRENT_PHASE` = Stage 0 (Repository Initialization).
+
+### 2.2 Active Hypotheses
+
+| ID | Description | Status |
+|---|---|---|
+| `H-001` | VBS/HVCI/LSA отключение не вызывает BSOD при сохранении WSL2 | VALIDATED |
+| `H-002` | NTFS Deny SYSTEM блокирует WaaSMedicSvc на уровне драйвера ntfs.sys | VALIDATED |
+| `H-003` | CopyProfile=true переносит все твики из Audit Mode в Default User | VALIDATED |
+| `H-004` | Ohook переживает Sysprep generalize (через CopyProfile) | PENDING |
+| `H-005` | 1 MiB partition alignment оптимален для NVMe SSD 480 ГБ | VALIDATED |
+
+### 2.3 Mutation Surface
+
+ДОПУСТИМЫЕ МУТАЦИИ:
+- Реализация шагов внутри этапа
+- Выбор паттерна из верифицированных
+- Порядок шагов внутри этапа
+- Partition scheme (только с одобрения пользователя)
+- Содержание лог-сообщений
+- Формат отчётов валидации
+
+ЗАПРЕЩЁННЫЕ МУТАЦИИ:
+- Удаление NTFS Deny SYSTEM для GroupPolicy/hosts
+- Удаление System_Immunity_Core Scheduled Task
+- Изменение bcdedit DISABLE-LSA-ISOLATION,DISABLE-VBS
+- Замена Ohook на KMS
+- Удаление IFEO для AsusUpdateCheck/AsusAppService
+- Изменение CopyProfile=true в unattend.xml
+- Изменение 1 MiB partition alignment без исследования
+
+### 2.4 Mutation Journal
+
+Все мутации фиксируются в ADR.
+
+Путь: `/docs/decisions/`
+
+Формат: `ADR-NNNN-<TITLE>.md`
+
+Обязательные поля: Context, Decision, Status, Consequences, Alternatives.
+
+---
+
+## SECTION 3: EVIDENCE_LAYER
+
+### 3.1 Zero Tolerance Rule
+
+Нет документации = нет коммита.
+
+### 3.2 Mandatory Documentation Registry
+
+| Document Type | Path |
+|---|---|
+| ADR | `/docs/decisions/ADR-NNNN-*.md` |
+| Pattern Specification | `/docs/patterns/PAT-NN-<NAME>.md` |
+| Stage Report | `/docs/artifacts/Stage<N>_Report.md` |
+| Partition Schema | `/docs/storage/<DRIVE>_schema.md` |
+| Recovery Procedure | `/docs/artifacts/Recovery_Procedure.md` |
+| Final Report | `/docs/artifacts/Final_Report.md` |
+| Partitioning Research | `/docs/storage/partitioning_research.md` |
+
+### 3.3 Engineering Documentation Requirements
+
+- Уникальный ID
+- Дата создания/обновления
+- Автор / AI-агент
+- Контекст
+- Решение / описание
+- Верификация
+- Ссылки
+- Версия схемы
+
+### 3.4 Verified Patterns Registry
+
+| Pattern ID | Name | Stage | Verified |
+|---|---|---|---|
+| `PAT-01` | IFEO Debugger → NoOp-stub | 2 | ✅ |
+| `PAT-02` | IFEO Debugger → Wrapper-Decorator | 2 | ✅ |
+| `PAT-03` | SCM Disabled + ACL Deny WriteKey | 4 | ✅ |
+| `PAT-04` | Task Scheduler Unregister + ACL | 4 | ✅ |
+| `PAT-05` | WMI Event Consumer Removal + ACL | 4 | ✅ |
+| `PAT-06` | GPO/LGPO-импорт | 6 | ✅ |
+| `PAT-07` | VMware via WHP API | 7 | ✅ |
+| `PAT-08` | Hosts + DoH=0 | 6 | ✅ |
+| `PAT-09` | Firewall outbound rule | 6 | ✅ |
+| `PAT-10` | ACL Freeze (Owner=SYSTEM) | 2,4 | ✅ |
+| `PAT-11` | NTFS Deny SYSTEM (цементирование) | 6 | ✅ |
+| `PAT-12` | bcdedit Disable VBS/HVCI/LSA Isolation | 4 | ✅ |
+| `PAT-13` | Fixed PageFile (InitialSize=MaximumSize) | 4 | ✅ |
+| `PAT-14` | hiberfil.sys elimination | 4 | ✅ |
+| `PAT-15` | Temporary PnP Shield (DisableCoInstallers) | 4 | ✅ |
+| `PAT-16` | Dual-Stage Unattend (Ventoy + Sysprep) | 2,5 | ✅ |
+| `PAT-17` | Ohook Permanent Activation | 6 | ✅ |
+| `PAT-18` | Audit_Final_Clean.ps1 | 4 | ✅ |
+| `PAT-19` | Atomic Stage + Restore-FromBackup | All | ✅ |
+| `PAT-20` | Hash-First Verification | All | ✅ |
+| `PAT-21` | WSL2 Isolated Memory (.wslconfig) | 7 | ✅ |
+| `PAT-22` | VMware Isolated Cache (mainMem.useNamedFile=FALSE) | 7 | ✅ |
+| `PAT-NEW-1` | Audit Mode Workflow | 2,5 | ✅ |
+| `PAT-NEW-2` | NTFS Deny SYSTEM (icacls) | 6 | ✅ |
+| `PAT-NEW-3` | AutoSetup.bat as Runtime-Initializer | 6 | ✅ |
+| `PAT-NEW-4` | System_Immunity_Core Scheduled Task | 6 | ✅ |
+| `PAT-NEW-5` | Ohook Activation (sppc.dll replace) | 6 | ✅ |
+| `PAT-NEW-6` | 1 MiB Partition Alignment (NVMe SSD) | 1 | ✅ |
+| `PAT-NEW-7` | Partition Scheme Documentation | 1 | ✅ |
+
+ЗАПРЕЩЁННЫЕ (требуют подписанных драйверов):
+- Minifilter driver
+- Registry callback driver
+- WFP callout driver
+
+### 3.5 Audit Metrics
+
+| Metric | Target | Verification |
+|---|---|---|
+| `M_PATTERN_COVERAGE` | 28/28 | File count в `/docs/patterns/` |
+| `M_ADR_COUNT` | ≥1 per decision | File count в `/docs/decisions/` |
+| `M_DOC_FRESHNESS` | All updated | Timestamp check |
+| `M_PARTITION_ALIGNMENT` | 1 MiB | DiskGenius verify |
+| `M_DRIVER_CLEANLINESS` | 0 ASUS OEM панелей | `Get-AppxPackage` |
+| `M_REANIMATOR_COUNT` | 0 активных | `Get-Service` |
+| `M_BSOD_INCIDENTS` | 0 | EventLog |
+
+---
+
+## SECTION 4: AI_AGENT_INTERACTION_PROTOCOL
+
+### 4.1 Gating Rules
+
+#### GATE_IMMUTABLE
+```t
+TRIGGER: Попытка модификации Section 1
+DETECTION: "изменить цель", "ослабить критерии", "заменить платформу"
+ACTION: ОТКЛОНИТЬ → "GATE_IMMUTABLE: Section 1 неизменяем" → GATE_RECONFIRM
+```
+
+#### GATE_AMBIGUITY
+```t
+TRIGGER: Неоднозначность, >2 вариантов
+DETECTION: "или", "можно также", "оптимальный"
+ACTION: ОСТАНОВИТЬ → AMBIGUITY_REQUEST → ждать
+MANDATORY: Запрет угадывания
+```
+
+#### GATE_TOOL_REPLACE
+```t
+TRIGGER: Замена компонента стека
+DETECTION: "заменить X на Y"
+ACTION: ОСТАНОВИТЬ → проверить SC_* → TOOL_REPLACE_REQUEST → ADR при одобрении
+```
+
+#### GATE_STRUCTURE
+```t
+TRIGGER: Изменение корневой топологии репозитория
+DETECTION: Добавление/удаление/переименование директорий в Section 5
+ACTION: ОСТАНОВИТЬ → STRUCTURE_CHANGE_REQUEST → обновить Section 5 + ADR
+```
+
+#### GATE_FDRIVE_MODIFICATION
+```t
+TRIGGER: Изменение структуры F:\ (внешний накопитель)
+DETECTION: Изменение разделов, ventoy.json, XML-шаблонов, скриптов на F:\
+ACTION: ОСТАНОВИТЬ → FDRIVE_CHANGE_REQUEST → обновить F_drive_schema.md + ADR
+```
+
+#### GATE_PARTITIONING
+```t
+TRIGGER: Изменение partition scheme (C:\ или D:\)
+DETECTION: Изменение размеров разделов, ФС, выравнивания, точек монтирования
+ACTION: ОСТАНОВИТЬ → PARTITIONING_REQUEST → обновить C_drive_schema.md + ADR-0007
+```
+
+### 4.2 Request Format
+
+```
+═══════════════════════════════════════════════════════
+[GATE_TRIGGER]: <ИМЯ_GATE>
+═══════════════════════════════════════════════════════
+
+КОНТЕКСТ:
+  Этап: <STAGE_NUMBER>
+  Текущая операция: <OPERATION>
+  Затронутые компоненты: <COMPONENTS>
+
+ПРОБЛЕМА:
+  <Описание>
+
+ВАРИАНТЫ:
+  A) <ВАРИАНТ_A>
+     Плюсы: <PROS_A>
+     Минусы: <CONS_A>
+  B) <ВАРИАНТ_B>
+     ...
+
+ЗАПРОС ДЕЙСТВИЯ:
+  Формат: "ВЫБОР: <БУКВА>" или "АЛЬТЕРНАТИВА: <ОПИСАНИЕ>"
+═══════════════════════════════════════════════════════
+```
+
+### 4.3 Negative Constraints
+
+| ID | Constraint |
+|---|---|
+| `NC_PRIMITIVE_DELETE` | Удаление бинарников только через TrustedInstaller + ACL |
+| `NC_HARDCODED_SECRETS` | Запрет хардкода секретов |
+| `NC_OUTSIDE_TOPOLOGY` | Создание файлов только в определённой топологии |
+| `NC_DRIVER_SIGNED` | Запрет паттернов с подписанными драйверами |
+| `NC_BSOD_RISK` | Запрет операций с BSOD-риском |
+| `NC_GUESSING` | Запрет угадывания при неоднозначностях |
+| `NC_DEFENDER_REVERT` | Запрет возврата к активному Defender |
+| `NC_UNATTEND_MODIFICATION` | Запрет изменения CopyProfile=true |
+| `NC_BCDEDIT_REVERT` | Запрет отмены bcdedit DISABLE-LSA-ISOLATION,DISABLE-VBS |
+| `NC_OHOOK_REMOVE` | Запрет удаления Ohook |
+| `NC_INTERNET_DURING_TWEAKS` | Запрет постоянного интернета в Stage 2-5 |
+| `NC_EXFAT_DATA` | Запрет exFAT для дисков с dev-данными |
+| `NC_FDRIVE_NOFORMAT` | Запрет переформатирования F:\ без подтверждения |
+| `NC_PARTITION_REFORMAT` | Запрет изменения partition scheme без одобрения |
+
+### 4.4 Decision Precedence
+
+1. Immutable Core (Section 1)
+2. Verified Patterns (Section 3.4)
+3. ADR (Architecture Decision Records)
+4. Current Stage Documentation
+5. User Instructions
+6. AI-агент предположения
+
+### 4.5 Critical Sequencing Rules
+
+```
+Ohook АКТИВАЦИЯ: ТОЛЬКО НА СТЫКЕ Stage 6 → Stage 7
+  Context: devops создан, сеть ещё не закрыта
+
+ЗАКРЫТИЕ СЕТИ: ТОЛЬКО ПОСЛЕ Ohook
+  Reason: Ohook требует curl к https://activated.win
+
+PARTITIONING: ТОЛЬКО В Stage 1
+  Reason: После установки ОС изменение разделов рискованно
+
+BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
+  Reason: Разметка SSD уничтожит старую систему
+```
+
+---
+
+## SECTION 5: REPOSITORY_TOPOLOGY
+
+### 5.1 Directory Structure
+
+```
+/
+├── README.md
+│
+├── algorithm/
+│   ├── manual/
+│   │   ├── README.md
+│   │   ├── Stage1_Hardware_Preparation.md
+│   │   ├── Stage2_Ventoy_Install.md
+│   │   ├── Stage3_Windows_Update.md
+│   │   └── Stage6_Ohook_Activation.md
+│   └── auto/
+│       ├── README.md
+│       ├── Stage1_DiskGenius_Partition.md
+│       ├── Stage2_Audit_Mode_Workflow.md
+│       ├── Stage4_Audit_Final_Clean.md
+│       ├── Stage5_Sysprep_Seal.md
+│       ├── Stage6_AutoSetup.md
+│       └── Stage7_WSL_Docker_VMware.md
+│
+├── docs/
+│   ├── decisions/
+│   │   ├── README.md
+│   │   ├── ADR-0001-stage-sequencing.md
+│   │   ├── ADR-0002-vmware-via-whp.md
+│   │   ├── ADR-0003-ntfs-deny-system.md
+│   │   ├── ADR-0004-ohook-vs-kms.md
+│   │   ├── ADR-0005-dual-stage-unattend.md
+│   │   ├── ADR-0006-fdrive-as-repository.md
+│   │   └── ADR-0007-partition-scheme.md
+│   ├── patterns/
+│   │   ├── README.md
+│   │   ├── PAT-INDEX.md
+│   │   ├── PAT-01-ifeo-stub.md
+│   │   ├── ...
+│   │   └── PAT-NEW-7-partition-scheme.md
+│   ├── artifacts/
+│   │   ├── README.md
+│   │   ├── Stage1_Report.md
+│   │   ├── ...
+│   │   ├── Final_Report.md
+│   │   └── Recovery_Procedure.md
+│   └── storage/
+│       ├── README.md
+│       ├── C_drive_schema.md
+│       ├── D_drive_schema.md
+│       ├── F_drive_schema.md
+│       └── partitioning_research.md
+│
+├── scripts/
+│   ├── README.md
+│   ├── Stage1_DiskGenius_Partition.ps1
+│   ├── Stage2_Ventoy_Template_Setup.ps1
+│   ├── Stage4_Audit_Final_Clean.ps1
+│   ├── Stage5_Sysprep_Prepare.ps1
+│   ├── Stage6_AutoSetup.bat
+│   ├── Stage6_Launcher.vbs
+│   └── Stage7_WSL_Docker_VMware.ps1
+│
+├── templates/
+│   ├── README.md
+│   ├── ADR-template.md
+│   ├── Pattern-template.md
+│   ├── Stage-Report-template.md
+│   ├── u_w11_ltsc_iot.xml.template
+│   └── unattend.xml.template
+│
+└── tools/
+    ├── README.md
+    ├── ventoy-1.1.10-windows/
+    ├── DiskGenius/
+    ├── WinPE_Strelec_2026.02.05/
+    ├── LGPO/
+    ├── ohook/
+    └── Win11_LTSC_IoT_24H2_ISO/
+```
+
+### 5.2 Directory Modification Rules
+
+| Rule | Description |
+|---|---|
+| `STRUC_001` | Запрет удаления корневых директорий |
+| `STRUC_002` | Новые директории только через GATE_STRUCTURE |
+| `STRUC_003` | Каждая директория содержит `README.md` |
+| `STRUC_004` | Имена: lowercase-kebab-case |
+| `STRUC_005` | Скрипты: `.ps1`, `.cmd`, `.bat`, `.vbs`, `.cs`, `.py` |
+| `STRUC_006` | Бинарники: только в `tools/` с версионированием |
+| `STRUC_007` | Исходники не в `scripts/` |
+| `STRUC_008` | Логи не коммитятся |
+| `STRUC_009` | Секреты не коммитятся |
+| `STRUC_010` | XML-шаблоны: `<NAME>.xml.template` |
+
+### 5.3 Naming Conventions
+
+| Element | Convention | Example |
+|---|---|---|
+| `Directory` | lowercase-kebab-case | `decisions/`, `stage-reports/` |
+| `File` | PascalCase or kebab-case | `Stage4_Audit_Final_Clean.ps1` |
+| `ADR` | `ADR-NNNN-<TITLE>.md` | `ADR-0007-partition-scheme.md` |
+| `Pattern` | `PAT-NN-<NAME>.md` | `PAT-NEW-7-partition-scheme.md` |
+| `Script` | `Stage<N>_<PURPOSE>.<ext>` | `Stage6_AutoSetup.bat` |
+| `XML Template` | `<NAME>.xml.template` | `u_w11_ltsc_iot.xml.template` |
+
+### 5.4 File Placement Decision Tree
+
+```
+НОВЫЙ ФАЙЛ
+├─ Решение? → /docs/decisions/ADR-NNNN-<TITLE>.md
+├─ Паттерн? → /docs/patterns/PAT[-NEW]-<N>-<NAME>.md
+├─ Отчёт об этапе? → /docs/artifacts/Stage<N>_Report.md
+├─ Схема накопителя? → /docs/storage/<DRIVE>_schema.md
+├─ Partitioning research? → /docs/storage/partitioning_research.md
+├─ Ручной шаг? → /algorithm/manual/Stage<N>_<STEP>.md
+├─ Автоматизированный шаг?
+│  ├─ Скрипт? → /scripts/Stage<N>_<PURPOSE>.<ext>
+│  └─ Исходный код? → /tools/<TOOL>/src/<FILE>.<ext>
+├─ Шаблон? → /templates/<NAME>.<ext>.template
+├─ Бинарник? → /tools/<TOOL>/<VERSION>/<FILE>.exe
+├─ Recovery-процедура? → /docs/artifacts/Recovery_Procedure.md
+└─ Схема вендорского мусора? → /docs/artifacts/<VENDOR>_bloat.md
+```
+
+### 5.5 Cross-Reference Format
+
+```
+[PAT-01](../patterns/PAT-01-ifeo-stub.md)
+[ADR-0003](../decisions/ADR-0003-ntfs-deny-system.md)
+[Stage4_Report](../artifacts/Stage4_Report.md)
+[C_drive_schema](../storage/C_drive_schema.md)
+[partitioning_research](../storage/partitioning_research.md)
+```
+
+### 5.6 Stage-to-Artifact Mapping
+
+| Stage | Algorithm | Script | Patterns | Artifact |
+|---|---|---|---|---|
+| 1 | `manual/Stage1_Hardware_Preparation.md` + `auto/Stage1_DiskGenius_Partition.md` | `Stage1_DiskGenius_Partition.ps1` | `PAT-NEW-6, PAT-NEW-7` | `Stage1_Report.md`, `C_drive_schema.md`, `partitioning_research.md` |
+| 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
+| 3 | `manual/Stage3_Windows_Update.md` | — | — | `Stage3_Report.md` |
+| 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
+| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `PAT-16` | `Stage5_Report.md` |
+| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
+| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
+
+### 5.7 F_Drive_Repository (внешний накопитель)
+
+F:\ является производным репозиторием, генерируемым AI-агентом из GitHub.
+
+#### 5.7.1 Physical Layout
+
+| Раздел | ФС | Кластер | Размер | Назначение |
+|---|---|---|---|---|
+| 1 (Загрузочный) | FAT32 | — | 1 ГБ | ESP, Ventoy boot loader (создаётся Ventoy install) |
+| 2 (Ventoy) | exFAT | 512 байт | 250 ГБ | ISO-файлы + ventoy.json + templates |
+| 3 (Вспомогательный) | NTFS | 16 КБ | ~209 ГБ | Инструменты, скрипты, драйверы, конфиги |
+
+#### 5.7.2 Раздел 2 (Ventoy/ISO)
+
+```
+F:\
+├── /ISO/
+│   ├── Windows_11_IoT_Enterprise_LTSC_24H2.iso
+│   └── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso
+├── /ventoy/
+│   ├── ventoy.json
+│   └── /templates/
+│       └── u_w11_ltsc_iot.xml
+```
+
+#### 5.7.3 Раздел 3 (Вспомогательный)
+
+```
+F:\
+├── /TOOLS/
+│   ├── /TI/ (ExecTI, NSudo, PowerRun)
+│   ├── /GPO/ (LGPO + PolicyDefinitions)
+│   ├── /Partitioning/ (DiskGenius_Portable)
+│   ├── /Backup/ (Macrium, AOMEI, Veeam)
+│   ├── /Activation/ (ohook, MAS_AIO)
+│   ├── /Audit/ (ProcessExplorer, Autoruns)
+│   └── /Cleanup/ (BleachBit)
+│
+├── /DRIVERS/
+│   ├── /ASUS_Vivobook_Clean/
+│   │   ├── /Audio/, /Bluetooth/, /Chipset/
+│   │   ├── /Display/, /LAN/, /TouchPad/, /Wireless/
+│   └── /Intel_Generic/
+│
+├── /WSL2/ (ubuntu.appx, docker-compose.yaml, .wslconfig)
+├── /VM/ (VMware-Workstation-Pro.exe, Templates/)
+│
+├── /VITALITY-SOURCE/
+│   ├── /DismProxy/DismProxy.cs
+│   ├── /SfcProxy/SfcProxy.cs
+│   ├── /Watchdog/Watchdog.cs
+│   ├── /MetaWatchdog/MetaWatchdog.cs
+│   ├── /FIM/FIM.cs
+│   ├── /svc-gate/svc-gate.cs
+│   └── /evt-bridge/evt-bridge.cs
+│
+├── /VITALITY-CONFIGS/
+│   ├── registry.pol
+│   ├── Targets.json
+│   ├── ServiceGate.json
+│   ├── EventBridge.json
+│   ├── Manifest.json
+│   ├── u_w11_ltsc_iot.xml
+│   └── unattend.xml
+│
+├── /SCRIPTS/
+│   ├── Stage1_DiskGenius_Partition.ps1
+│   ├── Stage2_Ventoy_Template_Setup.ps1
+│   ├── Stage2_Audit_Mode_Workflow.ps1
+│   ├── Stage3_Windows_Update.ps1
+│   ├── Stage4_Audit_Final_Clean.ps1
+│   ├── Stage5_Sysprep_Prepare.ps1
+│   ├── Stage6_AutoSetup.bat
+│   ├── Stage6_Launcher.vbs
+│   └── Stage7_WSL_Docker_VMware.ps1
+│
+├── /DOCS/
+│   ├── Strategy_v3.0.md
+│   ├── Recovery_Procedure.md
+│   └── /Patterns/ (копия для offline)
+│
+├── /HASHES/
+│   ├── TOOLS_SHA256.txt
+│   ├── DRIVERS_SHA256.txt
+│   └── ISO_SHA256.txt
+│
+└── /BACKUPS/ (для будущих бекапов старой системы)
+```
+
+#### 5.7.4 FDRIVE Modification Rules
+
+| Rule | Description |
+|---|---|
+| `FDRIVE_001` | Любое изменение структуры F:\ только через GATE_FDRIVE_MODIFICATION |
+| `FDRIVE_002` | Содержимое F:\ воспроизводимо из GitHub + шаблонов |
+| `FDRIVE_003` | ventoy.json и XML-шаблоны хранятся в `/templates/` с расширением `.template` |
+| `FDRIVE_004` | SHA256 всех бинарей и ISO в `/HASHES/` |
+| `FDRIVE_005` | Образ старой системы (если есть) в `/BACKUPS/` с метаданными |
+| `FDRIVE_006` | Документация (`/DOCS/`) дублирует GitHub для offline-доступа |
+
+---
+
+## SECTION 6: PARTITIONING_RESEARCH (Stage 1)
+
+### 6.1 Hardware Specifics
+
+| Parameter | Value | Research Note |
+|---|---|---|
+| `DEVICE_MODEL` | ASUS Vivobook | Требует верификации модели |
+| `STORAGE_TYPE` | NVMe SSD 480 GB | NVMe требует выравнивания по 4K (или 1 MiB для LBA) |
+| `BOOT_MODE` | UEFI (только) | Legacy MBR не рекомендуется |
+| `PARTITION_TABLE` | GPT | Обязательно для UEFI + NVMe |
+| `ALIGNMENT` | 1 MiB boundary | Оптимально для NVMe и выравнивания по 4K секторам |
+
+### 6.2 Partition Scheme (Stage 1 Output)
+
+| Partition | Type | FS | Size | Cluster | Mount | Purpose |
+|---|---|---|---|---|---|---|
+| 1 | EFI System Partition | FAT32 | 260 MB | 4K | `F:\EFI` (загрузочный) | Загрузчик Windows, BCD |
+| 2 | MSR | (none) | 16 MB | — | (hidden) | Microsoft System Reserved |
+| 3 | Windows | NTFS | 200 GB | 4K | `C:\` | ОС + Program Files + Users |
+| 4 | Data | NTFS | 279 GB | 64K | `D:\` | Data, VM-диски, Docker volumes, dev-проекты |
+
+### 6.3 Partitioning Research Notes
+
+#### 6.3.1 Alignment
+
+| Alignment | Sector | Use Case |
+|---|---|---|
+| None (default) | 512 bytes | Legacy HDD, не рекомендуется |
+| 4K | 4096 bytes | Минимум для SSD |
+| 1 MiB | 1048576 bytes | **Оптимально для NVMe SSD** (выравнивание по 2048 секторов по 512 байт) |
+
+#### 6.3.2 EFI System Partition (ESP)
+
+- **Минимум:** 100 MB (FAT32 имеет ограничение 4 GB на файл, но для BCD достаточно 100 MB)
+- **Рекомендуется Microsoft:** 260 MB (для будущих обновлений)
+- **Наша рекомендация:** 260 MB (FAT32, cluster 4K)
+
+#### 6.3.3 MSR Partition
+
+- **Фиксированный размер:** 16 MB (Microsoft рекомендация)
+- **Не форматируется** — служебная область для конвертации дисков в GPT
+
+#### 6.3.4 C:\ (Windows)
+
+| Component | Typical Size | Notes |
+|---|---|---|
+| Windows LTSC IoT | ~25 GB | После Update Stage 3 |
+| Program Files | ~5 GB | VS Code, Visual C++, winget packages |
+| Users | ~10 GB | Профиль devops + Default User |
+| WinSxS | ~5 GB | После ResetBase |
+| PageFile | 4 GB | Фиксированный (InitialSize=MaximumSize=4096) |
+| Temp / Cache | ~3 GB | Очищается регулярно |
+| **Buffer** | ~150 GB | Для будущих обновлений и приложений |
+| **Total C:\** | **~200 GB** | |
+
+#### 6.3.5 D:\ (Data)
+
+| Component | Typical Size | Notes |
+|---|---|---|
+| VM disks (.vmdk) | ~100 GB | Pre-allocated для VMware |
+| Docker volumes | ~50 GB | Контейнерные данные |
+| Dev projects | ~50 GB | git clone, build artifacts |
+| Backups (config snapshots) | ~20 GB | Снимки конфигов |
+| Free space | ~60 GB | Для будущих нужд |
+| **Total D:\** | **~280 GB** | (свободно: ~209 GB для раздела 3 флешки, не путать) |
+
+### 6.4 DiskGenius Operations
+
+| Step | Operation | Tool |
+|---|---|---|
+| 1 | Backup old partition table | DiskGenius → Backup Partition Table |
+| 2 | Create GPT | DiskGenius → Initialize Disk → GPT |
+| 3 | Create ESP | DiskGenius → New Partition → EFI System Partition, 260 MB, FAT32, 1 MiB alignment |
+| 4 | Create MSR | DiskGenius → New Partition → MSR, 16 MB |
+| 5 | Create C:\ | DiskGenius → New Partition → Primary, 200 GB, NTFS, 4K cluster, 1 MiB alignment |
+| 6 | Create D:\ | DiskGenius → New Partition → Primary, 279 GB, NTFS, 64K cluster, 1 MiB alignment |
+| 7 | Backup new partition table | DiskGenius → Backup Partition Table |
+| 8 | Verify alignment | DiskGenius → Verify → 1 MiB boundary check |
+
+### 6.5 Post-Stage 1 NTFS Configuration
+
+```powershell
+# D:\ NTFS optimizations
+fsutil behavior set disable8dot3 D: 1
+fsutil behavior set disablelastaccess 1
+fsutil behavior set encryptpagingfile 0
+
+# Cluster size optimization
+# (Уже установлен при форматировании: 64K)
+```
+
+---
+
+## SECTION 7: C_DRIVE_SCHEMA (Stage 1 Output)
+
+### 7.1 Physical Layout
+
+| Parameter | Value |
+|---|---|
+| Device | NVMe SSD 480 GB |
+| Partition Table | GPT |
+| Boot Mode | UEFI |
+| Total Size | 480 GB |
+
+### 7.2 Partitions
+
+| # | Type | FS | Size | Cluster | Mount | Label | GUID |
+|---|---|---|---|---|---|---|---|
+| 1 | EFI System | FAT32 | 260 MB | 4K | `C:\EFI` (hidden) | ESP | `<EFI_GUID>` |
+| 2 | MSR | — | 16 MB | — | hidden | MSR | `<MSR_GUID>` |
+| 3 | Windows | NTFS | 200 GB | 4K | `C:\` | Windows | `<WINDOWS_GUID>` |
+| 4 | Data | NTFS | 279.7 GB | 64K | `D:\` | Data | `<DATA_GUID>` |
+
+### 7.3 Alignment Verification
+
+```
+Partitions aligned to 1 MiB boundary: YES
+Verified by: DiskGenius post-create verification
+Tolerance: ±0 bytes
+```
+
+### 7.4 C:\ Structure (Runtime)
+
+```
+C:\
+├── Program Files\
+│   ├── WindowsApps\                  (UWP Apps, после Stage 6 minimal)
+│   └── (Standard programs)
+├── Program Files (x86)\
+├── ProgramData\
+├── Users\
+│   ├── devops\                       (создан в Stage 6)
+│   ├── Default\                      (шаблон после CopyProfile)
+│   ├── Public\
+│   └── Administrator\                (только Audit Mode)
+├── Windows\
+│   ├── System32\
+│   │   ├── GroupPolicy\              (NTFS Deny SYSTEM после Stage 6)
+│   │   ├── drivers\etc\hosts          (NTFS Deny SYSTEM после Stage 6)
+│   │   └── Sysprep\                   (unattend.xml в Stage 5)
+│   ├── WinSxS\                       (сжат после ResetBase в Stage 4)
+│   └── ...
+├── Vitality\                         (runtime, после Stage 8)
+├── Drivers\                          (INF-драйверы в Stage 4)
+├── GD_Tool\                           (инструменты в Stage 6)
+└── Recovery\                          (WinRE)
+```
+
+### 7.5 D:\ Structure (Runtime)
+
+```
+D:\
+├── GD_Tool\                           # Инструменты после Stage 6
+│   ├── LGPO.exe
+│   ├── CleanLTSCPolicy\               # Слепок политик
+│   └── AutoSetup.bat
+├── VM\                                # VMware (Stage 7)
+├── Docker\                            # Docker volumes (Stage 7)
+├── Projects\                          # git clone, dev
+└── Backups\                           # Снимки конфигов
+```
+
+---
+
+## SECTION 8: F_DRIVE_SCHEMA (Stage 2 Output)
+
+### 8.1 Physical Layout
+
+| Parameter | Value |
+|---|---|
+| Device | USB Flash Drive 460 GB |
+| Partition Table | GPT |
+| Ventoy Version | 1.1.10 |
+| Total Size | 460 GB |
+
+### 8.2 Partitions
+
+| # | Type | FS | Size | Cluster | Label | GUID |
+|---|---|---|---|---|---|---|
+| 1 | EFI System | FAT32 | 1 GB | 4K | VENTOY | `<VENTOY_GUID>` |
+| 2 | Ventoy/ISO | exFAT | 250 GB | 512 байт | VENTOY | `<VENTOYDATA_GUID>` |
+| 3 | Data | NTFS | ~209 GB | 16K | VITADATA | `<DATA_GUID>` |
+
+### 8.3 Раздел 1 (Загрузочный)
+
+| Parameter | Value |
+|---|---|
+| Size | 1 GB |
+| FS | FAT32 |
+| Purpose | ESP, Ventoy boot loader |
+| Created by | Ventoy install |
+
+**Содержимое:**
+```
+/EFI/                  (Ventoy boot loader, создаётся автоматически)
+/boot/                 (Ventoy boot files)
+/grub/                 (GRUB2 legacy BIOS)
+```
+
+### 8.4 Раздел 2 (Ventoy/ISO)
+
+| Parameter | Value |
+|---|---|
+| Size | 250 GB |
+| FS | exFAT |
+| Cluster | 512 байт |
+| Purpose | ISO-файлы + ventoy.json + templates |
+
+**Содержимое:**
+```
+/ISO/
+├── Windows_11_IoT_Enterprise_LTSC_24H2.iso     (~6 GB)
+└── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso  (~3 GB)
+
+/ventoy/
+├── ventoy.json                                (auto_install)
+└── /templates/
+    └── u_w11_ltsc_iot.xml                     (Ventoy template)
+```
+
+### 8.5 Раздел 3 (Вспомогательный)
+
+| Parameter | Value |
+|---|---|
+| Size | ~209 GB |
+| FS | NTFS |
+| Cluster | 16 KB |
+| Purpose | Инструменты, скрипты, драйверы, конфиги |
+
+**Содержимое:** см. Section 5.7.3
+
+---
+
+## SECTION 9: VERIFICATION CHECKLIST
+
+### 9.1 Stage 1 (Partitioning) Verification
+
+- [ ] DiskGenius partition table backup создан и сохранён на F:\BACKUPS\
+- [ ] GPT создан корректно
+- [ ] ESP: 260 MB, FAT32, 1 MiB alignment
+- [ ] MSR: 16 MB
+- [ ] C:\: 200 GB, NTFS, 4K cluster, 1 MiB alignment
+- [ ] D:\: ~280 GB, NTFS, 64K cluster, 1 MiB alignment
+- [ ] fsutil 8dot3 disable применён к D:\
+- [ ] fsutil disablelastaccess применён
+- [ ] `Stage1_Report.md` создан
+- [ ] `C_drive_schema.md` обновлён
+- [ ] ADR-0007 создан
+
+### 9.2 Stage 2 (Ventoy) Verification
+
+- [ ] F:\ раздел 1 создан Ventoy install (1 GB, FAT32)
+- [ ] F:\ раздел 2 создан (250 GB, exFAT)
+- [ ] F:\ раздел 3 создан (~209 GB, NTFS)
+- [ ] /ISO/ содержит LTSC IoT 24H2.iso и Strelec.iso
+- [ ] /ventoy/ventoy.json содержит auto_install
+- [ ] /ventoy/templates/u_w11_ltsc_iot.xml содержит XML
+- [ ] `Stage2_Report.md` создан
+- [ ] `F_drive_schema.md` обновлён
+
+### 9.3 All Stages Verification
+
+- [ ] Все ADR созданы (ADR-0001..ADR-0007)
+- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7)
+- [ ] Все отчёты созданы (Stage1..Stage7 + Final)
+- [ ] Recovery_Procedure.md создан
+- [ ] README.md обновлён
