@@ -928,9 +928,31 @@ D:\
 - [ ] Сеть физически изолирована (`Test-NetConnection 8.8.8.8` → False)
 - [ ] `Stage3_Report.md` заполнен
 
-### 9.4 All Stages Verification
+### 9.4 Stage 4 (Audit Final Clean) Verification
 
-- [ ] Все ADR созданы (ADR-0001..ADR-0007)
+Выполняется на хосте, в Audit Mode, при 100% сетевой изоляции (AR-709):
+`scripts/Stage4_Audit_Final_Clean.ps1` → `tweaks/bcd/Set-BcdVbsFlags.ps1` → `tweaks/apply/Assert-TweakState.ps1`.
+
+- [ ] Сеть изолирована и подтверждена (нет активных адаптеров, `Test-NetConnection 8.8.8.8` → False)
+- [ ] Импорт «голых» INF из `C:\Drivers` выполнен под временным PnP-щитом
+- [ ] PnP-щит снят: `Invoke-PnpShield.ps1 -Audit` → 0 из 2 активных элементов
+- [ ] Устройства без ошибок 28/48 (тачпад, аудио)
+- [ ] Реестр: `LsaCfgFlags=0`, `EnableVirtualizationBasedSecurity=0`, HVCI `Enabled=0` (TWK-001..003)
+- [ ] BCD: `loadoptions` содержит `DISABLE-LSA-ISOLATION,DISABLE-VBS` (BCD-001, AR-505, снимок BCD создан)
+- [ ] VBS runtime: `Win32_DeviceGuard.VirtualizationBasedSecurityStatus = 0` (после перезагрузки)
+- [ ] Службы `WaaSMedicSvc`, `UsoSvc`, `DiagTrack`, `WSearch`, `edgeupdate`, `edgeupdatem` → `Start=4`
+- [ ] Provisioned AppX (Xbox/Cortana/Bing/…) удалены; защищённые пакеты не тронуты
+- [ ] `powercfg /hibernate off`; `C:\hiberfil.sys` отсутствует
+- [ ] Подкачка: `AutomaticManagedPagefile=False`, `InitialSize=MaximumSize=4096`
+- [ ] `dism /online /cleanup-image /StartComponentCleanup /ResetBase` выполнен
+- [ ] `fsutil behavior set disablelastaccess 1` применён
+- [ ] `Assert-TweakState.ps1` → все проверки PASS; отчёт `Stage4_tweakstate.md` создан
+- [ ] `Stage4_Report.md` заполнен (W1–N1), статус переведён в DONE
+- [ ] Бэкапы сессии сохранены на `F:\BACKUPS\`
+
+### 9.5 All Stages Verification
+
+- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0013)
 - [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7)
 - [ ] Все отчёты созданы (Stage1..Stage7 + Final)
 - [ ] Recovery_Procedure.md создан

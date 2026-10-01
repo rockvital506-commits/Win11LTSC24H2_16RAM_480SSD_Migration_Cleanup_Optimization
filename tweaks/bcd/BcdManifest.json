@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": 4,
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0012"
+  ],
+  "policy": {
+    "exportBeforeChange": true,
+    "separateIsolatedScript": true,
+    "rule": "AR-505",
+    "note": "Флаги загрузчика меняются ТОЛЬКО скриптом tweaks/bcd/Set-BcdVbsFlags.ps1. Он обязан выполнить bcdedit /export до изменения и верификацию после; при отсутствии успешного снимка изменение запрещено."
+  },
+  "settings": [
+    {
+      "id": "BCD-001",
+      "setting": "loadoptions",
+      "value": "DISABLE-LSA-ISOLATION,DISABLE-VBS",
+      "pattern": "PAT-12",
+      "reason": "Демонтаж VBS/HVCI/LSA на уровне загрузчика (SC_VBS_HVCI_DISABLED, ADR-0012).",
+      "verify": "bcdedit /enum {current} -> loadoptions содержит DISABLE-LSA-ISOLATION,DISABLE-VBS"
+    }
+  ]
+}

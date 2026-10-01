@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": 4,
+  "generated": "2026-10-01",
+  "notes": [
+    "Удаляются только provisioned-пакеты (шаблон для новых профилей); установленные экземпляры не трогаются (AR-507).",
+    "CopyProfile на Stage 5 переносит результат в Default User.",
+    "Защищённые шаблоны (protectedPatterns) не удаляются ни при каких условиях: рантаймы, магазин, средства обслуживания."
+  ],
+  "removePatterns": [
+    "Xbox",
+    "Cortana",
+    "ZuneVideo",
+    "Music",
+    "People",
+    "Bing",
+    "CommunicationsApps"
+  ],
+  "protectedPatterns": [
+    "VCLibs",
+    "UI.Xaml",
+    "WindowsAppRuntime",
+    "DotNet",
+    "Store",
+    "SecHealthUI",
+    "WindowsTerminal",
+    "Notepad",
+    "Photos",
+    "Calc",
+    "ScreenSketch",
+    "WebMedia"
+  ]
+}

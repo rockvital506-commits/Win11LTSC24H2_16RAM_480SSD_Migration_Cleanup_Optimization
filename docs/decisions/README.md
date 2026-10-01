@@ -15,5 +15,7 @@
 | `ADR-0009-automation-rules-baseline.md` | Базовый свод правил автоматизации | **ACCEPTED** |
 | `ADR-0010-pe-core-affinity-policy.md` | Политика привязки нагрузок к P+E-ядрам | **ACCEPTED** |
 | `ADR-0011-size-units-and-esp-mount.md` | Единицы GiB и скрытая ESP | **ACCEPTED** |
+| `ADR-0012-vbs-hvci-lsa-disable.md` | Демонтаж VBS/HVCI/LSA (реестр + BCD) | **ACCEPTED** |
+| `ADR-0013-ssd-longevity-memory.md` | Долговечность SSD: hiberfil + фиксированная подкачка | **ACCEPTED** |
 
 **Правило:** ADR-0001…ADR-0007 создаются на соответствующих этапах; ранние номера не занимаются задним числом без записи в отчёте.

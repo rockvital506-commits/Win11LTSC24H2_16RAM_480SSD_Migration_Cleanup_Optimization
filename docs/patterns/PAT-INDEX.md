@@ -26,13 +26,13 @@
 | `PAT-09` | Firewall outbound rule | 6 | ✅ | PLAN | Stage 6 AutoSetup |
 | `PAT-10` | ACL Freeze (Owner=SYSTEM) | 2, 4 | ✅ | PLAN | `tweaks/acl` |
 | `PAT-11` | NTFS Deny SYSTEM (цементирование) | 6 | ✅ | PLAN | ADR-0003, `tweaks/acl` |
-| `PAT-12` | bcdedit Disable VBS/HVCI/LSA Isolation | 4 | ✅ | PLAN | AR-505, `tweaks/bcd` |
-| `PAT-13` | Fixed PageFile (InitialSize=MaximumSize) | 4 | ✅ | PLAN | `tweaks/registry` |
-| `PAT-14` | hiberfil.sys elimination | 4 | ✅ | PLAN | SC_SSD_LONGEVITY |
-| `PAT-15` | Temporary PnP Shield (DisableCoInstallers) | 4 | ✅ | PLAN | `tweaks/registry` |
+| `PAT-12` | bcdedit Disable VBS/HVCI/LSA Isolation | 4 | ✅ | **DONE** | `PAT-12-bcd-vbs-disable.md`, ADR-0012 |
+| `PAT-13` | Fixed PageFile (InitialSize=MaximumSize) | 4 | ✅ | **DONE** | `PAT-13-fixed-pagefile.md`, ADR-0013 |
+| `PAT-14` | hiberfil.sys elimination | 4 | ✅ | **DONE** | `PAT-14-hiberfil-elimination.md`, ADR-0013 |
+| `PAT-15` | Temporary PnP Shield (DisableCoInstallers) | 4 | ✅ | **DONE** | `PAT-15-pnp-shield.md`, `Invoke-PnpShield.ps1` |
 | `PAT-16` | Dual-Stage Unattend (Ventoy + Sysprep) | 2, 5 | ✅ | **DONE** | `PAT-16-dual-stage-unattend.md`, ADR-0005 |
 | `PAT-17` | Ohook Permanent Activation | 6 | ✅ | PLAN | ADR-0004, `tools/ohook` |
-| `PAT-18` | Audit_Final_Clean.ps1 | 4 | ✅ | PLAN | `scripts/Stage4_*` |
+| `PAT-18` | Audit_Final_Clean.ps1 | 4 | ✅ | **DONE** | `PAT-18-audit-final-clean.md`, `scripts/Stage4_Audit_Final_Clean.ps1` |
 | `PAT-19` | Atomic Stage + Restore-FromBackup | All | ✅ | PLAN | AR-308, `scripts/common/Backup.psm1` |
 | `PAT-20` | Hash-First Verification | All | ✅ | PLAN | AR-304, `packages/hashes` |
 | `PAT-21` | WSL2 Isolated Memory (.wslconfig) | 7 | ✅ | PLAN | AR-703, `devops/wsl` |
@@ -55,4 +55,4 @@
 
 ## 3. Метрика
 
-`M_PATTERN_COVERAGE` (§3.5 README) — целевое значение **28/28**; на конец Stage 2 документировано 4 паттерна: PAT-01, PAT-16, PAT-NEW-6, PAT-NEW-7 (индекс ведётся непрерывно).
+`M_PATTERN_COVERAGE` (§3.5 README) — целевое значение **28/28**; на конец Stage 4 документировано 9 паттернов: PAT-01, PAT-12, PAT-13, PAT-14, PAT-15, PAT-16, PAT-18, PAT-NEW-6, PAT-NEW-7 (индекс ведётся непрерывно).
