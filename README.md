@@ -366,7 +366,10 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   ├── ADR-0007-partition-scheme.md
 │   │   ├── ADR-0008-repository-topology-domains.md
 │   │   ├── ADR-0009-automation-rules-baseline.md
-│   │   └── ADR-0010-pe-core-affinity-policy.md
+│   │   ├── ADR-0010-pe-core-affinity-policy.md
+│   │   ├── ADR-0011-size-units-and-esp-mount.md
+│   │   ├── …
+│   │   └── ADR-0015-stage6-immunity-contour.md
 │   ├── research/
 │   │   ├── README.md
 │   │   ├── anchor1.md
@@ -414,6 +417,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   ├── Stage4_Audit_Final_Clean.ps1
 │   ├── Stage5_Sysprep_Prepare.ps1
 │   ├── Stage6_AutoSetup.bat
+│   ├── Stage6_Immunity_Prepare.ps1
 │   ├── Stage6_Launcher.vbs
 │   ├── Stage7_WSL_Docker_VMware.ps1
 │   ├── common/
@@ -458,6 +462,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   ├── Stage-Report-template.md
 │   ├── Script-template.ps1
 │   ├── rules-template.md
+│   ├── ImmunityCore.ps1.template
 │   ├── u_w11_ltsc_iot.xml.template
 │   ├── unattend.xml.template
 │   └── ventoy.json.template
@@ -470,6 +475,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │
 └── tools/
     ├── README.md
+    ├── runtime/                      # рантайм контура: D:\GD_Tool (ADR-0015, PAT-NEW-3)
     └── <TOOL>/<VERSION>/             # бинарники в Git не хранятся (AR-804)
 ```
 
@@ -546,7 +552,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 | 3 | `manual/Stage3_Windows_Update.md` | — (ручной GUI-контроль, ADR не требуется) | — | — | `Stage3_Report.md` |
 | 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
 | 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml.template` | `PAT-16, PAT-NEW-1` | `Stage5_Report.md` |
-| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `tweaks/{acl,services}` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
+| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_Immunity_Prepare.ps1`; рантайм `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs`, `templates/ImmunityCore.ps1.template` | `tweaks/{acl,tasks,registry}`, `tweaks/apply` | `PAT-04, PAT-06, PAT-08, PAT-09, PAT-11, PAT-17, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4` | `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md` |
 | 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
 
 ---
@@ -624,6 +630,7 @@ F:\
 │   ├── Stage4_Audit_Final_Clean.ps1
 │   ├── Stage5_Sysprep_Prepare.ps1
 │   ├── Stage6_AutoSetup.bat
+│   ├── Stage6_Immunity_Prepare.ps1
 │   ├── Stage6_Launcher.vbs
 │   └── Stage7_WSL_Docker_VMware.ps1
 │
@@ -968,10 +975,28 @@ D:\
 - [ ] Твики наследованы (`H-003`): IFEO ASUS, `DiagTrack=4`, отсутствие `hiberfil.sys`, подкачка 4096 МБ
 - [ ] `Stage5_Report.md` заполнен (P0.1–S6), статус переведён в DONE
 
-### 9.6 All Stages Verification
+### 9.6 Stage 6 (Immunity Contour & Activation) Verification
 
-- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0014)
-- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7)
-- [ ] Все отчёты созданы (Stage1..Stage7 + Final)
+Выполняется в профиле `devops` при отключённой сети. Подготовка — `scripts/Stage6_Immunity_Prepare.ps1`; окно активации — `algorithm/manual/Stage6_Ohook_Activation.md` (только владелец, AR-204).
+
+- [ ] Предусловия `P0.1`–`P0.5` без FAIL (`Stage6_preflight.md`): сеть изолирована, `D:\GD_Tool` создан, шаблон рантайма на месте
+- [ ] Доверенная зона Defender применена **до** первой ACL-операции (`P1`; ADR-0015)
+- [ ] Рантайм развёрнут и сверен по SHA256 (`P2.*`): `ImmunityCore.ps1`, `AutoSetup.bat`, `Launcher.vbs`
+- [ ] Задача `System_Immunity_Core` зарегистрирована: принципал SYSTEM, триггеры boot + unlock (`TASK-001.1/2`)
+- [ ] Реаниматоры выведены из строя: `TR101`…`TR106` — `Disabled`, XML в бэкапе (AR-304)
+- [ ] NTFS-замки применены (`GACL-001/002`): DENY `SYSTEM:(W)` на `GroupPolicy` и `hosts`
+- [ ] Правила брандмауэра активны (`F1/F2`); твики Stage 4 не деградировали (`M1/M2`)
+- [ ] Запрет DoH подтверждён (`D1`: `DoHPolicy = 1`)
+- [ ] Окно активации: сеть включена **вручную**, Ohook выполнен, `A1` = `Licensed` (`H-004` закрыт на двух перезагрузках)
+- [ ] `System_Immunity_Core` выполнена вручную («Выполнить»), код 0, журнал `D:\GD_Tool\logs\ImmunityCore.log` заполнен
+- [ ] Сеть окончательно выключена; PIN (Windows Hello) настроен; вход выполняется
+- [ ] `Stage6_immunity.md` — без FAIL; `Stage6_Report.md` переведён в DONE
+- [ ] Открытые вопросы ратифицированы: список доменов `hosts` (`S6-OPEN-1`), дом правил брандмауэра (`S6-OPEN-2`), судьба исключения `sppc.dll` (`S6-OPEN-3`)
+
+### 9.7 All Stages Verification
+
+- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0015)
+- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 19/28)
+- [ ] Все отчёты созданы (Stage1..Stage7 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
 - [ ] Recovery_Procedure.md создан
 - [ ] README.md обновлён

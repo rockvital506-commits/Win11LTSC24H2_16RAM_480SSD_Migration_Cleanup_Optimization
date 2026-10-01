@@ -10,7 +10,10 @@
 | `Stage4_tweakstate.md` | Отчёт верификации состояния твиков (генерируется скриптом на хосте) | PENDING |
 | `Stage5_Report.md` | Отчёт запечатывания Sysprep (ожидает прогона P0.1–S6) | IN_PROGRESS |
 | `Stage5_preflight.md` | Предпролётный отчёт подготовки к Sysprep (генерируется скриптом на хосте) | PENDING |
-| `Stage6_Report.md` … `Stage7_Report.md` | Отчёты этапов по §3.3 README | PLAN |
+| `Stage6_Report.md` | Отчёт контура самозащиты и окна активации (ожидает окна активации и `-VerifyOnly`) | IN_PROGRESS |
+| `Stage6_preflight.md` | Предпролётный отчёт подготовки контура (генерируется скриптом на хосте) | PENDING |
+| `Stage6_immunity.md` | Сквозная верификация контура: ACL, задачи, брандмауэр, DoH, активация | PENDING |
+| `Stage7_Report.md` | Отчёт этапа DevOps-окружения | PLAN |
 | `Recovery_Procedure.md` | Процедура восстановления (PAT-19) | PLAN |
 | `Final_Report.md` | Итоговый отчёт проекта | PLAN |
 

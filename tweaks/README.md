@@ -12,7 +12,7 @@
 | `tasks/` | Задачи планировщика | `TaskManifest.json` |
 | `acl/` | Владелец и NTFS Deny SYSTEM | `AclManifest.json` |
 | `appx/` | Список UWP/AppX к вырезанию | `AppxRemoval.json` |
-| `apply/` | Скрипты применения | `Apply-Tweaks.ps1`, `Apply-RegistryTweaks.ps1`, `Assert-TweakState.ps1` |
+| `apply/` | Скрипты применения | `Apply-Tweaks.ps1`, `Apply-AclManifest.ps1`, `Apply-TaskManifest.ps1`, `Invoke-DefenderAllowList.ps1`, `Assert-TweakState.ps1`, `Assert-ImmunityState.ps1` |
 
 ## Обязательные свойства скриптов применения
 
@@ -21,4 +21,4 @@
 - Каждый твик: ID `TWK-NNN` + запись в `docs/core-tweaks/TWEAK_INDEX.md` + ссылка на паттерн (AR-503).
 - Запрещено ослаблять §2.3 README (AR-504, `GATE_IMMUTABLE`).
 
-**Маппинг паттернов:** PAT-03 (SCM + Deny WriteKey), PAT-04 (Task Scheduler), PAT-10 (ACL Freeze), PAT-11 (NTFS Deny SYSTEM), PAT-12 (BCD), PAT-13 (PageFile), PAT-14 (hiberfil), PAT-15 (PnP Shield).
+**Маппинг паттернов:** PAT-03 (SCM + Deny WriteKey), PAT-04 (Task Scheduler), PAT-06 (LGPO-слепок), PAT-08 (hosts + DoH), PAT-09 (firewall), PAT-10 (ACL Freeze), PAT-11 (NTFS Deny SYSTEM), PAT-12 (BCD), PAT-13 (PageFile), PAT-14 (hiberfil), PAT-15 (PnP Shield), PAT-NEW-4 (задача контура).

@@ -24,6 +24,7 @@
 
 # --- Шаблоны: EOL по целевому расширению (STRUC_010, AR-102) ---------------
 *.xml.template   text eol=crlf
+*.ps1.template   text eol=crlf
 *.json.template  text eol=lf
 *.yaml.template  text eol=lf
 *.yml.template   text eol=lf

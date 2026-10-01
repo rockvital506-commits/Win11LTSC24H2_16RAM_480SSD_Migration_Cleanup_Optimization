@@ -19,6 +19,7 @@
 | `TWK-003` | HVCI off | `DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity` | `Enabled = 0` | `PAT-12` | DONE (Stage 4) |
 | `TWK-004` | DriverSearching off (re-assert) | `DriverSearching` | `SearchOrderConfig = 0` | `PAT-15` | DONE (Stage 4) |
 | `TWK-005` | DiagTrack disabled (re-assert) | `Services\DiagTrack` | `Start = 4` | `PAT-03` | DONE (Stage 4) |
+| `TWK-006` | DNS over HTTPS запрещён | `SOFTWARE\Policies\Microsoft\Windows NT\DNSClient` | `DoHPolicy = 1` | `PAT-08` | DONE (Stage 6, декларация) |
 
 ## 2. Флаги загрузчика (`tweaks/bcd/BcdManifest.json`)
 
@@ -36,24 +37,47 @@
 | `WSearch` | 4 | `PAT-03` | индекс поиска (SC_SSD_LONGEVITY) |
 | `edgeupdate`, `edgeupdatem` | 4 | `PAT-03` | автообновление Edge |
 
-## 4. Временные (транзитные) состояния
+## 4. Задачи планировщика (`tweaks/tasks/TaskManifest.json`)
+
+| ID | Задача | Действие | Паттерн | Статус |
+|---|---|---|---|---|
+| `TASK-001` | `System_Immunity_Core` | регистрация: boot + unlock, принципал `SYSTEM`, действие `wscript.exe D:\GD_Tool\Launcher.vbs` | `PAT-NEW-4` | DONE (Stage 6, декларация) |
+| `TASK-101` | `\Microsoft\Windows\Application Experience\ProgramDataUpdater` | `Disable` (+ опция DENY на XML) | `PAT-04` | DONE (Stage 6, декларация) |
+| `TASK-102` | `\…\Customer Experience Improvement Program\Consolidator` | `Disable` | `PAT-04` | DONE |
+| `TASK-103` | `\…\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector` | `Disable` | `PAT-04` | DONE |
+| `TASK-104` | `\…\Autochk\Proxy` | `Disable` | `PAT-04` | DONE |
+| `TASK-105` | `\…\Windows Error Reporting\QueueReporting` | `Disable` | `PAT-04` | DONE |
+| `TASK-106` | `\…\Feedback\Siuf\DmClient` | `Disable` | `PAT-04` | DONE |
+
+Удаление задач (`-Unregister`) не автоматизируется: только явный флаг (AR-204); XML выгружается в бэкап (AR-304).
+
+## 5. Объекты ACL (`tweaks/acl/AclManifest.json`)
+
+| ID | Объект | Правило | Паттерн | Статус |
+|---|---|---|---|---|
+| `ACL-001` | `%SystemRoot%\System32\GroupPolicy` | `SYSTEM:(F)` (окно) → `SYSTEM:(W)` Deny | `PAT-11`, `PAT-NEW-2` | DONE (Stage 6, декларация) |
+| `ACL-002` | `%SystemRoot%\System32\drivers\etc\hosts` | `SYSTEM:(F)` (окно) → `SYSTEM:(W)` Deny | `PAT-11`, `PAT-08` | DONE (Stage 6, декларация) |
+
+Обзорная матрица: `docs/core-tweaks/ACL_MATRIX.md`. Предохранитель самоблокировки — `Guard.psm1` (AR-506).
+
+## 6. Временные (транзитные) состояния
 
 | Элемент | Управление | Паттерн | Примечание |
 |---|---|---|---|
 | PnP-щит (`DenyDeviceIDs`, `DisableCoInstallers`) | `tweaks/apply/Invoke-PnpShield.ps1` | `PAT-15` | активен только на время импорта INF; снимается в `finally` |
+| ACL-транзакция `grant` | `Apply-AclManifest.ps1 -Phase Grant` | `PAT-NEW-2` | окно импорта политик; завершается фазой `Deny` |
 
-## 5. Запланированные твики
+## 7. Запланированные твики
 
 | ID | Имя | Этап | Паттерн |
 |---|---|---|---|
-| — | ACL Freeze (Owner=SYSTEM) | 2, 4 | `PAT-10` |
-| — | NTFS Deny SYSTEM (цементирование) | 6 | `PAT-11`, `PAT-NEW-2` |
-| — | Task Scheduler Unregister + ACL | 4, 6 | `PAT-04` |
+| — | ACL Freeze (Owner=SYSTEM) — пересмотреть после стенда | 6 | `PAT-10` |
+| — | Дом декларации правил брандмауэра (`tweaks/firewall/`) — `GATE_STRUCTURE` | 6 | `PAT-09` |
 | — | WMI Event Consumer Removal + ACL | 4 | `PAT-05` |
-| — | GPO/LGPO-импорт | 6 | `PAT-06` |
-| — | Hosts + DoH=0 | 6 | `PAT-08` |
-| — | Firewall outbound rule | 6 | `PAT-09` |
 
-## 6. Верификация
+## 8. Верификация
 
-Состояние всех твиков проверяется единой точкой: `pwsh -File ./tweaks/apply/Assert-TweakState.ps1 -ExportReport ./docs/artifacts/Stage4_tweakstate.md`.
+| Контур | Точка входа | Отчёт |
+|---|---|---|
+| Твики этапов 2–6 (реестр, BCD, службы, AppX) | `pwsh -File ./tweaks/apply/Assert-TweakState.ps1 -ExportReport ./docs/artifacts/Stage4_tweakstate.md` | `Stage4_tweakstate.md` |
+| Контур самозащиты (ACL, задачи, брандмауэр, DoH, Defender, рантайм, активация) | `pwsh -File ./tweaks/apply/Assert-ImmunityState.ps1 -ExportReport ./docs/artifacts/Stage6_immunity.md` | `Stage6_immunity.md` |

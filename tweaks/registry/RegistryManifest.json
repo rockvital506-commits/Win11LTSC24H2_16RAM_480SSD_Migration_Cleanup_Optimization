@@ -1,9 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "stage": 4,
+  "stage": "4, 6",
   "generated": "2026-10-01",
   "adr": [
-    "ADR-0012"
+    "ADR-0012",
+    "ADR-0015"
   ],
   "notes": [
     "Декларация твиков реестра (AR-501): ad-hoc reg add в stage-скриптах запрещён.",
@@ -68,6 +69,18 @@
       "value": 4,
       "pattern": "PAT-03",
       "reason": "Повторное подавление телеметрии после наката обновлений; дублирует проверку в ServiceGate.json."
+    },
+    {
+      "id": "TWK-006",
+      "name": "DoH prohibited (PAT-08)",
+      "hive": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+      "nativePath": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+      "valueName": "DoHPolicy",
+      "valueType": "DWord",
+      "value": 1,
+      "pattern": "PAT-08",
+      "reason": "Запрет DNS over HTTPS: канал разрешения имён должен быть предсказуемым и управляемым локально (hosts + NTFS-замок, ACL-002). Значения DoHPolicy: 1 — запретить, 2 — разрешить, 3 — требовать DoH.",
+      "protectedBy": "ADR-0015"
     }
   ]
 }

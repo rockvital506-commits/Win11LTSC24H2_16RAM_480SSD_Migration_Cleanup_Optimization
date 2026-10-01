@@ -50,6 +50,9 @@ function Get-AllowedRoot {
           - C:\Vitality, D:\GD_Tool, D:\Drivers (рабочие каталоги проекта);
           - %SystemRoot%\System32\Sysprep — размещение второго файла ответов
             unattend.xml (Stage 5, ADR-0014 п.1);
+          - %SystemRoot%\System32\GroupPolicy, %SystemRoot%\System32\Tasks
+            и %SystemRoot%\System32\drivers\etc\hosts — цементирование контура
+            (Stage 6, ADR-0003, ADR-0015);
           - %TEMP% (транзитные файлы инструментов).
         Расширение списка — только через ADR.
     #>
@@ -66,6 +69,14 @@ function Get-AllowedRoot {
 
     # ADR-0014 п.1: каталог размещения второго файла ответов (Stage 5, Sysprep Seal).
     if ($env:SystemRoot) { $roots.Add((Join-Path $env:SystemRoot 'System32\Sysprep')) }
+
+    # ADR-0003 / ADR-0015: объекты цементирования контура (Stage 6): каталог политик,
+    # каталог XML-файлов задач планировщика и файл hosts.
+    if ($env:SystemRoot) {
+        $roots.Add((Join-Path $env:SystemRoot 'System32\GroupPolicy'))
+        $roots.Add((Join-Path $env:SystemRoot 'System32\Tasks'))
+        $roots.Add((Join-Path $env:SystemRoot 'System32\drivers\etc\hosts'))
+    }
 
     if ($env:TEMP) { $roots.Add($env:TEMP) }
 

@@ -9,6 +9,21 @@
 - Схема версионирования: `tools/<TOOL>/<VERSION>/` (STRUC_006).
 - Лимит GitHub — 100 МБ на файл; ISO и установщики не коммитятся ни при каких условиях.
 
+## Порядок поставки `LGPO` (PAT-06)
+
+`LGPO.exe` входит в Microsoft Security Compliance Toolkit и **в Git не коммитится** (AR-804, лимит 100 МБ).
+После поставки на носитель (`F:\TOOLS\GPO\`) версионированный каталог создаётся владельцем:
+
+```
+tools/LGPO/<VERSION>/            # STRUC_006; создаётся, когда известна фактическая версия
+├── README.md                    # источник, дата поставки, версия
+└── SHA256SUMS.txt               # SHA256 бинарника (AR-304, PAT-20)
+```
+
+Установка на хост: `D:\GD_Tool\LGPO.exe` — см. `tools/runtime/README.md`.
+Проверка: `(Get-FileHash D:\GD_Tool\LGPO.exe -Algorithm SHA256).Hash` против `SHA256SUMS.txt`;
+состояние контура — `Assert-ImmunityState.ps1` (`P0.3`, `L1`).
+
 ## Ожидаемый состав (по плану)
 
 | Инструмент | Версия | Назначение |

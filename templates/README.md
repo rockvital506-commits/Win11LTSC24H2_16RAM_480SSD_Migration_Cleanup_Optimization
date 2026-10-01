@@ -10,5 +10,6 @@
 | `u_w11_ltsc_iot.xml.template` | Первый файл ответов (Ventoy, Audit Mode) — UTF-8 **без BOM**, CRLF | DONE (Stage 2) |
 | `unattend.xml.template` | Второй файл ответов (Sysprep, CopyProfile) — UTF-8 **без BOM**, CRLF | DONE (Stage 5) |
 | `ventoy.json.template` | Конфигурация Ventoy `auto_install` | DONE (Stage 2) |
+| `ImmunityCore.ps1.template` | Ядро транзакции контура самозащиты (рантайм `D:\GD_Tool`) — PowerShell, UTF-8 **с BOM**, CRLF | DONE (Stage 6) |
 
 **Правила:** STRUC_010 (XML-шаблоны с расширением `.template`); кодировка XML-шаблонов — UTF-8 без BOM (AR-101, `docs/research/step1.md`).

@@ -6,8 +6,8 @@
 |---|---|---|
 | `ADR-0001-stage-sequencing.md` | Последовательность этапов | PLAN |
 | `ADR-0002-vmware-via-whp.md` | VMware через WHP API | PLAN |
-| `ADR-0003-ntfs-deny-system.md` | NTFS Deny SYSTEM | PLAN |
-| `ADR-0004-ohook-vs-kms.md` | Ohook вместо KMS | PLAN |
+| `ADR-0003-ntfs-deny-system.md` | NTFS Deny SYSTEM | **ACCEPTED** (Stage 6) |
+| `ADR-0004-ohook-vs-kms.md` | Ohook вместо KMS | **ACCEPTED** (Stage 6) |
 | `ADR-0005-dual-stage-unattend.md` | Двухэтапный unattend (Ventoy + Sysprep) | **ACCEPTED** |
 | `ADR-0006-fdrive-as-repository.md` | F:\ как производный репозиторий | PLAN |
 | `ADR-0007-partition-scheme.md` | Схема разделов | **ACCEPTED (rev.2 — ADR-0011)** |
@@ -18,5 +18,6 @@
 | `ADR-0012-vbs-hvci-lsa-disable.md` | Демонтаж VBS/HVCI/LSA (реестр + BCD) | **ACCEPTED** |
 | `ADR-0013-ssd-longevity-memory.md` | Долговечность SSD: hiberfil + фиксированная подкачка | **ACCEPTED** |
 | `ADR-0014-sysprep-seal.md` | Запечатывание Sysprep: размещение файла ответов, CopyProfile, предпролётные защиты | **ACCEPTED** |
+| `ADR-0015-stage6-immunity-contour.md` | Контур самозащиты Stage 6: порядок фаз, доверенная зона, транзакция | **ACCEPTED** |
 
 **Правило:** ADR-0001…ADR-0007 создаются на соответствующих этапах; ранние номера не занимаются задним числом без записи в отчёте.
