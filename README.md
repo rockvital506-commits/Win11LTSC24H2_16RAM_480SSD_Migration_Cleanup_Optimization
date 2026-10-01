@@ -543,7 +543,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 |---|---|---|---|---|---|
 | 1 | `manual/Stage1_Hardware_Preparation.md` + `auto/Stage1_DiskGenius_Partition.md` | `Stage1_DiskGenius_Partition.ps1` | — | `PAT-NEW-6, PAT-NEW-7` | `Stage1_Report.md`, `C_drive_schema.md`, `partitioning_research.md` |
 | 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `templates/` (`u_w11_ltsc_iot.xml`, `ventoy.json`) | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
-| 3 | `manual/Stage3_Windows_Update.md` | — | — | — | `Stage3_Report.md` |
+| 3 | `manual/Stage3_Windows_Update.md` | — (ручной GUI-контроль, ADR не требуется) | — | — | `Stage3_Report.md` |
 | 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
 | 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml` | `PAT-16` | `Stage5_Report.md` |
 | 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `tweaks/{acl,services}` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
@@ -917,7 +917,18 @@ D:\
 - [ ] `Stage2_Report.md` создан
 - [ ] `F_drive_schema.md` обновлён
 
-### 9.3 All Stages Verification
+### 9.3 Stage 3 (Windows Update) Verification
+
+- [ ] Исходная сборка зафиксирована (`CurrentBuild`, `UBR`, `EditionID`)
+- [ ] Переключатель «Получайте последние обновления…» — Отключено
+- [ ] Два последовательных цикла закончились статусом «Установлены все актуальные обновления»
+- [ ] `CurrentBuild`/`UBR` выросли относительно исходных
+- [ ] Пакеты ASUS/OEM и необязательные обновления не устанавливались
+- [ ] Audit Mode сохранён (окно Sysprep появлялось и закрывалось после каждой перезагрузки)
+- [ ] Сеть физически изолирована (`Test-NetConnection 8.8.8.8` → False)
+- [ ] `Stage3_Report.md` заполнен
+
+### 9.4 All Stages Verification
 
 - [ ] Все ADR созданы (ADR-0001..ADR-0007)
 - [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7)
