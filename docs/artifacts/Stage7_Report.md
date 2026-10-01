@@ -85,7 +85,7 @@ VMware Workstation Pro через WHP API (сосуществование без
 
 | Метрика | Цель | Факт |
 |---|---|---|
-| `M_PATTERN_COVERAGE` | 28/28 | **22/28** документировано (+3 к Stage 6: PAT-07, PAT-21, PAT-22) |
+| `M_PATTERN_COVERAGE` | 28/28 | **23/28** документировано (+3 к Stage 6: PAT-07, PAT-21, PAT-22; +1 на финализации: PAT-19) |
 | `M_ADR_COUNT` | ≥1 на решение | ADR-0002, ADR-0016 закрывают Stage 7 |
 | `M_BSOD_INCIDENTS` | 0 | PENDING |
 | `M_DOC_FRESHNESS` | актуальность | 2026-10-01 |

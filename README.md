@@ -923,6 +923,7 @@ D:\
 - [ ] /ISO/ содержит LTSC IoT 24H2.iso и Strelec.iso
 - [ ] /ventoy/ventoy.json содержит auto_install
 - [ ] /ventoy/templates/u_w11_ltsc_iot.xml содержит XML
+- [ ] `Stage2_Ventoy_Template_Setup.ps1`: `V0.*`/`V1.*` без FAIL, `Stage2_preflight.md` создан
 - [ ] `Stage2_Report.md` создан
 - [ ] `F_drive_schema.md` обновлён
 
@@ -1015,7 +1016,8 @@ D:\
 ### 9.8 All Stages Verification
 
 - [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0016)
-- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 22/28)
+- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 23/28)
 - [ ] Все отчёты созданы (Stage1..Stage7 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
-- [ ] Recovery_Procedure.md создан
+- [ ] `Recovery_Procedure.md` создан и соответствует фактическим бэкапам (PAT-19)
+- [ ] `pwsh -File ./scripts/Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL
 - [ ] README.md обновлён

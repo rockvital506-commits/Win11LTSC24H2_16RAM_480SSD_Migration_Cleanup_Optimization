@@ -33,7 +33,7 @@
 | `PAT-16` | Dual-Stage Unattend (Ventoy + Sysprep) | 2, 5 | ✅ | **DONE** | `PAT-16-dual-stage-unattend.md`, ADR-0005, ADR-0014 |
 | `PAT-17` | Ohook Permanent Activation | 6 | ✅ | **DONE** | `algorithm/manual/Stage6_Ohook_Activation.md`, ADR-0004 |
 | `PAT-18` | Audit_Final_Clean.ps1 | 4 | ✅ | **DONE** | `PAT-18-audit-final-clean.md`, `scripts/Stage4_Audit_Final_Clean.ps1` |
-| `PAT-19` | Atomic Stage + Restore-FromBackup | All | ✅ | PLAN | AR-308, `scripts/common/Backup.psm1` |
+| `PAT-19` | Atomic Stage + Restore-FromBackup | All | ✅ | **DONE** | `docs/artifacts/Recovery_Procedure.md`, AR-308 |
 | `PAT-20` | Hash-First Verification | All | ✅ | PLAN | AR-304, `packages/hashes` |
 | `PAT-21` | WSL2 Isolated Memory (.wslconfig) | 7 | ✅ | **DONE** | `PAT-21-wsl2-isolated-memory.md`, AR-703 |
 | `PAT-22` | VMware Isolated Cache (mainMem.useNamedFile=FALSE) | 7 | ✅ | **DONE** | `PAT-22-vmware-isolated-cache.md`, AR-708 |

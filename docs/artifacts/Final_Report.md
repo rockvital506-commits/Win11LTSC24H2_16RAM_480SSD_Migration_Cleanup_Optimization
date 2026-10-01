@@ -47,7 +47,7 @@
 
 | Метрика | Цель | Факт на конец Stage 7 |
 |---|---|---|
-| `M_PATTERN_COVERAGE` | 28/28 | 22/28 документировано |
+| `M_PATTERN_COVERAGE` | 28/28 | 23/28 документировано (PAT-19 закрыт процедурой восстановления) |
 | `M_ADR_COUNT` | ≥1 на решение | ADR-0002…ADR-0016 (16 записей, из них 13 ACCEPTED) |
 | `M_BSOD_INCIDENTS` | 0 | PENDING (стенд) |
 | `M_DOC_FRESHNESS` | актуальность | 2026-10-01 |
@@ -66,7 +66,8 @@
 | `S7-OPEN-2` | Пиннинг Docker Engine (apt) | Зафиксировать версию в `Stage7_Report.md` по факту |
 | `S7-OPEN-3` | `coreinfo64.exe` для перекрёстной проверки P/E | Поставить офлайн в `F:\TOOLS\Audit\` |
 | `S7-OPEN-4` | Схема питания | Решить: сверять (по умолчанию) или применять `-ApplyPowerPlan` |
-| — | `Recovery_Procedure.md` (PAT-19) | Создать до закрытия проекта |
+| `FINAL-OPEN-1` | Сводная приёмка на стенде | `pwsh -File ./scripts/Final_Acceptance.ps1` (все этапы), результат — `Final_Acceptance.md` |
+| — | ~~`Recovery_Procedure.md`~~ | Закрыт: `docs/artifacts/Recovery_Procedure.md` (PAT-19) |
 
 ## 5. Порядок приёмки
 
@@ -74,7 +75,8 @@
 2. Окно сети Stage 6→7: активация → цементирование → закрытие сети (`Stage6_Ohook_Activation.md`).
 3. Stage 7 при открытом окне сети: компоненты → дистрибутив → Docker → ВМ → P+E → пакеты
    (`Stage7_WSL_Docker_VMware.ps1` + `Bootstrap-Packages.ps1`).
-4. Закрытие окна сети, финальная верификация `Assert-ImmunityState.ps1` и `Assert-TweakState.ps1`.
+4. Закрытие окна сети, финальная верификация `Assert-ImmunityState.ps1`, `Assert-TweakState.ps1` и сводная
+   приёмка `Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL (README §9.8).
 5. Заполнение `Stage7_Report.md` и этого отчёта, перевод в `DONE`.
 
 ## 6. Коммиты этапов
@@ -85,4 +87,5 @@
 | 4 | `6ab87e2` |
 | 5 | `7a03b45` |
 | 6 | `92fbf30`, `9bde37c` |
-| 7 | `367355f` (контур), последующие коммиты Stage 7 (пакетный домен, документация) |
+| 7 | `367355f`, `75911b7`, `91d714c` |
+| Финализация | приёмка §9.8, `Recovery_Procedure.md`, скрипт Stage 2 (см. `git log`) |

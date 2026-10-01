@@ -44,6 +44,7 @@ Stage 2 должен: (а) обеспечить автоматический п�
 | 6 | Оформлены алгоритмы этапа | `algorithm/manual/Stage2_Ventoy_Install.md`, `algorithm/auto/Stage2_Audit_Mode_Workflow.md` | DONE |
 | 7 | Расширен валидатор: `*.template` проверяются по целевому расширению | `scripts/rules/Test-RepositoryConventions.ps1` | DONE |
 | 8 | Прогон валидатора конвенций | — | **PASS** |
+| 9 | Скрипт валидации и рендера контура (закрытие пробела: артефакт упоминался в §5.6 README, но отсутствовал) | `scripts/Stage2_Ventoy_Template_Setup.ps1` (`SCRIPT-STAGE2-001`) | DONE (добавлен при финализации) |
 
 ### Исправления относительно исследовательских материалов
 
@@ -120,6 +121,7 @@ Waivers: нет.
 | Паттерны | `docs/patterns/PAT-01-ifeo-stub.md`, `PAT-16-dual-stage-unattend.md` | DONE |
 | Схема носителя | `docs/storage/F_drive_schema.md` | IN_PROGRESS |
 | Алгоритмы | `algorithm/manual/Stage2_Ventoy_Install.md`, `algorithm/auto/Stage2_Audit_Mode_Workflow.md` | DONE |
+| Валидация и рендер | `scripts/Stage2_Ventoy_Template_Setup.ps1` → `docs/artifacts/Stage2_preflight.md` | DONE (прогон — стенд) |
 | Рендеры на носителе | `F:\ventoy\ventoy.json`, `F:\ventoy\templates\u_w11_ltsc_iot.xml` | PENDING (вне Git) |
 
 ## 9. Следующий шаг
@@ -129,6 +131,7 @@ Waivers: нет.
    - `S2-ACT-1` — ВМ-тест: раскомментировать `<Mode>Audit</Mode>`, установить в виртуальной машине, зафиксировать результат. При успехе — включить элемент в шаблоне; при неудаче — оставить вариант B и закрыть пункт.
    - `S2-ACT-2` — Проверки A1–A7 на стенде, заполнить §2, перевести отчёт в `DONE`.
    - `S2-ACT-3` — Зафиксировать SHA256 ISO (`F-OPEN-3`).
+   - `S2-ACT-4` — Прогнать `Stage2_Ventoy_Template_Setup.ps1 -MediaRoot F:\` на стенде (`V2.*`), затем `-Render`.
 3. Stage 3 — накопительные обновления: `algorithm/manual/Stage3_Windows_Update.md` (кратковременное подключение сети, затем обязательная изоляция).
 
 ---

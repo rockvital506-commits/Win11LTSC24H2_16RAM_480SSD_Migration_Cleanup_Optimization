@@ -5,6 +5,7 @@
 | `Stage0_Report.md` | Отчёт инициализации репозитория | **DONE** |
 | `Stage1_Report.md` | Отчёт разметки NVMe (ожидает нативного прогона верификатора) | IN_PROGRESS |
 | `Stage2_Report.md` | Отчёт Ventoy-контура и Audit Mode (ожидает проверок A1–A7) | IN_PROGRESS |
+| `Stage2_preflight.md` | Проверка шаблонов Ventoy и файла ответов (генерируется `Stage2_Ventoy_Template_Setup.ps1`) | PENDING |
 | `Stage3_Report.md` | Отчёт накопительных обновлений (ожидает прогона U1–U7) | IN_PROGRESS |
 | `Stage4_Report.md` | Отчёт финальной санитарии Audit Mode (ожидает прогона W1–N1) | IN_PROGRESS |
 | `Stage4_tweakstate.md` | Отчёт верификации состояния твиков (генерируется скриптом на хосте) | PENDING |
@@ -17,6 +18,7 @@
 | `Stage7_preflight.md` | Предпролётный отчёт Stage 7 (генерируется скриптом на хосте) | PENDING |
 | `Stage7_packages.md` | Отчёт установки профиля пакетов (генерируется `Bootstrap-Packages.ps1`) | PENDING |
 | `Final_Report.md` | Итоговый отчёт проекта (метрики §3.5, критерии §1.4) | IN_PROGRESS |
-| `Recovery_Procedure.md` | Процедура восстановления (PAT-19) | PLAN |
+| `Recovery_Procedure.md` | Процедура восстановления: откат по этапам, замки, полный перезапуск (PAT-19) | **DONE** |
+| `Final_Acceptance.md` | Сводная приёмка §9.8 (генерируется `scripts/Final_Acceptance.ps1`) | PENDING |
 
 Отчёт этапа генерируется скриптом с метриками §3.5 README (AR-904), а не пишется вручную.

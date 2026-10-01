@@ -67,7 +67,8 @@
 | Шаблон конфигурации Ventoy | `templates/ventoy.json.template` |
 | Решение | `docs/decisions/ADR-0005-dual-stage-unattend.md` |
 | Паттерны | `docs/patterns/PAT-16-dual-stage-unattend.md`, `PAT-01-ifeo-stub.md` |
-| Отчёт | `docs/artifacts/Stage2_Report.md` |
+| Скрипт валидации и рендера | `scripts/Stage2_Ventoy_Template_Setup.ps1` (`SCRIPT-STAGE2-001`) |
+| Отчёт | `docs/artifacts/Stage2_Report.md`, `docs/artifacts/Stage2_preflight.md` |
 
 ---
 
