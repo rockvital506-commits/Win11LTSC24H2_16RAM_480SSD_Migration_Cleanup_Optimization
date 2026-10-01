@@ -568,7 +568,7 @@ F:\ является производным репозиторием, генер
 ```
 F:\
 ├── /ISO/
-│   ├── Windows_11_IoT_Enterprise_LTSC_24H2.iso
+│   ├── en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso
 │   └── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso
 ├── /ventoy/
 │   ├── ventoy.json
@@ -868,8 +868,8 @@ D:\
 **Содержимое:**
 ```
 /ISO/
-├── Windows_11_IoT_Enterprise_LTSC_24H2.iso     (~6 GB)
-└── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso  (~3 GB)
+├── en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso   (~6 GB)
+└── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso   (~3 GB)
 
 /ventoy/
 ├── ventoy.json                                (auto_install)

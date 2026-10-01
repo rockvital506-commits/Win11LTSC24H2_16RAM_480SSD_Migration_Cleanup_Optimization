@@ -39,7 +39,7 @@
 ```
 F:\
 ├── /ISO/
-│   ├── Windows_11_IoT_Enterprise_LTSC_24H2.iso
+│   ├── en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso
 │   └── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso
 └── /ventoy/
     ├── ventoy.json                       (рендер templates/ventoy.json.template)
@@ -101,7 +101,9 @@ F:\
 | ID | Пункт | Действие |
 |---|---|---|
 | `F-OPEN-1` | Единицы измерения разделов 2–3 (SI против GiB) и фактический размер VTOYEFI (Ventoy версии 1.1.10 создаёт раздел меньшего размера, чем 1 ГБ, в зависимости от режима) | Протоколировать фактические значения; при отклонении — ADR + `GATE_FDRIVE_MODIFICATION`. Переразметку не выполнять |
-| `S2-OPEN-1` | Расхождение имени ISO: README §5.7.2/§8.4 — `Windows_11_IoT_Enterprise_LTSC_24H2.iso`; `docs/research/step1.md` — `/ISO/Windows_11_LTSC_IoT_24H2.iso` | Подтвердить фактическое имя файла на носителе; шаблон `ventoy.json.template` использует имя из README (нормативный реестр). При ином фактическом имени — исправить шаблон или переименовать ISO |
+| `S2-OPEN-1` | Расхождение имени ISO | **RESOLVED** (2026-10-01, подтверждено владельцем): фактическое имя — `en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso`. Обновлены `templates/ventoy.json.template`, README §5.7.2/§8.4, этот документ |
+| `F-OPEN-2` | Точное имя WinPE-ISO (`WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso` по README §5.7.2/§8.4) не подтверждено | Подтвердить фактическое имя; при расхождении — исправить `menu_alias` и README. На `auto_install` не влияет (используется только для пункта меню) |
+| `F-OPEN-3` | SHA256 ISO и бинарников не зафиксированы | Внести в `/HASHES/ISO_SHA256.txt` на носителе и в отчёт (PAT-20) |
 
 ---
 

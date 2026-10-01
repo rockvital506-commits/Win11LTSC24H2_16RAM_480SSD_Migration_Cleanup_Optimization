@@ -5,7 +5,7 @@
   ],
   "menu_alias": [
     {
-      "image": "/ISO/Windows_11_IoT_Enterprise_LTSC_24H2.iso",
+      "image": "/ISO/en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso",
       "alias": "Windows 11 IoT Enterprise LTSC 24H2 (auto_install)"
     },
     {
@@ -15,7 +15,7 @@
   ],
   "auto_install": [
     {
-      "image": "/ISO/Windows_11_IoT_Enterprise_LTSC_24H2.iso",
+      "image": "/ISO/en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso",
       "template": "/ventoy/templates/u_w11_ltsc_iot.xml"
     }
   ]
