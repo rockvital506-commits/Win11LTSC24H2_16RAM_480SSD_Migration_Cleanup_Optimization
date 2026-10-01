@@ -1,0 +1,11 @@
+# .wslconfig — единственный источник лимитов WSL2 (AR-703, PAT-21).
+# Разворачивается в %USERPROFILE%\.wslconfig скриптом Install-WslDistro.ps1.
+# Значения фиксированы anchor1.md; изменение — ADR.
+[wsl2]
+processors=4
+memory=6GB
+pageReporting=false
+
+# Комментарий: pageReporting=false исключает периодический возврат страниц хосту
+# (паразитный I/O и износ SSD, SC_SSD_LONGEVITY). swap не задаём: подкачка WSL
+# остаётся на диске D: по умолчанию дистрибутива (проверяется отчётом).

@@ -50,6 +50,8 @@ function Get-AllowedRoot {
           - C:\Vitality, D:\GD_Tool, D:\Drivers (рабочие каталоги проекта);
           - %SystemRoot%\System32\Sysprep — размещение второго файла ответов
             unattend.xml (Stage 5, ADR-0014 п.1);
+          - C:\DevOps (дистрибутив WSL2), D:\VM (виртуальные машины),
+            D:\Docker (тома контейнеров) — Stage 7, ADR-0016;
           - %SystemRoot%\System32\GroupPolicy, %SystemRoot%\System32\Tasks
             и %SystemRoot%\System32\drivers\etc\hosts — цементирование контура
             (Stage 6, ADR-0003, ADR-0015);
@@ -77,6 +79,12 @@ function Get-AllowedRoot {
         $roots.Add((Join-Path $env:SystemRoot 'System32\Tasks'))
         $roots.Add((Join-Path $env:SystemRoot 'System32\drivers\etc\hosts'))
     }
+
+    # ADR-0016: рабочие каталоги DevOps-контура (Stage 7): дистрибутив WSL2,
+    # виртуальные машины VMware и тома Docker. Размещение — README §7.4/§7.5.
+    $roots.Add('C:\DevOps')
+    $roots.Add('D:\VM')
+    $roots.Add('D:\Docker')
 
     if ($env:TEMP) { $roots.Add($env:TEMP) }
 

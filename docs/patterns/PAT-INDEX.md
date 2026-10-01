@@ -21,7 +21,7 @@
 | `PAT-04` | Task Scheduler Unregister + ACL | 4 | ✅ | **DONE** | `PAT-04-task-retirement.md`, `tweaks/tasks` |
 | `PAT-05` | WMI Event Consumer Removal + ACL | 4 | ✅ | PLAN | `tweaks/services` |
 | `PAT-06` | GPO/LGPO-импорт | 6 | ✅ | **DONE** | `PAT-06-lgpo-snapshot.md`, ADR-0003/0015 |
-| `PAT-07` | VMware via WHP API | 7 | ✅ | PLAN | ADR-0002, `devops/hypervisor` |
+| `PAT-07` | VMware via WHP API | 7 | ✅ | **DONE** | `PAT-07-vmware-whp.md`, ADR-0002 |
 | `PAT-08` | Hosts + DoH=0 | 6 | ✅ | **DONE** | `PAT-08-hosts-doh.md`, `TWK-006` |
 | `PAT-09` | Firewall outbound rule | 6 | ✅ | **DONE** | `PAT-09-firewall-outbound.md`, `tweaks/firewall` |
 | `PAT-10` | ACL Freeze (Owner=SYSTEM) | 2, 4 | ✅ | PLAN | `tweaks/acl` |
@@ -35,8 +35,8 @@
 | `PAT-18` | Audit_Final_Clean.ps1 | 4 | ✅ | **DONE** | `PAT-18-audit-final-clean.md`, `scripts/Stage4_Audit_Final_Clean.ps1` |
 | `PAT-19` | Atomic Stage + Restore-FromBackup | All | ✅ | PLAN | AR-308, `scripts/common/Backup.psm1` |
 | `PAT-20` | Hash-First Verification | All | ✅ | PLAN | AR-304, `packages/hashes` |
-| `PAT-21` | WSL2 Isolated Memory (.wslconfig) | 7 | ✅ | PLAN | AR-703, `devops/wsl` |
-| `PAT-22` | VMware Isolated Cache (mainMem.useNamedFile=FALSE) | 7 | ✅ | PLAN | AR-708, `devops/hypervisor` |
+| `PAT-21` | WSL2 Isolated Memory (.wslconfig) | 7 | ✅ | **DONE** | `PAT-21-wsl2-isolated-memory.md`, AR-703 |
+| `PAT-22` | VMware Isolated Cache (mainMem.useNamedFile=FALSE) | 7 | ✅ | **DONE** | `PAT-22-vmware-isolated-cache.md`, AR-708 |
 | `PAT-NEW-1` | Audit Mode Workflow | 2, 5 | ✅ | **DONE** | `PAT-NEW-1-audit-mode-workflow.md`, ADR-0005, ADR-0014 |
 | `PAT-NEW-2` | NTFS Deny SYSTEM (icacls) | 6 | ✅ | **DONE** | `PAT-NEW-2-icacls-deny.md`, AR-506 |
 | `PAT-NEW-3` | AutoSetup.bat as Runtime-Initializer | 6 | ✅ | **DONE** | `PAT-NEW-3-autosetup-runtime.md` |
@@ -55,4 +55,4 @@
 
 ## 3. Метрика
 
-`M_PATTERN_COVERAGE` (§3.5 README) — целевое значение **28/28**; на конец Stage 6 документировано **19** паттернов: PAT-01, PAT-04, PAT-06, PAT-08, PAT-09, PAT-11, PAT-12–PAT-18, PAT-NEW-1, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-6, PAT-NEW-7 (индекс ведётся непрерывно).
+`M_PATTERN_COVERAGE` (§3.5 README) — целевое значение **28/28**; на конец Stage 7 документировано **22** паттерна: PAT-01, PAT-04, PAT-06, PAT-07, PAT-08, PAT-09, PAT-11, PAT-12–PAT-18, PAT-21, PAT-22, PAT-NEW-1, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-6, PAT-NEW-7 (индекс ведётся непрерывно).

@@ -20,11 +20,15 @@
 *.txt    text eol=crlf
 *.vmx    text eol=crlf
 *.conf   text eol=crlf
+*.conf.template text eol=lf
+.wslconfig.template text eol=lf
+*.sh     text eol=lf
 .wslconfig text eol=crlf
 
 # --- Шаблоны: EOL по целевому расширению (STRUC_010, AR-102) ---------------
 *.xml.template   text eol=crlf
 *.ps1.template   text eol=crlf
+*.vmx.template   text eol=crlf
 *.json.template  text eol=lf
 *.yaml.template  text eol=lf
 *.yml.template   text eol=lf

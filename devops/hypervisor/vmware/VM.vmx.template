@@ -1,0 +1,15 @@
+# VM.vmx.template — обязательные директивы изоляции кэша для каждой ВМ (AR-708, PAT-22).
+# Configure-WhpCoexistence.ps1 добавляет/правит эти ключи во всех *.vmx под D:\VM.
+# Кодировка — ASCII, EOL — CRLF (потребитель Windows/VMware).
+.encoding = "windows-1252"
+config.version = "8"
+virtualHW.version = "20"
+guestOS = "windows11-64"
+firmware = "efi"
+priority.grabbed = "high"
+priority.ungrabbed = "normal"
+sched.mem.pshare.enable = "FALSE"
+mainMem.useNamedFile = "FALSE"
+mainMem.backing = "swap"
+vhv.enable = "TRUE"
+board-id.reflectHost = "FALSE"

@@ -5,7 +5,7 @@
 | ADR | Тема | Статус |
 |---|---|---|
 | `ADR-0001-stage-sequencing.md` | Последовательность этапов | PLAN |
-| `ADR-0002-vmware-via-whp.md` | VMware через WHP API | PLAN |
+| `ADR-0002-vmware-via-whp.md` | VMware через WHP API | **ACCEPTED** (Stage 7) |
 | `ADR-0003-ntfs-deny-system.md` | NTFS Deny SYSTEM | **ACCEPTED** (Stage 6) |
 | `ADR-0004-ohook-vs-kms.md` | Ohook вместо KMS | **ACCEPTED** (Stage 6) |
 | `ADR-0005-dual-stage-unattend.md` | Двухэтапный unattend (Ventoy + Sysprep) | **ACCEPTED** |
@@ -19,5 +19,6 @@
 | `ADR-0013-ssd-longevity-memory.md` | Долговечность SSD: hiberfil + фиксированная подкачка | **ACCEPTED** |
 | `ADR-0014-sysprep-seal.md` | Запечатывание Sysprep: размещение файла ответов, CopyProfile, предпролётные защиты | **ACCEPTED** |
 | `ADR-0015-stage6-immunity-contour.md` | Контур самозащиты Stage 6: порядок фаз, доверенная зона, транзакция | **ACCEPTED** |
+| `ADR-0016-stage7-devops-contour.md` | Контур Stage 7: поставка дистрибутива, лимиты WSL2, нативный Docker, P+E | **ACCEPTED** |
 
 **Правило:** ADR-0001…ADR-0007 создаются на соответствующих этапах; ранние номера не занимаются задним числом без записи в отчёте.

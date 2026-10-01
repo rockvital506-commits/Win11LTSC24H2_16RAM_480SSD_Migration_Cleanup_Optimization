@@ -13,7 +13,9 @@
 | `Stage6_Report.md` | Отчёт контура самозащиты и окна активации (ожидает окна активации и `-VerifyOnly`) | IN_PROGRESS |
 | `Stage6_preflight.md` | Предпролётный отчёт подготовки контура (генерируется скриптом на хосте) | PENDING |
 | `Stage6_immunity.md` | Сквозная верификация контура: ACL, задачи, брандмауэр, DoH, активация | PENDING |
-| `Stage7_Report.md` | Отчёт этапа DevOps-окружения | PLAN |
+| `Stage7_Report.md` | Отчёт DevOps-окружения (ожидает окна сети и установки профиля `devops`) | IN_PROGRESS |
+| `Stage7_preflight.md` | Предпролётный отчёт Stage 7 (генерируется скриптом на хосте) | PENDING |
+| `Final_Report.md` | Итоговый отчёт проекта | PLAN |
 | `Recovery_Procedure.md` | Процедура восстановления (PAT-19) | PLAN |
 | `Final_Report.md` | Итоговый отчёт проекта | PLAN |
 

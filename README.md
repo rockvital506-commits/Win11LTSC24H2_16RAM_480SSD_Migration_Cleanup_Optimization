@@ -451,10 +451,11 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │
 ├── devops/                          # Домен 3: WSL2 / Hyper-V / VMware / P+E
 │   ├── README.md
-│   ├── wsl/                         # .wslconfig.template, Install-WslDistro.ps1
-│   ├── hypervisor/                  # Enable-HypervisorPlatform.ps1, vmware/VM.vmx.template
-│   ├── cpu-policy/                  # Get-PerformanceCoreMask.ps1, Set-WorkloadAffinity.ps1
-│   └── containers/                  # Install-DockerEngine.sh, compose/
+│   ├── wsl/                         # .wslconfig.template, wsl.conf.template, Install-WslDistro.ps1
+│   ├── hypervisor/                  # Enable-HypervisorPlatform.ps1, Configure-WhpCoexistence.ps1
+│   │   └── vmware/                  # VM.vmx.template (изоляция кэша, PAT-22)
+│   ├── cpu-policy/                  # Get-PerformanceCoreMask.ps1, Set-WorkloadAffinity.ps1, power-plan.json
+│   └── containers/                  # Install-DockerEngine.sh, compose/dev-stack.yaml.template
 │
 ├── templates/
 │   ├── README.md
@@ -554,7 +555,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 | 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
 | 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml.template` | `PAT-16, PAT-NEW-1` | `Stage5_Report.md` |
 | 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_Immunity_Prepare.ps1`; рантайм `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs`, `templates/ImmunityCore.ps1.template` | `tweaks/{acl,firewall,tasks,registry}`, `tweaks/apply` | `PAT-04, PAT-06, PAT-08, PAT-09, PAT-11, PAT-17, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4` | `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md` |
-| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
+| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1`; шаблоны `devops/wsl/.wslconfig.template`, `wsl.conf.template`, `hypervisor/vmware/VM.vmx.template`; рантайм `devops/containers/Install-DockerEngine.sh` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Stage7_preflight.md`, `Final_Report.md` |
 
 ---
 
@@ -994,10 +995,27 @@ D:\
 - [ ] `Stage6_immunity.md` — без FAIL; `Stage6_Report.md` переведён в DONE
 - [ ] Открытые вопросы ратифицированы: список доменов `hosts` (`S6-OPEN-1`), дом правил брандмауэра (`S6-OPEN-2`), судьба исключения `sppc.dll` (`S6-OPEN-3`)
 
-### 9.7 All Stages Verification
+### 9.7 Stage 7 (DevOps Contour) Verification
 
-- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0015)
-- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 19/28)
+Выполняется в профиле `devops` при открытом владельцем окне сети (стык Stage 6→7, §4.5). Оркестратор — `scripts/Stage7_WSL_Docker_VMware.ps1`.
+
+- [ ] Предусловия `P0.1`–`P0.5`: окно сети открыто, Stage 6 закрыт (задача + замок `GroupPolicy`), пакет `F:\WSL2\ubuntu.appx`, место на `C:`/`D:`
+- [ ] Компоненты: `Subsystem-Linux`, `VirtualMachinePlatform`, `HypervisorPlatform` — `Enabled`; `Microsoft-Hyper-V-All` — не включён (`C0.1`–`C0.3`)
+- [ ] `hypervisorlaunchtype = auto` (`C0.2`), снимок BCD сохранён перед правкой (AR-505)
+- [ ] Дистрибутив WSL2 установлен, Linux-пользователь создан (`W1.4`)
+- [ ] Лимиты `.wslconfig` совпадают с шаблоном (4 / 6GB / pageReporting=false) (`W1.5`), `systemd=true` активен
+- [ ] Docker Engine установлен нативно, `DockerRootDir = /mnt/d/Docker` (`P7.2`); dev-стек поднимается
+- [ ] Директивы `.vmx` применены ко всем ВМ; `*.vmem` не создаётся (`C1.*`); ВМ грузится при активном WSL2 (`P7.3`)
+- [ ] Маска P-ядер выведена динамически (`A0.1`), процессы привязаны с приоритетом ≤ `Normal` (`A1.1`)
+- [ ] Схема питания сверена с `power-plan.json` (`A2.*`) либо расхождение зафиксировано как WARN
+- [ ] Пакеты профиля `devops` установлены, `Packages.lock.json` заполнен, `PACKAGES_SHA256.txt` актуален
+- [ ] `Stage7_preflight.md` — без FAIL; `Stage6_immunity` подтверждён после этапа
+- [ ] Окно сети закрыто владельцем; `Stage7_Report.md` переведён в DONE, `Final_Report.md` заполнен
+
+### 9.8 All Stages Verification
+
+- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0016)
+- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 22/28)
 - [ ] Все отчёты созданы (Stage1..Stage7 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
 - [ ] Recovery_Procedure.md создан
 - [ ] README.md обновлён
