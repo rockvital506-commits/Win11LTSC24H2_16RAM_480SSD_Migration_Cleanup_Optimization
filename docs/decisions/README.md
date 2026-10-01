@@ -8,7 +8,7 @@
 | `ADR-0002-vmware-via-whp.md` | VMware через WHP API | PLAN |
 | `ADR-0003-ntfs-deny-system.md` | NTFS Deny SYSTEM | PLAN |
 | `ADR-0004-ohook-vs-kms.md` | Ohook вместо KMS | PLAN |
-| `ADR-0005-dual-stage-unattend.md` | Двухэтапный unattend | PLAN |
+| `ADR-0005-dual-stage-unattend.md` | Двухэтапный unattend (Ventoy + Sysprep) | **ACCEPTED** |
 | `ADR-0006-fdrive-as-repository.md` | F:\ как производный репозиторий | PLAN |
 | `ADR-0007-partition-scheme.md` | Схема разделов | **ACCEPTED (rev.2 — ADR-0011)** |
 | `ADR-0008-repository-topology-domains.md` | Топология: три домена + перенос research1 | **ACCEPTED** |

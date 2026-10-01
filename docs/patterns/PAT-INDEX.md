@@ -15,7 +15,7 @@
 
 | PAT | Имя | Этап | Статус (README) | Документ | Связано |
 |---|---|---|---|---|---|
-| `PAT-01` | IFEO Debugger → NoOp-stub | 2 | ✅ | PLAN | `tweaks/tasks`, ADR-0008 |
+| `PAT-01` | IFEO Debugger → NoOp-stub | 2 | ✅ | **DONE** | `PAT-01-ifeo-stub.md`, ADR-0005 |
 | `PAT-02` | IFEO Debugger → Wrapper-Decorator | 2 | ✅ | PLAN | `tweaks/tasks` |
 | `PAT-03` | SCM Disabled + ACL Deny WriteKey | 4 | ✅ | PLAN | `tweaks/services` |
 | `PAT-04` | Task Scheduler Unregister + ACL | 4 | ✅ | PLAN | `tweaks/tasks` |
@@ -30,7 +30,7 @@
 | `PAT-13` | Fixed PageFile (InitialSize=MaximumSize) | 4 | ✅ | PLAN | `tweaks/registry` |
 | `PAT-14` | hiberfil.sys elimination | 4 | ✅ | PLAN | SC_SSD_LONGEVITY |
 | `PAT-15` | Temporary PnP Shield (DisableCoInstallers) | 4 | ✅ | PLAN | `tweaks/registry` |
-| `PAT-16` | Dual-Stage Unattend (Ventoy + Sysprep) | 2, 5 | ✅ | PLAN | ADR-0005, `templates/` |
+| `PAT-16` | Dual-Stage Unattend (Ventoy + Sysprep) | 2, 5 | ✅ | **DONE** | `PAT-16-dual-stage-unattend.md`, ADR-0005 |
 | `PAT-17` | Ohook Permanent Activation | 6 | ✅ | PLAN | ADR-0004, `tools/ohook` |
 | `PAT-18` | Audit_Final_Clean.ps1 | 4 | ✅ | PLAN | `scripts/Stage4_*` |
 | `PAT-19` | Atomic Stage + Restore-FromBackup | All | ✅ | PLAN | AR-308, `scripts/common/Backup.psm1` |
@@ -55,4 +55,4 @@
 
 ## 3. Метрика
 
-`M_PATTERN_COVERAGE` (§3.5 README) — целевое значение **28/28**; на Stage 1 документировано 2 паттерна (индекс ведётся непрерывно).
+`M_PATTERN_COVERAGE` (§3.5 README) — целевое значение **28/28**; на конец Stage 2 документировано 4 паттерна: PAT-01, PAT-16, PAT-NEW-6, PAT-NEW-7 (индекс ведётся непрерывно).

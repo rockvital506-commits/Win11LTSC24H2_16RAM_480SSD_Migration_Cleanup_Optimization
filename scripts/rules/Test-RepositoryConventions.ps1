@@ -139,6 +139,15 @@ function Test-FileConventions {
     param([Parameter(Mandatory = $true)][System.IO.FileInfo]$File)
 
     $ext = $File.Extension.ToLowerInvariant()
+
+    # AR-101: шаблоны проверяются по расширению ЦЕЛЕВОГО файла.
+    # u_w11_ltsc_iot.xml.template -> .xml (UTF-8 без BOM, CRLF);
+    # ventoy.json.template -> .json (UTF-8 без BOM, LF).
+    if ($File.Name.ToLowerInvariant().EndsWith('.template')) {
+        $baseName = $File.Name.Substring(0, $File.Name.Length - '.template'.Length)
+        $ext = [System.IO.Path]::GetExtension($baseName).ToLowerInvariant()
+    }
+
     $rel = $File.FullName
     $bytes = [System.IO.File]::ReadAllBytes($File.FullName)
 

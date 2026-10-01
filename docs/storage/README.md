@@ -7,8 +7,8 @@
 | `partitioning_research.md` | NVMe SSD 480 ГБ | 1 | DONE |
 | `C_drive_schema.md` | NVMe SSD, разделы EFI/MSR/Windows | 1 | DONE (схема), runtime-структура — по этапам 4–7 |
 | `D_drive_schema.md` | NVMe SSD, раздел Data | 1 | DONE (схема), runtime-структура — по этапам 6–7 |
-| `F_drive_schema.md` | USB Flash 460 ГБ (Ventoy) | 2 | PLAN |
+| `F_drive_schema.md` | USB Flash 460 ГБ (Ventoy) | 2 | IN_PROGRESS (раскладка зафиксирована, ожидает протоколирования — `F-OPEN-1`) |
 
-**Связанные артефакты:** `ADR-0007` (схема разметки), `PAT-NEW-6` (выравнивание 1 MiB), `PAT-NEW-7` (документирование схемы), `scripts/Stage1_DiskGenius_Partition.ps1` (верификация).
+**Связанные артефакты:** `ADR-0007` (rev.2) и `ADR-0011` (единицы и ESP), `ADR-0005` (двухэтапный unattend), `PAT-NEW-6` (выравнивание 1 MiB), `PAT-NEW-7` (документирование схемы), `scripts/Stage1_DiskGenius_Partition.ps1` (верификация).
 
 **Правило:** изменения геометрии разделов, ФС, кластеров и точек монтирования — только через `GATE_PARTITIONING` (§4.1 README) с обновлением схемы и ADR-0007.

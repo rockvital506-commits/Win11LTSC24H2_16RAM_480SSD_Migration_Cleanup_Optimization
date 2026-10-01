@@ -5,7 +5,7 @@
 | Документ | Этап | Содержание | Статус |
 |---|---|---|---|
 | `Stage1_Hardware_Preparation.md` | 1 | BIOS (ASUS Software Update → Disabled), бэкап старой системы, проверка видимости NVMe, протоколирование VMD/Secure Boot | DONE |
-| `Stage2_Ventoy_Install.md` | 2 | Установка ОС через Ventoy с `u_w11_ltsc_iot.xml`, вход в Audit Mode | PLAN |
+| `Stage2_Ventoy_Install.md` | 2 | Рендер конфигурации Ventoy и файла ответов, установка ОС, вход в Audit Mode | DONE |
 | `Stage3_Windows_Update.md` | 3 | Накопительные обновления, обязательное отключение сети после | PLAN |
 | `Stage6_Ohook_Activation.md` | 6 | Кратковременный выход в сеть, Ohook-активация, окончательное отключение сети | PLAN |
 
