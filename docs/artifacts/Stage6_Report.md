@@ -44,7 +44,9 @@ Stage 6 закрепляет результат Stage 2–4: система ли
 | 13 | Алгоритмы | `algorithm/auto/Stage6_AutoSetup.md`, `algorithm/manual/Stage6_Ohook_Activation.md` | DONE |
 | 14 | Паттерны | `PAT-04`, `PAT-06`, `PAT-08`, `PAT-09`, `PAT-11`, `PAT-NEW-2`, `PAT-NEW-3`, `PAT-NEW-4` | DONE |
 | 15 | Развёртывание рантайма | `tools/runtime/README.md`, `tools/README.md` (порядок поставки LGPO) | DONE |
-| 16 | Прогон валидатора конвенций | — | **PASS** (141 файл, 0 нарушений) |
+| 16 | Домен правил брандмауэра | `tweaks/firewall/FirewallManifest.json`, `Apply-FirewallManifest.ps1` (`SCRIPT-FW-001`) | DONE |
+| 17 | Базовый перечень доменов для `hosts` | `docs/core-tweaks/HOSTS_BASELINE.md` | DONE (на ратификацию) |
+| 18 | Прогон валидатора конвенций | — | **PASS** (145 файлов, 0 нарушений) |
 
 ## 3. Состав контура (целевое состояние)
 
@@ -53,19 +55,19 @@ Stage 6 закрепляет результат Stage 2–4: система ли
 | Политики | `C:\Windows\System32\GroupPolicy` | DENY `SYSTEM:(W)` + импорт `CleanLTSCPolicy` | PAT-06, PAT-11 |
 | Имена | `C:\Windows\System32\drivers\etc\hosts` | DENY `SYSTEM:(W)` + объявленный список доменов | PAT-08, PAT-11 |
 | Транспорт | `HKLM\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient` | `DoHPolicy = 1` | PAT-08 |
-| Обходчики | `CompatTelRunner.exe`, `WaaSMedicAgent.exe` | исходящие правила брандмауэра | PAT-09 |
+| Обходчики | `CompatTelRunner.exe`, `WaaSMedicAgent.exe` | исходящие правила брандмауэра (`tweaks/firewall/FirewallManifest.json` → `D:\GD_Tool\FirewallRules.json`) | PAT-09 |
 | Автозапуск | задача `System_Immunity_Core` | boot + unlock, принципал SYSTEM | PAT-NEW-4 |
 | Реаниматоры | 6 задач планировщика | `Disable` (+ опциональный DENY на XML) | PAT-04 |
 | Активация | подсистема лицензирования | Ohook, один раз в окне Stage 6 | PAT-17 |
 
 ## 4. Открытые вопросы (требуют решения владельца)
 
-| ID | Вопрос | Варианты | Влияние |
+| ID | Вопрос | Решение (2026-10-01) | Состояние |
 |---|---|---|---|
-| `S6-OPEN-1` | Перечень доменов для `hosts` | предоставить список владельцем | блокирует финальную правку `hosts` |
-| `S6-OPEN-2` | Дом декларации правил брандмауэра | (а) `tweaks/firewall/FirewallManifest.json` — требует `GATE_STRUCTURE`; (б) оставить объявление в ADR-0015 + ядре | структура репозитория |
-| `S6-OPEN-3` | Исключение `sppc.dll` в Defender (`DEF-004`) | (а) сохранить — стабильность активации; (б) убрать — не ослаблять путь активации | доверенная зона |
-| `S6-OPEN-4` | Поставка `LGPO.exe` | владелец кладёт бинарь на `F:\TOOLS\GPO\`, фиксируется SHA256 | `WARN` в `P0.3`, импорт политик пропускается |
+| `S6-OPEN-1` | Перечень доменов для `hosts` | подготовлен базовый набор на ратификацию: `docs/core-tweaks/HOSTS_BASELINE.md` | **PROPOSED** — ждёт правок владельца |
+| `S6-OPEN-2` | Дом декларации правил брандмауэра | создан `tweaks/firewall/FirewallManifest.json` + `Apply-FirewallManifest.ps1` (`SCRIPT-FW-001`); ядро читает `D:\GD_Tool\FirewallRules.json` | **CLOSED** |
+| `S6-OPEN-3` | Исключение `sppc.dll` в Defender (`DEF-004`) | сохранено осознанно (приоритет — устойчивость активации); компенсация: офлайн-профиль, контроль пакетов Stage 7, откат `-Remove` | **CLOSED (waiver)** |
+| `S6-OPEN-4` | Поставка `LGPO.exe` | владелец кладёт бинарь на `F:\TOOLS\GPO\`, SHA256 в `tools/LGPO/<VERSION>/SHA256SUMS.txt` | **OPEN** — до поставки импорт политик пропускается (`WARN` `P0.3`) |
 
 **Снятые вопросы.** Корень `D:\GD_Tool` — **не** `GATE_AMBIGUITY`: раздел `D:` (Data, NTFS, 64 КБ) существует в
 схеме разметки (ADR-0007, ADR-0011, строка 4) и предназначен для вспомогательных данных. Параметризация не требуется.

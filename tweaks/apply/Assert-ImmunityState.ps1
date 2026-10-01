@@ -150,7 +150,7 @@ try {
     }
 
     # --- B: артефакты автоматизации ---
-    foreach ($file in @('D:\GD_Tool\AutoSetup.bat', 'D:\GD_Tool\Launcher.vbs')) {
+    foreach ($file in @('D:\GD_Tool\ImmunityCore.ps1', 'D:\GD_Tool\AutoSetup.bat', 'D:\GD_Tool\Launcher.vbs', 'D:\GD_Tool\FirewallRules.json')) {
         Add-VerificationCheck -Context $context -Id ('B{0}' -f (Split-Path -Leaf $file)) -Check ('Файл {0}' -f $file) `
             -Expected 'существует' -Actual $(if (Test-Path -LiteralPath $file) { 'существует' } else { 'отсутствует' }) `
             -Status $(if (Test-Path -LiteralPath $file) { 'PASS' } else { 'FAIL' }) -Note 'PAT-NEW-3'

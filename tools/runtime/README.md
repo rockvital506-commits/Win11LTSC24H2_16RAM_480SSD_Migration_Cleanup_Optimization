@@ -18,6 +18,7 @@ D:\GD_Tool\
 ├── ImmunityCore.ps1      ← templates/ImmunityCore.ps1.template (UTF-8 BOM, CRLF)
 ├── AutoSetup.bat         ← scripts/Stage6_AutoSetup.bat      (ASCII, CRLF)
 ├── Launcher.vbs          ← scripts/Stage6_Launcher.vbs       (ASCII, CRLF)
+├── FirewallRules.json    ← tweaks/firewall/FirewallManifest.json (декларация правил, PAT-09)
 ├── LGPO.exe              ← F:\TOOLS\GPO\ (поставка владельца, AR-804)
 ├── CleanLTSCPolicy\      ← слепок LGPO (/b + переименование GUID-каталога)
 └── logs\
@@ -53,6 +54,8 @@ ren D:\GD_Tool\{XXXXXXXX-XXXX-...} CleanLTSCPolicy
 | Пробный прогон (без изменений) | `powershell -File D:\GD_Tool\ImmunityCore.ps1 -Audit` |
 | Верификация контура | `pwsh -File ./tweaks/apply/Assert-ImmunityState.ps1 -ExportReport ./docs/artifacts/Stage6_immunity.md` |
 | Снятие замков (откат) | `pwsh -File ./tweaks/apply/Apply-AclManifest.ps1 -Phase Grant` |
+| Переприменение правил брандмауэра | `pwsh -File ./tweaks/apply/Apply-FirewallManifest.ps1` |
+| Снятие правил брандмауэра (откат) | `pwsh -File ./tweaks/apply/Apply-FirewallManifest.ps1 -Remove` |
 
 ## 4. Правила
 

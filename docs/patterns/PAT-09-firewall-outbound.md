@@ -32,7 +32,9 @@
 
 | Артефакт | Путь |
 |---|---|
-| Ядро (создание правил) | `templates/ImmunityCore.ps1.template` (`$firewallRules`) |
+| Декларация состава | `tweaks/firewall/FirewallManifest.json` (`FW-001`, `FW-002`) |
+| Апплейер | `tweaks/apply/Apply-FirewallManifest.ps1` (`SCRIPT-FW-001`) |
+| Рантайм | `templates/ImmunityCore.ps1.template` — читает `D:\GD_Tool\FirewallRules.json` (встроенный набор — резерв) |
 | Верификация | `tweaks/apply/Assert-ImmunityState.ps1` (`F1`, `F2`) |
 
 ## Проверка
@@ -45,5 +47,5 @@
 
 ## Замечания
 
-- **GATE_STRUCTURE:** декларативный дом правил (`tweaks/firewall/FirewallManifest.json`) пока не создан — состав объявлен в ядре и проверке. Решение о выделении каталога за владельцем (см. `Stage6_Report.md`, «Открытые вопросы»).
+- **GATE_STRUCTURE закрыт** (2026-10-01): дом `tweaks/firewall/` создан по решению владельца; манифест — единый источник, апплейер `Apply-FirewallManifest.ps1`.
 - Правила создаются на уровне Windows Firewall и переживают перезапуск; цементирование их не затрагивает.

@@ -11,6 +11,7 @@
 | `services/` | Типы запуска служб и ACL | `ServiceGate.json` |
 | `tasks/` | Задачи планировщика | `TaskManifest.json` |
 | `acl/` | Владелец и NTFS Deny SYSTEM | `AclManifest.json` |
+| `firewall/` | Исходящие правила брандмауэра | `FirewallManifest.json` |
 | `appx/` | Список UWP/AppX к вырезанию | `AppxRemoval.json` |
 | `apply/` | Скрипты применения | `Apply-Tweaks.ps1`, `Apply-AclManifest.ps1`, `Apply-TaskManifest.ps1`, `Invoke-DefenderAllowList.ps1`, `Assert-TweakState.ps1`, `Assert-ImmunityState.ps1` |
 

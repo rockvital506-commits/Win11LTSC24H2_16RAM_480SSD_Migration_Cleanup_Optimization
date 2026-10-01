@@ -23,7 +23,7 @@
 | `PAT-06` | GPO/LGPO-импорт | 6 | ✅ | **DONE** | `PAT-06-lgpo-snapshot.md`, ADR-0003/0015 |
 | `PAT-07` | VMware via WHP API | 7 | ✅ | PLAN | ADR-0002, `devops/hypervisor` |
 | `PAT-08` | Hosts + DoH=0 | 6 | ✅ | **DONE** | `PAT-08-hosts-doh.md`, `TWK-006` |
-| `PAT-09` | Firewall outbound rule | 6 | ✅ | **DONE** | `PAT-09-firewall-outbound.md` |
+| `PAT-09` | Firewall outbound rule | 6 | ✅ | **DONE** | `PAT-09-firewall-outbound.md`, `tweaks/firewall` |
 | `PAT-10` | ACL Freeze (Owner=SYSTEM) | 2, 4 | ✅ | PLAN | `tweaks/acl` |
 | `PAT-11` | NTFS Deny SYSTEM (цементирование) | 6 | ✅ | **DONE** | `PAT-11-ntfs-deny-cementing.md`, ADR-0003 |
 | `PAT-12` | bcdedit Disable VBS/HVCI/LSA Isolation | 4 | ✅ | **DONE** | `PAT-12-bcd-vbs-disable.md`, ADR-0012 |

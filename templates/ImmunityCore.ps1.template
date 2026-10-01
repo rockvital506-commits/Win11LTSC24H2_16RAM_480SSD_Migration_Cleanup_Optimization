@@ -53,6 +53,9 @@ $hostsFile = Join-Path $env:SystemRoot 'System32\drivers\etc\hosts'
 
 # Объекты и исключения объявлены здесь и не расширяются без ADR (AR-501).
 $lockTargets = @($gpoDir, $hostsFile)
+
+# Аварийный резерв правил брандмауэра: основной состав читается из
+# $ToolDir\FirewallRules.json (разворачивается из tweaks/firewall/FirewallManifest.json, PAT-09).
 $firewallRules = @(
     @{ DisplayName = 'Block Telemetry Core'; Program = (Join-Path $env:SystemRoot 'System32\CompatTelRunner.exe') },
     @{ DisplayName = 'Block WaaSMedic Outbound Agent'; Program = (Join-Path $env:SystemRoot 'System32\WaaSMedicAgent.exe') }
@@ -158,7 +161,24 @@ try {
         Write-CoreLog -Level 'WARN' -Message 'LGPO.exe или CleanLTSCPolicy не найдены: импорт политик пропущен.'
     }
 
-    # 3. Брандмауэр: обрыв исходящих каналов обходчиков.
+    # 3. Брандмауэр: состав — из FirewallRules.json (единый источник, PAT-09).
+    $rulesFile = Join-Path $ToolDir 'FirewallRules.json'
+    if (Test-Path -LiteralPath $rulesFile) {
+        try {
+            $declared = @((Get-Content -LiteralPath $rulesFile -Raw -Encoding UTF8 | ConvertFrom-Json).rules)
+            if ($declared.Count -gt 0) {
+                $firewallRules = @($declared | ForEach-Object {
+                    @{ DisplayName = [string]$_.displayName; Program = ([string]$_.program).Replace('%SystemRoot%', $env:SystemRoot) }
+                })
+                Write-CoreLog -Message ('Правила брандмауэра загружены из FirewallRules.json: {0}.' -f $firewallRules.Count)
+            }
+        }
+        catch {
+            Write-CoreLog -Level 'WARN' -Message ('FirewallRules.json не прочитан, используется встроенный резерв: {0}' -f $_.Exception.Message)
+        }
+    }
+
+    # Обрыв исходящих каналов обходчиков.
     foreach ($rule in $firewallRules) {
         $existing = Get-NetFirewallRule -DisplayName $rule.DisplayName -ErrorAction SilentlyContinue
         if ($Audit) {

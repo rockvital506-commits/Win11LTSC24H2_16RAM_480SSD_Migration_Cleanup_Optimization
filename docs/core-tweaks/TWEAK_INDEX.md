@@ -60,22 +60,31 @@
 
 Обзорная матрица: `docs/core-tweaks/ACL_MATRIX.md`. Предохранитель самоблокировки — `Guard.psm1` (AR-506).
 
-## 6. Временные (транзитные) состояния
+## 6. Правила брандмауэра (`tweaks/firewall/FirewallManifest.json`)
+
+| ID | Правило | Программа | Действие | Паттерн | Статус |
+|---|---|---|---|---|---|
+| `FW-001` | `Block Telemetry Core` | `%SystemRoot%\System32\CompatTelRunner.exe` | Outbound → Block | `PAT-09` | DONE (Stage 6, декларация) |
+| `FW-002` | `Block WaaSMedic Outbound Agent` | `%SystemRoot%\System32\WaaSMedicAgent.exe` | Outbound → Block | `PAT-09` | DONE (Stage 6, декларация) |
+
+Применение: `tweaks/apply/Apply-FirewallManifest.ps1` (`SCRIPT-FW-001`); тот же состав разворачивается в
+`D:\GD_Tool\FirewallRules.json` для рантайма. Снятие — только `-Remove` (AR-204).
+
+## 7. Временные (транзитные) состояния
 
 | Элемент | Управление | Паттерн | Примечание |
 |---|---|---|---|
 | PnP-щит (`DenyDeviceIDs`, `DisableCoInstallers`) | `tweaks/apply/Invoke-PnpShield.ps1` | `PAT-15` | активен только на время импорта INF; снимается в `finally` |
 | ACL-транзакция `grant` | `Apply-AclManifest.ps1 -Phase Grant` | `PAT-NEW-2` | окно импорта политик; завершается фазой `Deny` |
 
-## 7. Запланированные твики
+## 8. Запланированные твики
 
 | ID | Имя | Этап | Паттерн |
 |---|---|---|---|
 | — | ACL Freeze (Owner=SYSTEM) — пересмотреть после стенда | 6 | `PAT-10` |
-| — | Дом декларации правил брандмауэра (`tweaks/firewall/`) — `GATE_STRUCTURE` | 6 | `PAT-09` |
 | — | WMI Event Consumer Removal + ACL | 4 | `PAT-05` |
 
-## 8. Верификация
+## 9. Верификация
 
 | Контур | Точка входа | Отчёт |
 |---|---|---|

@@ -8,5 +8,6 @@
 | `REGISTRY_MAP.md` | Карта веток реестра: что читается, что пишется, чем защищено | PLAN |
 | `BCD_REFERENCE.md` | Состояние BCD: `DISABLE-LSA-ISOLATION`, `DISABLE-VBS`, политика экспорта перед изменением (AR-505) | PLAN |
 | `ACL_MATRIX.md` | Матрица прав: объект → owner → deny/allow → паттерн (PAT-10, PAT-11) | **DONE** (Stage 6) |
+| `HOSTS_BASELINE.md` | Базовый перечень доменов для `hosts`: группы, назначение, порядок ратификации (PAT-08) | **PROPOSED** |
 
 **Правила домена:** AR-501 … AR-507. Изменения — только через манифесты из `tweaks/`.

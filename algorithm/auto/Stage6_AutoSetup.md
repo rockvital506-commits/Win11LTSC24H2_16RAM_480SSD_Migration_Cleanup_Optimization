@@ -58,6 +58,7 @@ pwsh -File ./scripts/Stage6_Immunity_Prepare.ps1 -VerifyOnly `
 | `P1` | доверенная зона Defender (до первой ACL-операции!) | `Invoke-DefenderAllowList.ps1` |
 | `P2` | рантайм в `D:\GD_Tool` + SHA256 | `ImmunityCore.ps1`, `AutoSetup.bat`, `Launcher.vbs` |
 | `P3` | задача `System_Immunity_Core`; реаниматоры → `Disable` | `Apply-TaskManifest.ps1` |
+| `P3b` | правила брандмауэра по декларации + `D:\GD_Tool\FirewallRules.json` | `Apply-FirewallManifest.ps1` |
 | `P4` | NTFS-замки `deny SYSTEM:(W)` (флаг `-ApplyAcl`) | `Apply-AclManifest.ps1` |
 | `P5` | чек-лист ручного окна активации | `algorithm/manual/Stage6_Ohook_Activation.md` |
 | `P6` | сквозная верификация | `Assert-ImmunityState.ps1` |
@@ -68,7 +69,7 @@ pwsh -File ./scripts/Stage6_Immunity_Prepare.ps1 -VerifyOnly `
 
 1. `grant` — SYSTEM получает полный доступ к `GroupPolicy` и файлу `hosts`;
 2. `LGPO.exe /g D:\GD_Tool\CleanLTSCPolicy` — импорт эталонного слепка политик;
-3. правила брандмауэра против `CompatTelRunner.exe` и `WaaSMedicAgent.exe` (PAT-09);
+3. правила брандмауэра против `CompatTelRunner.exe` и `WaaSMedicAgent.exe` — состав из `FirewallRules.json` (единый источник `tweaks/firewall/FirewallManifest.json`, PAT-09);
 4. `gpupdate /force` — фиксация политик в ядре;
 5. `deny` — SYSTEM лишается права записи (абсолютный приоритет DENY, PAT-11/PAT-NEW-2);
 6. запись результата в `D:\GD_Tool\logs\ImmunityCore.log`; код возврата ≠ 0 → FAIL в журнале задачи.

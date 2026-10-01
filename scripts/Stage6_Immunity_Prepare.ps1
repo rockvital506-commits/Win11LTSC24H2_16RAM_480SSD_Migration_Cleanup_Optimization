@@ -12,6 +12,7 @@
           AutoSetup.bat, Launcher.vbs + верификация SHA256 (PAT-20);
       P3  задача System_Immunity_Core и вывод из строя задач-реаниматоров
           (Apply-TaskManifest.ps1, PAT-NEW-4, PAT-04);
+      P3b правила брандмауэра по декларации tweaks/firewall/ (PAT-09);
       P4  NTFS-замки по AclManifest.json (Apply-AclManifest.ps1) — только с -ApplyAcl;
       P5  сводка и печать ручного чек-листа микро-карантина активации;
       P6  с -VerifyOnly: сквозная верификация (Assert-ImmunityState.ps1).
@@ -36,6 +37,9 @@
 
 .PARAMETER ApplyAcl
     Применить NTFS-замки (deny) сразу, не дожидаясь запуска AutoSetup.bat.
+
+.PARAMETER SkipFirewall
+    Не применять правила брандмауэра и не разворачивать FirewallRules.json.
 
 .PARAMETER ApplyTaskAcl
     Дополнительно поставить DENY на XML-файлы выведенных из строя задач.
@@ -79,6 +83,8 @@ param(
 
     [switch]$SkipTasks,
 
+    [switch]$SkipFirewall,
+
     [switch]$ApplyAcl,
 
     [switch]$ApplyTaskAcl,
@@ -104,7 +110,8 @@ $toolDir  = 'D:\GD_Tool'
 $runtimeFiles = @(
     @{ Source = (Join-Path $RepoRoot 'templates/ImmunityCore.ps1.template'); Target = (Join-Path $toolDir 'ImmunityCore.ps1') },
     @{ Source = (Join-Path $RepoRoot 'scripts/Stage6_AutoSetup.bat');        Target = (Join-Path $toolDir 'AutoSetup.bat') },
-    @{ Source = (Join-Path $RepoRoot 'scripts/Stage6_Launcher.vbs');         Target = (Join-Path $toolDir 'Launcher.vbs') }
+    @{ Source = (Join-Path $RepoRoot 'scripts/Stage6_Launcher.vbs');         Target = (Join-Path $toolDir 'Launcher.vbs') },
+    @{ Source = (Join-Path $RepoRoot 'tweaks/firewall/FirewallManifest.json'); Target = (Join-Path $toolDir 'FirewallRules.json') }
 )
 
 function Test-NetworkIsolation {
@@ -230,6 +237,19 @@ try {
             if ($taskCode -ne 0) {
                 Write-Log -Level 'FAIL' -Component $scriptId -Message ('Задачи: код {0}.' -f $taskCode)
             }
+        }
+
+        # --- P3b: правила брандмауэра (PAT-09) ---
+        if (-not $SkipFirewall) {
+            Write-Log -Component $scriptId -Message 'P3b: правила брандмауэра...'
+            $fwCode = Invoke-SubScript -Path (Join-Path $RepoRoot 'tweaks/apply/Apply-FirewallManifest.ps1') -Arguments @{}
+            if ($fwCode -ne 0) {
+                Write-Log -Level 'FAIL' -Component $scriptId -Message ('Брандмауэр: код {0}.' -f $fwCode)
+            }
+        }
+        else {
+            Add-VerificationCheck -Context $context -Id 'P3.9' -Check 'Правила брандмауэра' -Expected 'применены' `
+                -Actual 'пропущены флагом -SkipFirewall' -Status 'WARN' -Note 'PAT-09'
         }
 
         # --- P4: NTFS-замки (деноминация контура) ---
