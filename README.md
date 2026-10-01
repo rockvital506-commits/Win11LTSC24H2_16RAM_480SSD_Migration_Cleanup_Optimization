@@ -669,10 +669,12 @@ F:\
 
 | Partition | Type | FS | Size | Cluster | Mount | Purpose |
 |---|---|---|---|---|---|---|
-| 1 | EFI System Partition | FAT32 | 260 MB | 4K | `F:\EFI` (загрузочный) | Загрузчик Windows, BCD |
-| 2 | MSR | (none) | 16 MB | — | (hidden) | Microsoft System Reserved |
-| 3 | Windows | NTFS | 200 GB | 4K | `C:\` | ОС + Program Files + Users |
-| 4 | Data | NTFS | 279 GB | 64K | `D:\` | Data, VM-диски, Docker volumes, dev-проекты |
+| 1 | EFI System Partition | FAT32 | 260 MiB | 4K | скрытая (без буквы диска) | Загрузчик Windows, BCD |
+| 2 | MSR | (none) | 16 MiB | — | (hidden) | Microsoft System Reserved |
+| 3 | Windows | NTFS | 200 GiB | 4K | `C:\` | ОС + Program Files + Users |
+| 4 | Data | NTFS | остаток ≈246.7 GiB | 64K | `D:\` | Data, VM-диски, Docker volumes, dev-проекты |
+
+> Единицы измерения: MiB/GiB (двоичные, 1024-based); эталонные байтовые значения — `ADR-0011`, `docs/storage/partitioning_research.md` §4.5.
 
 ### 6.3 Partitioning Research Notes
 
@@ -686,38 +688,38 @@ F:\
 
 #### 6.3.2 EFI System Partition (ESP)
 
-- **Минимум:** 100 MB (FAT32 имеет ограничение 4 GB на файл, но для BCD достаточно 100 MB)
-- **Рекомендуется Microsoft:** 260 MB (для будущих обновлений)
-- **Наша рекомендация:** 260 MB (FAT32, cluster 4K)
+- **Минимум:** 100 MiB (ограничение FAT32 в 4 GiB на файл для BCD несущественно)
+- **Рекомендуется Microsoft:** 260 MiB (с запасом под обновления)
+- **Наша рекомендация:** 260 MiB (FAT32, кластер 4 КБ), **без буквы диска** (ADR-0011): буква `F:` закреплена за USB-носителем
 
 #### 6.3.3 MSR Partition
 
-- **Фиксированный размер:** 16 MB (Microsoft рекомендация)
+- **Фиксированный размер:** 16 MiB (Microsoft рекомендация)
 - **Не форматируется** — служебная область для конвертации дисков в GPT
 
 #### 6.3.4 C:\ (Windows)
 
 | Component | Typical Size | Notes |
 |---|---|---|
-| Windows LTSC IoT | ~25 GB | После Update Stage 3 |
-| Program Files | ~5 GB | VS Code, Visual C++, winget packages |
-| Users | ~10 GB | Профиль devops + Default User |
-| WinSxS | ~5 GB | После ResetBase |
-| PageFile | 4 GB | Фиксированный (InitialSize=MaximumSize=4096) |
-| Temp / Cache | ~3 GB | Очищается регулярно |
-| **Buffer** | ~150 GB | Для будущих обновлений и приложений |
-| **Total C:\** | **~200 GB** | |
+| Windows LTSC IoT | ~24 GiB | После Update Stage 3 |
+| Program Files | ~5 GiB | VS Code, Visual C++, winget packages |
+| Users | ~9 GiB | Профиль devops + Default User |
+| WinSxS | ~5 GiB | После ResetBase |
+| PageFile | 4 GiB | Фиксированный (InitialSize=MaximumSize=4096) |
+| Temp / Cache | ~3 GiB | Очищается регулярно |
+| **Buffer** | ~150 GiB | Для будущих обновлений и приложений |
+| **Total C:\** | **200 GiB** | Эталон: 214 748 364 800 байт (ADR-0011) |
 
 #### 6.3.5 D:\ (Data)
 
 | Component | Typical Size | Notes |
 |---|---|---|
-| VM disks (.vmdk) | ~100 GB | Pre-allocated для VMware |
-| Docker volumes | ~50 GB | Контейнерные данные |
-| Dev projects | ~50 GB | git clone, build artifacts |
-| Backups (config snapshots) | ~20 GB | Снимки конфигов |
-| Free space | ~60 GB | Для будущих нужд |
-| **Total D:\** | **~280 GB** | (свободно: ~209 GB для раздела 3 флешки, не путать) |
+| VM disks (.vmdk) | ~90 GiB | Pre-allocated для VMware |
+| Docker volumes | ~45 GiB | Контейнерные данные |
+| Dev projects | ~45 GiB | git clone, build artifacts |
+| Backups (config snapshots) | ~15 GiB | Снимки конфигов |
+| Free space | ~51.7 GiB | Для будущих нужд |
+| **Total D:\** | **≈246.7 GiB** | Весь остаток ёмкости накопителя (ADR-0011); не путать с разделом 3 носителя F: |
 
 ### 6.4 DiskGenius Operations
 
@@ -725,10 +727,10 @@ F:\
 |---|---|---|
 | 1 | Backup old partition table | DiskGenius → Backup Partition Table |
 | 2 | Create GPT | DiskGenius → Initialize Disk → GPT |
-| 3 | Create ESP | DiskGenius → New Partition → EFI System Partition, 260 MB, FAT32, 1 MiB alignment |
-| 4 | Create MSR | DiskGenius → New Partition → MSR, 16 MB |
-| 5 | Create C:\ | DiskGenius → New Partition → Primary, 200 GB, NTFS, 4K cluster, 1 MiB alignment |
-| 6 | Create D:\ | DiskGenius → New Partition → Primary, 279 GB, NTFS, 64K cluster, 1 MiB alignment |
+| 3 | Create ESP | DiskGenius → New Partition → EFI System Partition, 260 MiB (272 629 760 Б), FAT32, 1 MiB alignment, без буквы |
+| 4 | Create MSR | DiskGenius → New Partition → MSR, 16 MiB (16 777 216 Б) |
+| 5 | Create C:\ | DiskGenius → New Partition → Primary, **200 GiB (214 748 364 800 Б)**, NTFS, 4K cluster, 1 MiB alignment |
+| 6 | Create D:\ | DiskGenius → New Partition → Primary, **весь остаток (≈246.7 GiB)**, NTFS, 64K cluster, 1 MiB alignment |
 | 7 | Backup new partition table | DiskGenius → Backup Partition Table |
 | 8 | Verify alignment | DiskGenius → Verify → 1 MiB boundary check |
 
@@ -752,7 +754,7 @@ fsutil behavior set encryptpagingfile 0
 
 | Parameter | Value |
 |---|---|
-| Device | NVMe SSD 480 GB |
+| Device | NVMe SSD 480 GB (≈447 GiB полезной ёмкости) |
 | Partition Table | GPT |
 | Boot Mode | UEFI |
 | Total Size | 480 GB |
@@ -761,10 +763,12 @@ fsutil behavior set encryptpagingfile 0
 
 | # | Type | FS | Size | Cluster | Mount | Label | GUID |
 |---|---|---|---|---|---|---|---|
-| 1 | EFI System | FAT32 | 260 MB | 4K | `C:\EFI` (hidden) | ESP | `<EFI_GUID>` |
-| 2 | MSR | — | 16 MB | — | hidden | MSR | `<MSR_GUID>` |
-| 3 | Windows | NTFS | 200 GB | 4K | `C:\` | Windows | `<WINDOWS_GUID>` |
-| 4 | Data | NTFS | 279.7 GB | 64K | `D:\` | Data | `<DATA_GUID>` |
+| 1 | EFI System | FAT32 | 260 MiB | 4K | скрытая (без буквы) | ESP | `<EFI_GUID>` |
+| 2 | MSR | — | 16 MiB | — | hidden | MSR | `<MSR_GUID>` |
+| 3 | Windows | NTFS | 200 GiB | 4K | `C:\` | Windows | `<WINDOWS_GUID>` |
+| 4 | Data | NTFS | ≈246.7 GiB (остаток) | 64K | `D:\` | Data | `<DATA_GUID>` |
+
+Единицы — MiB/GiB (1 GiB = 2³⁰ байт); байтовые эталоны и допуски — ADR-0011, §6.2.
 
 ### 7.3 Alignment Verification
 
@@ -892,15 +896,15 @@ D:\
 
 - [ ] DiskGenius partition table backup создан и сохранён на F:\BACKUPS\
 - [ ] GPT создан корректно
-- [ ] ESP: 260 MB, FAT32, 1 MiB alignment
-- [ ] MSR: 16 MB
-- [ ] C:\: 200 GB, NTFS, 4K cluster, 1 MiB alignment
-- [ ] D:\: ~280 GB, NTFS, 64K cluster, 1 MiB alignment
+- [ ] ESP: 260 MiB, FAT32, 1 MiB alignment, без буквы диска (ADR-0011)
+- [ ] MSR: 16 MiB
+- [ ] C:\: 200 GiB (214 748 364 800 Б), NTFS, 4K cluster, 1 MiB alignment
+- [ ] D:\: ≈246.7 GiB (весь остаток), NTFS, 64K cluster, 1 MiB alignment
 - [ ] fsutil 8dot3 disable применён к D:\
 - [ ] fsutil disablelastaccess применён
 - [ ] `Stage1_Report.md` создан
 - [ ] `C_drive_schema.md` обновлён
-- [ ] ADR-0007 создан
+- [ ] ADR-0007 (rev.2) и ADR-0011 созданы
 
 ### 9.2 Stage 2 (Ventoy) Verification
 

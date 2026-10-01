@@ -9,7 +9,7 @@
 | `DATE` | 2026-10-01 |
 | `AUTHOR` | AI-агент (Arena.ai) |
 | `STATUS` | **APPROVED** (ADR-0007); runtime-структура наполняется на этапах 4–7 |
-| `RELATED` | `ADR-0007`, `PAT-NEW-6`, `PAT-NEW-7`, `partitioning_research.md`, `D_drive_schema.md` |
+| `RELATED` | `ADR-0007` (rev.2), `ADR-0011`, `PAT-NEW-6`, `PAT-NEW-7`, `partitioning_research.md`, `D_drive_schema.md` |
 
 ---
 
@@ -24,14 +24,15 @@
 
 ## 2. Таблица разделов
 
-| # | Тип | ФС | Размер | Кластер | Монтирование | Метка | Назначение |
-|---|---|---|---|---|---|---|---|
-| 1 | EFI System Partition | FAT32 | 260 МБ | 4 КБ | `C:\EFI` (см. OPEN-1) | `EFI` | Загрузчик Windows, BCD, WinRE-ссылки |
-| 2 | MSR | — | 16 МБ | — | hidden | `MSR` | Microsoft System Reserved |
-| 3 | Windows | NTFS | 200 ГБ | 4 КБ | `C:\` | `Windows` | ОС, программы, профили |
-| 4 | Data | NTFS | ~279 ГБ | 64 КБ | `D:\` | `Data` | ВМ, контейнеры, проекты, бэкапы конфигов |
+| # | Тип | ФС | Размер | Байты (эталон) | Кластер | Монтирование | Метка | Назначение |
+|---|---|---|---|---|---|---|---|---|
+| 1 | EFI System Partition | FAT32 | 260 MiB | 272 629 760 | 4 КБ | **скрытая, без буквы** | `EFI` | Загрузчик Windows, BCD, WinRE-ссылки |
+| 2 | MSR | — | 16 MiB | 16 777 216 | — | hidden | `MSR` | Microsoft System Reserved |
+| 3 | Windows | NTFS | 200 GiB | 214 748 364 800 | 4 КБ | `C:\` | `Windows` | ОС, программы, профили |
+| 4 | Data | NTFS | весь остаток ≈246.7 GiB | по факту | 64 КБ | `D:\` | `Data` | ВМ, контейнеры, проекты, бэкапы конфигов |
 
-> `OPEN-1`: в README §6.2 ESP указана как `F:\EFI`, в §7.2 — как `C:\EFI`. Расхождение вынесено на решение владельца (`GATE_PARTITIONING`); буква `F:` закреплена за USB-носителем (README §8), поэтому рабочая позиция — `C:\EFI`.
+> `OPEN-1` — **RESOLVED** (ADR-0011): ESP не получает буквы диска. Буква `F:` закреплена за USB-носителем (README §8); вариант `C:\EFI` отклонён как лишняя точка монтирования системного раздела.
+> Единицы — MiB/GiB (двоичные); байтовые эталоны — ADR-0011, `partitioning_research.md` §4.5.
 
 ## 3. Проверка выравнивания
 
@@ -72,14 +73,14 @@ C:\
 
 | Компонент | Объём | Комментарий |
 |---|---|---|
-| Windows LTSC IoT 24H2 | ~25 ГБ | после накопительных обновлений Stage 3 |
-| Program Files | ~5 ГБ | VS Code, Visual C++, winget-пакеты |
-| Users | ~10 ГБ | профиль `devops` + `Default` |
-| WinSxS | ~5 ГБ | после `StartComponentCleanup /ResetBase` |
-| pagefile.sys | 4 ГБ | фиксированный (Stage 4: PAT-13) |
-| Temp / Cache | ~3 ГБ | периодическая очистка |
-| **Резерв** | **~148 ГБ** | будущие обновления и приложения |
-| **Итого C:\** | **200 ГБ** | |
+| Windows LTSC IoT 24H2 | ~24 GiB | после накопительных обновлений Stage 3 |
+| Program Files | ~5 GiB | VS Code, Visual C++, winget-пакеты |
+| Users | ~9 GiB | профиль `devops` + `Default` |
+| WinSxS | ~5 GiB | после `StartComponentCleanup /ResetBase` |
+| pagefile.sys | 4 GiB | фиксированный (Stage 4: PAT-13) |
+| Temp / Cache | ~3 GiB | периодическая очистка |
+| **Резерв** | **~150 GiB** | будущие обновления и приложения |
+| **Итого C:\** | **200 GiB** | эталон: 214 748 364 800 Б |
 
 ## 6. Правила и ограничения
 
@@ -98,7 +99,7 @@ C:\
 pwsh -File ./scripts/Stage1_DiskGenius_Partition.ps1 -ExportReport ./docs/artifacts/Stage1_partition_verify.md
 ```
 
-Критерии: GPT; 4 раздела типов EFI/MSR/Basic; ESP 260 МБ FAT32; MSR 16 МБ; `C:` NTFS 200 ГБ кластер 4 КБ; выравнивание 1 MiB — 100 %.
+Критерии: GPT; 4 раздела типов EFI/MSR/Basic; ESP 260 MiB FAT32 **без буквы диска**; MSR 16 MiB; `C:` NTFS 200 GiB кластер 4 КБ; `D:` — весь остаток; выравнивание 1 MiB — 100 %.
 
 ---
 

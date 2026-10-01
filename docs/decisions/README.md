@@ -10,9 +10,10 @@
 | `ADR-0004-ohook-vs-kms.md` | Ohook вместо KMS | PLAN |
 | `ADR-0005-dual-stage-unattend.md` | Двухэтапный unattend | PLAN |
 | `ADR-0006-fdrive-as-repository.md` | F:\ как производный репозиторий | PLAN |
-| `ADR-0007-partition-scheme.md` | Схема разделов | **ACCEPTED** |
+| `ADR-0007-partition-scheme.md` | Схема разделов | **ACCEPTED (rev.2 — ADR-0011)** |
 | `ADR-0008-repository-topology-domains.md` | Топология: три домена + перенос research1 | **ACCEPTED** |
 | `ADR-0009-automation-rules-baseline.md` | Базовый свод правил автоматизации | **ACCEPTED** |
 | `ADR-0010-pe-core-affinity-policy.md` | Политика привязки нагрузок к P+E-ядрам | **ACCEPTED** |
+| `ADR-0011-size-units-and-esp-mount.md` | Единицы GiB и скрытая ESP | **ACCEPTED** |
 
 **Правило:** ADR-0001…ADR-0007 создаются на соответствующих этапах; ранние номера не занимаются задним числом без записи в отчёте.

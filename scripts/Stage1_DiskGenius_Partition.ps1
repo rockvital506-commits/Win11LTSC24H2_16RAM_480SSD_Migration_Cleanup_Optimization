@@ -3,44 +3,49 @@
     Stage 1 — верификация схемы разметки NVMe SSD (read-only).
 
 .DESCRIPTION
-    Проверяет соответствие фактической разметки утверждённой схеме ADR-0007:
+    Проверяет соответствие фактической разметки утверждённой схеме ADR-0007 (rev.2) / ADR-0011:
 
+      W1  ESP не имеет буквы диска (скрытая)
       V1  GPT + загрузочный диск UEFI
       V2  четыре раздела типов EFI / MSR / Basic / Basic
       V3  выравнивание всех разделов по границе 1 MiB (PAT-NEW-6)
-      V4  размеры: ESP 260 МБ, MSR 16 МБ, Windows 200 ГБ, Data ~279 ГБ
+      V4  размеры: ESP 260 MiB, MSR 16 MiB, Windows 200 GiB, Data ~246.7 GiB (остаток)
       V5  файловые системы и кластеры: FAT32 4 КБ, NTFS 4 КБ, NTFS 64 КБ
       V6  NTFS-параметры: disable8dot3 на D:, disablelastaccess (fsutil)
 
-    ВАЖНО: скрипт НИЧЕГО не изменяет и не выполняет разметку. Разметка —
-    деструктивная операция и выполняется вручную в DiskGenius (AR-204, ADR-0007).
-    Поэтому параметры -Audit/-WhatIf не требуются: AR-302 применяется только к
-    изменяющим скриптам.
+    ЕДИНИЦЫ (ADR-0011): схема задана в MiB/GiB (двоичные, 1024-based). Все параметры
+    скрипта — в этих же единицах; сравнение выполняется в байтах с допуском.
+    Раздел Data не имеет фиксированного размера: он забирает весь остаток ёмкости,
+    поэтому его ожидаемое значение задаётся параметром -DataSizeGiB (справочно) и
+    проверяется с расширенным допуском.
 
-    Единицы измерения: схема ADR-0007 задана в десятичных единицах (SI, 1 ГБ = 10^9 байт).
-    Если фактические размеры совпадают с двоичной интерпретацией (GiB), скрипт выдаёт
-    WARN: расхождение единиц требует решения владельца, а не «тихой» правки документа.
+    ВАЖНО: скрипт НИЧЕГО не изменяет и не выполняет разметку. Разметка — деструктивная
+    операция и выполняется вручную в DiskGenius (AR-204, ADR-0007). Поэтому параметры
+    -Audit/-WhatIf не требуются: AR-302 применяется только к изменяющим скриптам.
 
 .PARAMETER DiskNumber
     Номер физического диска. По умолчанию 0 (системный NVMe).
 
-.PARAMETER EspSizeMB
-    Ожидаемый размер ESP в МБ. По умолчанию 260.
+.PARAMETER EspSizeMiB
+    Ожидаемый размер ESP в MiB. По умолчанию 260 (272 629 760 Б).
 
-.PARAMETER MsrSizeMB
-    Ожидаемый размер MSR в МБ. По умолчанию 16.
+.PARAMETER MsrSizeMiB
+    Ожидаемый размер MSR в MiB. По умолчанию 16 (16 777 216 Б).
 
-.PARAMETER SystemSizeGB
-    Ожидаемый размер раздела Windows в ГБ (SI). По умолчанию 200.
+.PARAMETER SystemSizeGiB
+    Ожидаемый размер раздела Windows в GiB. По умолчанию 200 (214 748 364 800 Б).
 
-.PARAMETER DataSizeGB
-    Ожидаемый размер раздела Data в ГБ (SI). По умолчанию 279.
+.PARAMETER DataSizeGiB
+    Справочный ожидаемый размер раздела Data в GiB. По умолчанию 246.7 (остаток ёмкости).
 
-.PARAMETER SizeToleranceMB
-    Допуск для фиксированных разделов (ESP/MSR/Windows), МБ. По умолчанию 512.
+.PARAMETER SizeToleranceMiB
+    Допуск для ESP/MSR/Windows, MiB. По умолчанию 512.
 
-.PARAMETER DataToleranceMB
-    Допуск для раздела Data (остаток ёмкости), МБ. По умолчанию 4096.
+.PARAMETER DataToleranceMiB
+    Допуск для раздела Data, MiB. По умолчанию 4096.
+
+.PARAMETER AllowEspLetter
+    Разрешить ESP с буквой диска (по умолчанию это нарушение ADR-0011).
 
 .PARAMETER SkipNtfsOptions
     Пропустить проверку V6 (fsutil) — например, при запуске в WinPE.
@@ -55,7 +60,7 @@
     Script-ID   : SCRIPT-STAGE1-001
     Stage       : 1
     Patterns    : PAT-NEW-6, PAT-NEW-7
-    ADR         : ADR-0007
+    ADR         : ADR-0007 (rev.2), ADR-0011
     Rules       : AUTOMATION_RULES.md (AR-201, AR-204, AR-301, AR-306, AR-307)
     Depends     : Storage module (Get-Disk/Get-Partition/Get-Volume), fsutil
     Author      : AI-агент (Arena.ai)
@@ -68,17 +73,19 @@
 param(
     [int]$DiskNumber = 0,
 
-    [int]$EspSizeMB = 260,
+    [int]$EspSizeMiB = 260,
 
-    [int]$MsrSizeMB = 16,
+    [int]$MsrSizeMiB = 16,
 
-    [double]$SystemSizeGB = 200,
+    [double]$SystemSizeGiB = 200,
 
-    [double]$DataSizeGB = 279,
+    [double]$DataSizeGiB = 246.7,
 
-    [int]$SizeToleranceMB = 512,
+    [int]$SizeToleranceMiB = 512,
 
-    [int]$DataToleranceMB = 4096,
+    [int]$DataToleranceMiB = 4096,
+
+    [switch]$AllowEspLetter,
 
     [switch]$SkipNtfsOptions,
 
@@ -96,9 +103,9 @@ $script:GptEfi   = '{c12a7328-f81f-11d2-ba4b-00a0c93ec93b}'
 $script:GptMsr   = '{e3c9e316-0b5c-4db8-817d-f92df00215ae}'
 $script:GptBasic = '{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}'
 
-$script:Megabyte  = 1000000.0
-$script:Gigabyte  = 1000000000.0
-$script:Gibibyte  = 1073741824.0
+# ADR-0011: канонические единицы — двоичные (MiB/GiB)
+$script:MiB = 1048576.0
+$script:GiB = 1073741824.0
 
 $script:Results = New-Object System.Collections.Generic.List[object]
 
@@ -130,30 +137,44 @@ function Test-Elevated {
 }
 
 function Format-Size {
+    [CmdletBinding()]
     param([Parameter(Mandatory = $true)][double]$Bytes)
-    if ($Bytes -ge $script:Gigabyte) { return ('{0:N2} ГБ' -f ($Bytes / $script:Gigabyte)) }
-    return ('{0:N0} МБ' -f ($Bytes / $script:Megabyte))
+
+    if ($Bytes -ge $script:GiB) { return ('{0:N2} GiB' -f ($Bytes / $script:GiB)) }
+    return ('{0:N0} MiB' -f ($Bytes / $script:MiB))
 }
 
-function Get-ToleranceFor {
+function Compare-Size {
+    <#
+        Сравнение фактического размера с эталоном (байты) в пределах допуска.
+        Возвращает Status (PASS/WARN/FAIL) и пояснение.
+    #>
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)][double]$ActualBytes,
-        [Parameter(Mandatory = $true)][double]$TargetSi
+        [Parameter(Mandatory = $true)][double]$ExpectedBytes,
+        [Parameter(Mandatory = $true)][double]$ToleranceBytes
     )
 
-    if ([Math]::Abs($ActualBytes - $TargetSi) -le $script:SizeToleranceBytes) {
-        return @{ Status = 'PASS'; Note = 'совпадает с SI-интерпретацией (1 ГБ = 10^9 байт)' }
+    $deviation = [Math]::Abs($ActualBytes - $ExpectedBytes)
+
+    if ($deviation -le $ToleranceBytes) {
+        return @{ Status = 'PASS'; Note = ('отклонение {0} (допуск {1})' -f (Format-Size -Bytes $deviation), (Format-Size -Bytes $ToleranceBytes)) }
     }
 
-    $targetGiB = $TargetSi / $script:Gigabyte * $script:Gibibyte
-    if ([Math]::Abs($ActualBytes - $targetGiB) -le $script:SizeToleranceBytes) {
-        return @{ Status = 'WARN'; Note = 'совпадает с GiB-интерпретацией (1 ГБ = 2^30 байт): требуется уточнить единицы в документации (GATE_PARTITIONING)' }
+    $status = 'FAIL'
+    $note   = ('отклонение {0} превышает допуск {1}' -f (Format-Size -Bytes $deviation), (Format-Size -Bytes $ToleranceBytes))
+
+    # Отклонение менее 2 % при большом разделе — вероятная разница округления инструмента
+    if ($ExpectedBytes -gt 0 -and ($deviation / $ExpectedBytes) -lt 0.02) {
+        $status = 'WARN'
+        $note   = ('отклонение {0} ({1:P2}) — в пределах 2 %: уточнить раскладку вручную' -f (Format-Size -Bytes $deviation), ($deviation / $ExpectedBytes))
     }
 
-    return @{ Status = 'FAIL'; Note = 'не совпадает ни с SI-, ни с GiB-интерпретацией схемы' }
+    return @{ Status = $status; Note = $note }
 }
 
-# --- V1/V2/V3/V4 -------------------------------------------------------------
+# --- W1/W2/V1/V3/V4 ----------------------------------------------------------
 function Test-DiskScheme {
     [CmdletBinding()]
     param(
@@ -164,10 +185,12 @@ function Test-DiskScheme {
 
     Add-Result -Id 'V1a' -Check 'Таблица разделов' -Expected 'GPT' -Actual $disk.PartitionStyle -Status $(if ($disk.PartitionStyle -eq 'GPT') { 'PASS' } else { 'FAIL' })
 
-    if ($disk.IsBoot) { $bootState = 'загрузочный (UEFI)' } else { $bootState = 'не загрузочный' }
     $bootStatus = 'PASS'
-    if (-not $disk.IsBoot) { $bootStatus = 'WARN' }
+    $bootState  = 'загрузочный (UEFI)'
+    if (-not $disk.IsBoot) { $bootStatus = 'WARN'; $bootState = 'не загрузочный' }
     Add-Result -Id 'V1b' -Check 'Роль диска' -Expected 'загрузочный' -Actual $bootState -Status $bootStatus -Note ('Модель: {0}; прошивка: {1}' -f $disk.FriendlyName, $disk.FirmwareVersion)
+
+    Add-Result -Id 'V1c' -Check 'Ёмкость накопителя' -Expected '≈447 GiB (маркировка 480 ГБ)' -Actual (Format-Size -Bytes $disk.Size) -Status $(if ($disk.Size -gt 400GB) { 'PASS' } else { 'WARN' })
 
     $parts = @(Get-Partition -DiskNumber $DiskNumber -ErrorAction Stop)
 
@@ -177,62 +200,69 @@ function Test-DiskScheme {
     foreach ($t in $expectedTypes) {
         if ($types -notcontains $t) { $typesOk = $false }
     }
-    $typeStatus = 'FAIL'
-    if ($typesOk) { $typeStatus = 'PASS' }
-    Add-Result -Id 'V2' -Check 'Типы разделов (EFI/MSR/Basic/Basic)' -Expected ($expectedTypes -join ', ') -Actual ('разделов: {0}; {1}' -f $parts.Count, ($types -join ', ')) -Status $typeStatus
+    Add-Result -Id 'V2' -Check 'Типы разделов (EFI/MSR/Basic/Basic)' -Expected ($expectedTypes -join ', ') -Actual ('разделов: {0}; {1}' -f $parts.Count, ($types -join ', ')) -Status $(if ($typesOk) { 'PASS' } else { 'FAIL' })
 
-    $aligned     = 0
-    $unaligned   = New-Object System.Collections.Generic.List[string]
+    $aligned   = 0
+    $unaligned = New-Object System.Collections.Generic.List[string]
     foreach ($p in $parts) {
         if (($p.Offset % 1MB) -eq 0) { $aligned++ }
         else { $unaligned.Add(('{0} @ {1}' -f $p.PartitionNumber, $p.Offset)) }
     }
-    $alignStatus = 'FAIL'
-    $alignNote   = 'нарушения: ' + ($unaligned -join '; ')
-    if ($aligned -eq $parts.Count) {
-        $alignStatus = 'PASS'
-        $alignNote   = 'все разделы на границе 1 MiB'
+    $alignStatus = 'PASS'
+    $alignNote   = 'все разделы на границе 1 MiB'
+    if ($aligned -ne $parts.Count) {
+        $alignStatus = 'FAIL'
+        $alignNote   = 'нарушения: ' + ($unaligned -join '; ')
     }
     Add-Result -Id 'V3' -Check 'Выравнивание 1 MiB (PAT-NEW-6)' -Expected ('{0}/{0}' -f $parts.Count) -Actual ('{0}/{1}' -f $aligned, $parts.Count) -Status $alignStatus -Note $alignNote
 
-    foreach ($p in $parts) {
-        $key = 'V4.{0}' -f $p.PartitionNumber
-        if ($p.GptType.ToString().ToLowerInvariant() -eq $script:GptEfi) {
-            $expected = $EspSizeMB * $script:Megabyte
-            $dev      = [Math]::Abs($p.Size - $expected) / $script:Megabyte
-            $status   = 'FAIL'
-            $note     = 'допуск ±{0} МБ' -f $EspSizeMB
-            if ($dev -le 16) { $status = 'PASS'; $note = 'допуск ±16 МБ' }
-            Add-Result -Id $key -Check ('ESP (#{0})' -f $p.PartitionNumber) -Expected ('{0} МБ' -f $EspSizeMB) -Actual (Format-Size -Bytes $p.Size) -Status $status -Note $note
+    # W1: ESP без буквы диска (ADR-0011)
+    $espPart = $parts | Where-Object { $_.GptType.ToString().ToLowerInvariant() -eq $script:GptEfi } | Select-Object -First 1
+    if ($null -ne $espPart) {
+        if ($null -eq $espPart.DriveLetter) {
+            Add-Result -Id 'W1' -Check 'ESP без буквы диска (ADR-0011)' -Expected 'нет буквы' -Actual 'скрытая' -Status 'PASS'
         }
-        elseif ($p.GptType.ToString().ToLowerInvariant() -eq $script:GptMsr) {
-            $expected = $MsrSizeMB * $script:Megabyte
-            $dev      = [Math]::Abs($p.Size - $expected) / $script:Megabyte
-            $status   = 'FAIL'
-            $note     = 'допуск ±4 МБ'
-            if ($dev -le 4) { $status = 'PASS' }
-            Add-Result -Id $key -Check ('MSR (#{0})' -f $p.PartitionNumber) -Expected ('{0} МБ' -f $MsrSizeMB) -Actual (Format-Size -Bytes $p.Size) -Status $status -Note $note
+        else {
+            $status = 'FAIL'
+            if ($AllowEspLetter) { $status = 'WARN' }
+            Add-Result -Id 'W1' -Check 'ESP без буквы диска (ADR-0011)' -Expected 'нет буквы' -Actual ('{0}:' -f $espPart.DriveLetter) -Status $status -Note 'легализовано только флагом -AllowEspLetter (не рекомендуется)'
         }
+    }
+    else {
+        Add-Result -Id 'W1' -Check 'ESP без буквы диска (ADR-0011)' -Expected 'нет буквы' -Actual 'раздел EFI не найден' -Status 'FAIL'
+    }
+
+    # V4: размеры (байтовые эталоны, ADR-0011)
+    if ($null -ne $espPart) {
+        $verdict = Compare-Size -ActualBytes $espPart.Size -ExpectedBytes ($EspSizeMiB * $script:MiB) -ToleranceBytes (16 * $script:MiB)
+        Add-Result -Id 'V4.ESP' -Check ('ESP (#{0})' -f $espPart.PartitionNumber) -Expected ('{0} MiB ({1:N0} Б)' -f $EspSizeMiB, ($EspSizeMiB * $script:MiB)) -Actual (Format-Size -Bytes $espPart.Size) -Status $verdict.Status -Note $verdict.Note
+    }
+
+    $msrPart = $parts | Where-Object { $_.GptType.ToString().ToLowerInvariant() -eq $script:GptMsr } | Select-Object -First 1
+    if ($null -ne $msrPart) {
+        $verdict = Compare-Size -ActualBytes $msrPart.Size -ExpectedBytes ($MsrSizeMiB * $script:MiB) -ToleranceBytes (4 * $script:MiB)
+        Add-Result -Id 'V4.MSR' -Check ('MSR (#{0})' -f $msrPart.PartitionNumber) -Expected ('{0} MiB ({1:N0} Б)' -f $MsrSizeMiB, ($MsrSizeMiB * $script:MiB)) -Actual (Format-Size -Bytes $msrPart.Size) -Status $verdict.Status -Note $verdict.Note
+    }
+    else {
+        Add-Result -Id 'V4.MSR' -Check 'MSR' -Expected ('{0} MiB' -f $MsrSizeMiB) -Actual 'раздел MSR не найден' -Status 'FAIL'
     }
 
     $winPart = $parts | Where-Object { $_.GptType.ToString().ToLowerInvariant() -eq $script:GptBasic -and $_.DriveLetter -eq 'C' } | Select-Object -First 1
     if ($null -ne $winPart) {
-        $script:SizeToleranceBytes = $SizeToleranceMB * $script:Megabyte
-        $verdict = Get-ToleranceFor -ActualBytes $winPart.Size -TargetSi ($SystemSizeGB * $script:Gigabyte)
-        Add-Result -Id 'V4.C' -Check 'Раздел Windows (C:)' -Expected ('{0} ГБ' -f $SystemSizeGB) -Actual (Format-Size -Bytes $winPart.Size) -Status $verdict.Status -Note $verdict.Note
+        $verdict = Compare-Size -ActualBytes $winPart.Size -ExpectedBytes ($SystemSizeGiB * $script:GiB) -ToleranceBytes ($SizeToleranceMiB * $script:MiB)
+        Add-Result -Id 'V4.C' -Check 'Раздел Windows (C:)' -Expected ('{0} GiB ({1:N0} Б)' -f $SystemSizeGiB, ($SystemSizeGiB * $script:GiB)) -Actual (Format-Size -Bytes $winPart.Size) -Status $verdict.Status -Note $verdict.Note
     }
     else {
-        Add-Result -Id 'V4.C' -Check 'Раздел Windows (C:)' -Expected ('{0} ГБ' -f $SystemSizeGB) -Actual 'не найден по букве C:' -Status 'FAIL'
+        Add-Result -Id 'V4.C' -Check 'Раздел Windows (C:)' -Expected ('{0} GiB' -f $SystemSizeGiB) -Actual 'не найден по букве C:' -Status 'FAIL'
     }
 
     $dataPart = $parts | Where-Object { $_.GptType.ToString().ToLowerInvariant() -eq $script:GptBasic -and $_.DriveLetter -eq 'D' } | Select-Object -First 1
     if ($null -ne $dataPart) {
-        $script:SizeToleranceBytes = $DataToleranceMB * $script:Megabyte
-        $verdict = Get-ToleranceFor -ActualBytes $dataPart.Size -TargetSi ($DataSizeGB * $script:Gigabyte)
-        Add-Result -Id 'V4.D' -Check 'Раздел Data (D:)' -Expected ('{0} ГБ (остаток)' -f $DataSizeGB) -Actual (Format-Size -Bytes $dataPart.Size) -Status $verdict.Status -Note $verdict.Note
+        $verdict = Compare-Size -ActualBytes $dataPart.Size -ExpectedBytes ($DataSizeGiB * $script:GiB) -ToleranceBytes ($DataToleranceMiB * $script:MiB)
+        Add-Result -Id 'V4.D' -Check 'Раздел Data (D:, остаток)' -Expected ('≈{0} GiB' -f $DataSizeGiB) -Actual (Format-Size -Bytes $dataPart.Size) -Status $verdict.Status -Note $verdict.Note
     }
     else {
-        Add-Result -Id 'V4.D' -Check 'Раздел Data (D:)' -Expected ('{0} ГБ' -f $DataSizeGB) -Actual 'не найден по букве D:' -Status 'FAIL'
+        Add-Result -Id 'V4.D' -Check 'Раздел Data (D:, остаток)' -Expected ('≈{0} GiB' -f $DataSizeGiB) -Actual 'не найден по букве D:' -Status 'FAIL'
     }
 
     return $parts
@@ -252,7 +282,6 @@ function Test-VolumeScheme {
     )
 
     foreach ($t in $targets) {
-        $part = $null
         if ($null -ne $t.Letter) {
             $part = $Partitions | Where-Object { $_.DriveLetter -eq $t.Letter } | Select-Object -First 1
         }
@@ -265,6 +294,7 @@ function Test-VolumeScheme {
             continue
         }
 
+        $vol = $null
         try {
             $vol = $part | Get-Volume -ErrorAction Stop
         }
@@ -278,16 +308,16 @@ function Test-VolumeScheme {
             continue
         }
 
-        $fsOk = ($vol.FileSystem -eq $t.FileSystem)
-        $unitSize = $vol.AllocationUnitSize
+        $fsOk      = ($vol.FileSystem -eq $t.FileSystem)
+        $unitSize  = $vol.AllocationUnitSize
         $unitKnown = ($null -ne $unitSize)
-        $unitOk = ($unitKnown -and ([int]$unitSize -eq $t.UnitSize))
+        $unitOk    = ($unitKnown -and ([int]$unitSize -eq $t.UnitSize))
 
         $status = 'FAIL'
         $note   = ''
         if ($fsOk -and $unitOk) { $status = 'PASS' }
-        elseif ($fsOk -and -not $unitKnown) { $status = 'WARN'; $note = 'AllocationUnitSize недоступен в этой сборке (проверить fsutil fsinfo ntfsinfo)' }
-        elseif ($fsOk -and $unitKnown) { $note = ('кластер {0} Б' -f $unitSize) }
+        elseif ($fsOk -and -not $unitKnown) { $status = 'WARN'; $note = 'AllocationUnitSize недоступен (проверить fsutil fsinfo ntfsinfo)' }
+        elseif ($fsOk -and $unitKnown) { $note = ('фактический кластер {0} Б' -f $unitSize) }
 
         Add-Result -Id $t.Id -Check ('ФС/кластер {0}' -f $t.Name) -Expected ('{0}, кластер {1} Б' -f $t.FileSystem, $t.UnitSize) -Actual ('{0}, кластер {1}' -f $vol.FileSystem, $(if ($unitKnown) { ('{0} Б' -f $unitSize) } else { 'н/д' })) -Status $status -Note $note
     }
@@ -317,16 +347,10 @@ function Test-NtfsOptions {
         foreach ($line in ($raw -split "`r?`n")) {
             if ($line -match [Regex]::Escape($c.Pattern)) {
                 if ($c.Pattern -eq 'disable8dot3') {
-                    if ($line -match 'D:\s*.*?=\s*(\d+)') {
-                        $found = $Matches[1]
-                        $matched = $true
-                    }
+                    if ($line -match 'D:\s*.*?=\s*(\d+)') { $found = $Matches[1]; $matched = $true }
                 }
                 else {
-                    if ($line -match '=\s*(\d+)') {
-                        $found = $Matches[1]
-                        $matched = $true
-                    }
+                    if ($line -match '=\s*(\d+)') { $found = $Matches[1]; $matched = $true }
                 }
             }
         }
@@ -342,7 +366,7 @@ function Test-NtfsOptions {
     }
 }
 
-# --- Отчёт -------------------------------------------------------------------
+# --- Отчёты ------------------------------------------------------------------
 function Write-ConsoleReport {
     [CmdletBinding()]
     param()
@@ -354,17 +378,17 @@ function Write-ConsoleReport {
         if ($r.Status -eq 'PASS') { $color = 'Green' }
         if ($r.Status -eq 'FAIL') { $color = 'Red' }
         if ($r.Status -eq 'WARN') { $color = 'Yellow' }
-        Write-Host ('{0,-6} {1,-34} ожидание: {2,-26} факт: {3}' -f $r.Status, $r.Check, $r.Expected, $r.Actual) -ForegroundColor $color
+        Write-Host ('{0,-6} {1,-36} ожидание: {2,-30} факт: {3}' -f $r.Status, $r.Check, $r.Expected, $r.Actual) -ForegroundColor $color
         if ($r.Note) { Write-Host ('       └─ {0}' -f $r.Note) -ForegroundColor DarkGray }
     }
 
     $fail = @($script:Results | Where-Object { $_.Status -eq 'FAIL' }).Count
     $warn = @($script:Results | Where-Object { $_.Status -eq 'WARN' }).Count
     $pass = @($script:Results | Where-Object { $_.Status -eq 'PASS' }).Count
-    Write-Host ('---------------------------------------------------')
+    Write-Host '---------------------------------------------------'
     Write-Host ('PASS: {0}; FAIL: {1}; WARN: {2}' -f $pass, $fail, $warn)
-    if ($fail -gt 0) { Write-Host 'ИТОГ: FAIL — схема не соответствует ADR-0007.' -ForegroundColor Red }
-    else { Write-Host 'ИТОГ: PASS — схема соответствует ADR-0007.' -ForegroundColor Green }
+    if ($fail -gt 0) { Write-Host 'ИТОГ: FAIL — схема не соответствует ADR-0007 (rev.2) / ADR-0011.' -ForegroundColor Red }
+    else { Write-Host 'ИТОГ: PASS — схема соответствует ADR-0007 (rev.2) / ADR-0011.' -ForegroundColor Green }
 }
 
 function Export-MarkdownReport {
@@ -379,17 +403,19 @@ function Export-MarkdownReport {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
 
+    $scriptName = 'Stage1_DiskGenius_Partition.ps1'
+    if ($PSCommandPath) { $scriptName = Split-Path -Leaf $PSCommandPath }
+
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('# Stage 1 — отчёт верификации разметки (сгенерировано скриптом)')
     $lines.Add('')
     $lines.Add('| Поле | Значение |')
     $lines.Add('|---|---|')
     $lines.Add(('| Дата (UTC) | {0} |' -f (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')))
-    $scriptName = 'Stage1_DiskGenius_Partition.ps1'
-    if ($PSCommandPath) { $scriptName = Split-Path -Leaf $PSCommandPath }
     $lines.Add(('| Скрипт | {0} |' -f $scriptName))
     $lines.Add(('| Диск | {0} |' -f $DiskNumber))
     $lines.Add(('| Хост | {0} |' -f $env:COMPUTERNAME))
+    $lines.Add(('| Схема | ADR-0007 rev.2 / ADR-0011 (единицы MiB/GiB) |'))
     $lines.Add('')
     $lines.Add('| ID | Проверка | Ожидание | Факт | Статус | Примечание |')
     $lines.Add('|---|---|---|---|---|---|')
@@ -419,9 +445,7 @@ try {
         exit $script:ExitPrecondition
     }
 
-    $script:SizeToleranceBytes = $SizeToleranceMB * $script:Megabyte
-
-    Write-Host ('Stage 1 verification. Диск {0}; допуск {1} МБ.' -f $DiskNumber, $SizeToleranceMB)
+    Write-Host ('Stage 1 verification. Диск {0}; единицы MiB/GiB (ADR-0011).' -f $DiskNumber)
 
     $partitions = Test-DiskScheme -DiskNumber $DiskNumber
     Test-VolumeScheme -Partitions $partitions

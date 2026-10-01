@@ -4,7 +4,7 @@
 |---|---|
 | `REPORT_ID` | SR-1 |
 | `STAGE` | Stage 1 — Partitioning |
-| `STATUS` | **IN_PROGRESS** — пакет автоматизации DONE; аппаратная верификация ожидает нативного прогона на хосте |
+| `STATUS` | **IN_PROGRESS** — пакет автоматизации DONE (rev.2: GiB + скрытая ESP); аппаратная верификация ожидает нативного прогона на хосте |
 | `DATE_START` | 2026-10-01 |
 | `DATE_END` | — (закрывается после прогона V1–V7 на хосте) |
 | `AUTHOR` | AI-агент (Arena.ai) |
@@ -50,6 +50,8 @@ Stage 1 — необратимая операция: разметка NVMe ун�
 | 6 | Оформлен алгоритм разметки и верификации | `algorithm/auto/Stage1_DiskGenius_Partition.md` | DONE |
 | 7 | Разработан скрипт верификации (read-only) | `scripts/Stage1_DiskGenius_Partition.ps1` | DONE |
 | 8 | Прогон валидатора конвенций | `scripts/rules/Test-RepositoryConventions.ps1` | PASS |
+| 9 | Закрытие `DEV-1`/`DEV-2` решением владельца | `ADR-0011-size-units-and-esp-mount.md` | ACCEPTED |
+| 10 | Приведение схем и скрипта к единицам GiB, ESP без буквы | README §6/§7/§9.1, `docs/storage/*`, `scripts/Stage1_DiskGenius_Partition.ps1` | DONE |
 
 ## 4. Изменения и мутации
 
@@ -67,8 +69,9 @@ Stage 1 — необратимая операция: разметка NVMe ун�
 |---|---|---|---|
 | `V1` | GPT + загрузочный диск UEFI | GPT, IsBoot = True | PENDING |
 | `V2` | Типы разделов | EFI / MSR / Basic / Basic | PENDING |
+| `W1` | ESP без буквы диска (ADR-0011) | `DriveLetter = $null` | PENDING |
 | `V3` | Выравнивание 1 MiB | 4/4 раздела `Offset % 1 MiB == 0` | PENDING |
-| `V4` | Размеры | ESP 260 МБ; MSR 16 МБ; C: 200 ГБ; D: ~279 ГБ | PENDING |
+| `V4` | Размеры (MiB/GiB) | ESP 260 MiB (272 629 760 Б); MSR 16 MiB (16 777 216 Б); C: 200 GiB (214 748 364 800 Б); D: весь остаток ≈246.7 GiB | PENDING |
 | `V5` | ФС и кластеры | FAT32 4 КБ; NTFS 4 КБ; NTFS 64 КБ | PENDING |
 | `V6` | NTFS-параметры | `disable8dot3 D:` = 1; `disablelastaccess` = 1 | PENDING |
 | `V7` | Бэкапы таблиц разделов | файлы на `F:\BACKUPS\` + SHA256 | PENDING |
@@ -96,20 +99,21 @@ pwsh -File ./scripts/Stage1_DiskGenius_Partition.ps1 -ExportReport ./docs/artifa
 |---|---|---|
 | `M_PATTERN_COVERAGE` | 28/28 | 2/28 документировано (Stage 1: PAT-NEW-6, PAT-NEW-7) |
 | `M_ADR_COUNT` | ≥1 на решение | ADR-0007 закрыт |
-| `M_PARTITION_ALIGNMENT` | 1 MiB | PENDING (нативный прогон) |
+| `M_PARTITION_ALIGNMENT` | 1 MiB | PENDING (нативный прогон); единицы схемы — MiB/GiB (ADR-0011) |
 | `M_DOC_FRESHNESS` | актуальность | 2026-10-01 |
 
 ## 7. Отклонения, открытые пункты, waivers
 
 | ID | Тип | Описание | Требуемое действие |
 |---|---|---|---|
-| `DEV-1` | Документация | Точка монтирования ESP: README §6.2 — `F:\EFI`, §7.2 — `C:\EFI`. Буква `F:` закреплена за USB-носителем (README §8) | Решение владельца (`GATE_PARTITIONING`); рабочая позиция — `C:\EFI`, либо ESP без буквы (скрытая) |
-| `DEV-2` | Единицы измерения | Суммы 200 + 279.7 «ГБ» сходятся с 480 ГБ только в SI (1 ГБ = 10⁹ Б). Интерфейс DiskGenius оперирует двоичными единицами (GiB). Фактическая раскладка может отличаться от документированной | Нативный прогон покажет факт; при совпадении с GiB-интерпретацией — `GATE_PARTITIONING` и правка `docs/storage/*` через ADR |
+| `DEV-1` | Документация | Точка монтирования ESP | **RESOLVED** (ADR-0011): ESP скрытая, без буквы диска; `F:` закреплена за USB-носителем, вариант `C:\EFI` отклонён |
+| `DEV-2` | Единицы измерения | «ГБ» без указания системы (SI против GiB) | **RESOLVED** (ADR-0011): канонические единицы — MiB/GiB; байтовые эталоны зафиксированы; `D:` — весь остаток |
 | `DEV-3` | Документация (закрыто) | `docs/research/anchor1.md` — ESP 100–250 МБ; README §6.3.2/§7.2 — 260 МБ | Закрыто в пользу 260 МБ (ADR-0007, §4.1 `partitioning_research.md`) |
 | `OPEN-2` | Аппаратное | Состояние Intel VMD/RST не зафиксировано | Проверить в BIOS, записать в §2 |
 | `OPEN-3` | Аппаратное | Состояние Secure Boot не зафиксировано; влияние на `DISABLE-LSA-ISOLATION/DISABLE-VBS` проверяется на Stage 4 (`H-001`) | Записать в §2; проверить на Stage 4 |
 | `OPEN-4` | Аппаратное | Точная модель ноутбука | Записать в §2 |
 | `LIM-1` | Инструментальное | Нативный PowerShell-прогон невозможен в песочнице агента | Выполнить на хосте Windows (команда в §5.1) |
+| `DEV-3` | Документация | ESP 100–250 МБ в `anchor1` против 260 MiB в README | **RESOLVED**: утверждено 260 MiB (ADR-0007, §4.1 `partitioning_research.md`) |
 
 Waivers: нет.
 
@@ -117,7 +121,7 @@ Waivers: нет.
 
 | Артефакт | Путь | Статус |
 |---|---|---|
-| ADR | `docs/decisions/ADR-0007-partition-scheme.md` | DONE |
+| ADR | `docs/decisions/ADR-0007-partition-scheme.md` (rev.2); `docs/decisions/ADR-0011-size-units-and-esp-mount.md` | DONE |
 | Исследование | `docs/storage/partitioning_research.md` | DONE |
 | Схемы | `docs/storage/C_drive_schema.md`, `docs/storage/D_drive_schema.md` | DONE |
 | Паттерны | `docs/patterns/PAT-NEW-6-partition-alignment.md`, `PAT-NEW-7-partition-scheme.md`, `PAT-INDEX.md` | DONE |
@@ -129,7 +133,7 @@ Waivers: нет.
 ## 9. Следующий шаг
 
 1. На хосте Windows: выполнить §5.1, приложить `Stage1_partition_verify.md`, перевести отчёт в `DONE`.
-2. Закрыть `DEV-1`/`DEV-2` решением владельца (при необходимости — `GATE_PARTITIONING`).
+2. `DEV-1`/`DEV-2` закрыты (ADR-0011); пересчётов больше не требуется.
 3. Stage 2 — Ventoy-контур: `templates/ventoy.json.template`, `templates/u_w11_ltsc_iot.xml.template` (UTF-8 **без BOM**), `algorithm/manual/Stage2_Ventoy_Install.md`, `algorithm/auto/Stage2_Audit_Mode_Workflow.md`, `docs/storage/F_drive_schema.md`, `ADR-0005`.
 
 ---

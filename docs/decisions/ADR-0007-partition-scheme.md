@@ -4,12 +4,14 @@
 |---|---|
 | `ADR_ID` | ADR-0007 |
 | `TITLE` | Partition scheme: 1 MiB alignment, manual DiskGenius, four partitions |
-| `STATUS` | **ACCEPTED** |
+| `STATUS` | **ACCEPTED (rev.2 от 2026-10-01)** — размеры и точка монтирования ESP изменены ADR-0011 |
 | `DATE` | 2026-10-01 |
 | `AUTHOR` | AI-агент (Arena.ai) |
 | `APPROVED_BY` | rockvital506-commits (контур утверждён как якорь1; схема зафиксирована в README §6.2/§7.2) |
 | `SCHEMA_VERSION` | 3.0.0 |
-| `RELATED` | `PAT-NEW-6`, `PAT-NEW-7`, `docs/storage/partitioning_research.md`, `C_drive_schema.md`, `D_drive_schema.md`, README §1.4 `SC_OPTIMAL_PARTITIONING`, §4.5, §6, §7 |
+| `RELATED` | `PAT-NEW-6`, `PAT-NEW-7`, `ADR-0011` (ревизия), `docs/storage/partitioning_research.md`, `C_drive_schema.md`, `D_drive_schema.md`, README §1.4 `SC_OPTIMAL_PARTITIONING`, §4.5, §6, §7 |
+
+> **Ревизия rev.2 (2026-10-01, ADR-0011).** Текст решения ниже сохранён без изменений (ADR неизменяем). Актуальные значения: единицы измерения — MiB/GiB (а не «МБ/ГБ» без указания системы); ESP — 260 MiB, **без буквы диска** (вместо `C:\EFI`/`F:\EFI`); `C:` — 200 GiB (214 748 364 800 Б); `D:` — весь остаток ≈246.7 GiB. Критерий `V4` верификации читать в редакции ADR-0011 (W1–W6). Неизменно: GPT, UEFI, выравнивание 1 MiB, состав и порядок разделов, ФС и кластеры, ручная разметка, запрет exFAT.
 
 ---
 
@@ -81,7 +83,7 @@
 | `V1` | GPT + UEFI | `Get-Disk` | PartitionStyle = GPT, IsBoot = True |
 | `V2` | 4 раздела правильных типов | `Get-Partition` | EFI / MSR / Basic / Basic |
 | `V3` | Выравнивание 1 MiB | `Get-Partition` | `Offset % 1MB = 0` для всех |
-| `V4` | Размеры | `Get-Partition` | 260 МБ / 16 МБ / 200 ГБ / ~279 ГБ (±допуск) |
+| `V4` | Размеры | `Get-Partition` | 260 MiB / 16 MiB / 200 GiB / ≈246.7 GiB — редакция ADR-0011 (W1–W6) |
 | `V5` | ФС и кластеры | `Get-Volume` | FAT32 4 КБ; NTFS 4 КБ; NTFS 64 КБ |
 | `V6` | NTFS-параметры | `fsutil behavior query` | `disable8dot3 D:` = 1, `disablelastaccess` = 1 |
 | `V7` | Бэкапы таблиц разделов | файлы `F:\BACKUPS\` | существуют + SHA256 в отчёте |
