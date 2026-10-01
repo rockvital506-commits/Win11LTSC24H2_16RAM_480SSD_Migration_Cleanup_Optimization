@@ -30,7 +30,7 @@
     pwsh -File ./tweaks/apply/Invoke-PnpShield.ps1 -RepoRoot C:\repo -Disable
 
 .NOTES
-    Script-ID  : SCRIPT-TWEAKS-PNP
+    Script-ID  : SCRIPT-PNP-001
     Stage      : 4
     Patterns   : PAT-15
     ADR        : ADR-0012
@@ -57,7 +57,7 @@ $ErrorActionPreference = 'Stop'
 
 Import-Module (Join-Path $RepoRoot 'scripts/common/Logging.psm1') -Force
 $exit = Get-ExitCode
-$scriptId = 'SCRIPT-TWEAKS-PNP'
+$scriptId = 'SCRIPT-PNP-001'
 
 $script:ShieldKeys = @(
     @{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions'; Name = 'DenyDeviceIDs' },

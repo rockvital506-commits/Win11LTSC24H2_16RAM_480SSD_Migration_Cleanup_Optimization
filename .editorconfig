@@ -81,6 +81,39 @@ charset = utf-8
 end_of_line = lf
 indent_size = 2
 
+[*.winget]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[*.sh]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+
+[*.json.template]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[*.yaml.template]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[*.yml.template]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+
+[*.conf.template]
+charset = utf-8
+end_of_line = lf
+
+[.wslconfig.template]
+charset = utf-8
+end_of_line = lf
+
 [.gitignore]
 charset = utf-8
 end_of_line = lf

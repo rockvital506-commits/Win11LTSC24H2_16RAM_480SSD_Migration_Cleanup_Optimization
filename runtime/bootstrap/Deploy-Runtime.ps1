@@ -48,7 +48,7 @@
     Stage      : 8
     Patterns   : PAT-19, PAT-20
     ADR        : ADR-0017
-    Rules      : AUTOMATION_RULES.md (AR-201, AR-204, AR-206, AR-301, AR-302, AR-306, AR-307, AR-506, AR-509, AR-804)
+    Rules      : AUTOMATION_RULES.md (AR-201, AR-204, AR-206, AR-301, AR-302, AR-306, AR-307, AR-506, SC_SSD_LONGEVITY, AR-804)
     Depends    : runtime/manifests/RuntimeManifest.json, scripts/common/*
     Author     : AI-агент (Arena.ai)
     Created    : 2026-10-01
@@ -243,7 +243,7 @@ try {
         $sizeGiB = if ($size) { [math]::Round($size / 1GB, 2) } else { 0 }
         $limit = [double]$manifest.sizeWarningGiB
         Add-VerificationCheck -Context $context -Id 'D2.2' -Check 'Объём среды' -Expected ('<= {0} GiB' -f $limit) -Actual ('{0} GiB' -f $sizeGiB) `
-            -Status $(if ($sizeGiB -le $limit) { 'PASS' } else { 'WARN' }) -Note 'Крупные данные — на D: (SC_SSD_LONGEVITY, AR-509).'
+            -Status $(if ($sizeGiB -le $limit) { 'PASS' } else { 'WARN' }) -Note 'Крупные данные — на D: (SC_SSD_LONGEVITY).'
     }
     else {
         Add-VerificationCheck -Context $context -Id 'D2.1' -Check 'Дрейф и объём' -Expected 'после развёртывания' -Actual 'пропущено в -Audit' -Status 'SKIP'

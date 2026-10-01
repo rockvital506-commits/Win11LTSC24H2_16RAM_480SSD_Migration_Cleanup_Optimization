@@ -4,14 +4,14 @@
 
 | ADR | Тема | Статус |
 |---|---|---|
-| `ADR-0001-stage-sequencing.md` | Последовательность этапов | PLAN |
+| `ADR-0001-stage-sequencing.md` | Последовательность этапов и гейты переходов | **ACCEPTED** (оформлен при аудите) |
 | `ADR-0002-vmware-via-whp.md` | VMware через WHP API | **ACCEPTED** (Stage 7) |
 | `ADR-0003-ntfs-deny-system.md` | NTFS Deny SYSTEM | **ACCEPTED** (Stage 6) |
 | `ADR-0004-ohook-vs-kms.md` | Ohook вместо KMS | **ACCEPTED** (Stage 6) |
 | `ADR-0005-dual-stage-unattend.md` | Двухэтапный unattend (Ventoy + Sysprep) | **ACCEPTED** |
-| `ADR-0006-fdrive-as-repository.md` | F:\ как производный репозиторий | PLAN |
+| `ADR-0006-fdrive-as-repository.md` | F:\ как производный репозиторий (артефакты вне Git) | **ACCEPTED** (оформлен при аудите) |
 | `ADR-0007-partition-scheme.md` | Схема разделов | **ACCEPTED (rev.2 — ADR-0011)** |
-| `ADR-0008-repository-topology-domains.md` | Топология: три домена + перенос research1 | **ACCEPTED** |
+| `ADR-0008-repository-topology-domains.md` | Топология: домены + перенос research1 (rev.2: +`runtime/`, ADR-0017) | **ACCEPTED** |
 | `ADR-0009-automation-rules-baseline.md` | Базовый свод правил автоматизации | **ACCEPTED** |
 | `ADR-0010-pe-core-affinity-policy.md` | Политика привязки нагрузок к P+E-ядрам | **ACCEPTED** |
 | `ADR-0011-size-units-and-esp-mount.md` | Единицы GiB и скрытая ESP | **ACCEPTED** |

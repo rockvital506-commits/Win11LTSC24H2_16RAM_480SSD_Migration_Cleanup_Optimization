@@ -6,7 +6,7 @@
 | `STATUS` | ACCEPTED (Stage 8) |
 | `DATE` | 2026-10-01 |
 | `AUTHOR` | AI-агент (Arena.ai) |
-| `RELATED` | README §1.3 (`WORKSPACE_ROOT`), §3.2, §5.1, §7.4, §9.8; AR-206, AR-301, AR-509, AR-804, STRUC_009; `NC_HARDCODED_SECRETS`; `docs/artifacts/Recovery_Procedure.md` |
+| `RELATED` | README §1.3 (`WORKSPACE_ROOT`), §3.2, §5.1, §7.4, §9.8; AR-206, AR-301, SC_SSD_LONGEVITY, AR-804, STRUC_009; `NC_HARDCODED_SECRETS`; `docs/artifacts/Recovery_Procedure.md` |
 
 ## Контекст
 
@@ -34,7 +34,7 @@ Stage 8 — последний этап: он разворачивает раб�
    Права применяются только по явному флагу `-ApplyAcl` (AR-204, AR-506).
 5. **Размещение данных.** `C:\Vitality\` — только код, конфигурация и состояние; крупные данные
    (образы, БД, кэши сборок, тома контейнеров, диски ВМ) остаются на `D:` — `SC_SSD_LONGEVITY`,
-   `AR-509`, README §7.5.
+   `SC_SSD_LONGEVITY`, README §7.5.
 6. **Секреты — только файлами.** Конфигурация с секретами живёт в `config\` как отдельные файлы вне Git
    (`STRUC_009`, `NC_HARDCODED_SECRETS`). Секретов в манифесте, скриптах и отчётах нет.
 7. **Бинарники — не в Git.** Исполняемые модули рантайма поставляются офлайн с носителя `F:`; их SHA256
@@ -79,4 +79,4 @@ Stage 8 — последний этап: он разворачивает раб�
 | `R1.4` | Права (`-ApplyAcl`) | SYSTEM — `FullControl`, Administrators — чтение |
 | `F8` | Сводная приёмка | без FAIL |
 
-<!-- Источник: README §1.3, §3.2, §4.1 (GATE_STRUCTURE), §5.1, §5.6, §7.4, §9.8; AR-206, AR-301, AR-509, AR-804; STRUC_009. -->
+<!-- Источник: README §1.3, §3.2, §4.1 (GATE_STRUCTURE), §5.1, §5.6, §7.4, §9.8; AR-206, AR-301, SC_SSD_LONGEVITY, AR-804; STRUC_009. -->

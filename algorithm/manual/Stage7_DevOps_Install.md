@@ -42,7 +42,7 @@
 
 - `wsl -l -v` — дистрибутив в версии 2; `docker info` — `DockerRootDir=/mnt/d/Docker`, тома пишутся на `D:`;
 - ВМ загружается при работающем WSL2; в каталоге ВМ нет `*.vmem`, `priority.grabbed` применён (PAT-22);
-- `A0.1` — маска выведена динамически, `P=6/E=8` для i5-12400F либо расхождение зафиксировано;
+- `A0.1` — маска выведена динамически, ожидание `P=6/E=8` (README §1.2) либо расхождение зафиксировано;
 - `Packages.lock.json` без записей `UNPINNED`; профиль `devops` установлен;
 - замки Stage 6 не пострадали: `pwsh -File ./scripts/Stage6_Immunity_Prepare.ps1 -VerifyOnly` — без FAIL;
 - окно сети закрыто владельцем, `Stage7_Report.md` переведён в DONE.

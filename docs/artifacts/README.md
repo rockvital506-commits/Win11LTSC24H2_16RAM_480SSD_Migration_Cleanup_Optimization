@@ -22,6 +22,7 @@
 | `Stage8_preflight.md` | Предпролётный отчёт Stage 8 (генерируется `Deploy-Runtime.ps1`) | PENDING |
 | `Stage8_runtime.md` | Верификация рабочей среды (генерируется `Assert-RuntimeState.ps1`) | PENDING |
 | `Stand_Runbook.md` | Ранбук прогонов на стенде: порядок этапов, формы фиксации, правила при FAIL | **DONE** |
+| `Audit_Report.md` | Системный аудит репозитория: находки, коррекции, положительные подтверждения, рекомендации | **DONE** |
 | `Final_Report.md` | Итоговый отчёт проекта (метрики §3.5, критерии §1.4) | IN_PROGRESS |
 | `Recovery_Procedure.md` | Процедура восстановления: откат по этапам, замки, полный перезапуск (PAT-19) | **DONE** |
 | `Final_Acceptance.md` | Сводная приёмка §9.9 (генерируется `scripts/Final_Acceptance.ps1`) | PENDING |

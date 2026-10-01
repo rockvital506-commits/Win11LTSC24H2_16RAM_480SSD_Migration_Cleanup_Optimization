@@ -2,6 +2,7 @@
   "schemaVersion": "1.0.0",
   "stage": "4, 6",
   "generated": "2026-10-01",
+  "rules": ["AR-101", "AR-501", "AR-502", "AR-503"],
   "adr": [
     "ADR-0012",
     "ADR-0015"

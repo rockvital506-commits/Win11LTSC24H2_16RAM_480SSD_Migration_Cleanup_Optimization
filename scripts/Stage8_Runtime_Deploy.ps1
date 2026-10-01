@@ -42,7 +42,7 @@
     Stage      : 8
     Patterns   : PAT-19, PAT-20
     ADR        : ADR-0017
-    Rules      : AUTOMATION_RULES.md (AR-201, AR-204, AR-206, AR-301, AR-302, AR-303, AR-306, AR-307, AR-501, AR-506, AR-509, AR-709)
+    Rules      : AUTOMATION_RULES.md (AR-201, AR-204, AR-206, AR-301, AR-302, AR-303, AR-306, AR-307, AR-501, AR-506, SC_SSD_LONGEVITY, AR-709)
     Depends    : runtime/**, scripts/common/*
     Author     : AI-агент (Arena.ai)
     Created    : 2026-10-01

@@ -41,15 +41,15 @@
 | `SC_SSD_LONGEVITY` | hiberfil удалён, pagefile фиксирован, SearchIndex off | `M1/M2`, `ServiceGate.json` | PENDING (стенд) |
 | `SC_PERMANENT_ACTIVATION` | Ohook, не KMS | `A1` (`LicenseStatus=1`), ADR-0004 | PENDING (стенд) |
 | `SC_USER_MODE_ONLY` | Без драйверов | Ревизия артефактов, `NC_DRIVER_SIGNED` | DONE (по построению) |
-| `SC_FACTORY_RESET_CAPABLE` | Sysprep-обобщение и повторное развёртывание | `ADR-0014`, `PAT-16`, `Recovery_Procedure.md` | PLAN (документ восстановления) |
+| `SC_FACTORY_RESET_CAPABLE` | Sysprep-обобщение и повторное развёртывание | `ADR-0014`, `PAT-16`, `Recovery_Procedure.md`, `Stand_Runbook.md` | DONE (документы) / PENDING (прогон) |
 | `SC_OPTIMAL_PARTITIONING` | 1 MiB alignment, схема зафиксирована | `ADR-0007`, `ADR-0011`, `Stage1_Report.md` | PENDING (стенд) |
 
 ## 3. Метрики (§3.5 README)
 
 | Метрика | Цель | Факт на конец Stage 7 |
 |---|---|---|
-| `M_PATTERN_COVERAGE` | 28/28 | 23/28 документировано (PAT-19 закрыт процедурой восстановления) |
-| `M_ADR_COUNT` | ≥1 на решение | ADR-0002…ADR-0016 (16 записей, из них 13 ACCEPTED) |
+| `M_PATTERN_COVERAGE` | 29/29 | 23/29 документировано (PAT-19 закрыт процедурой восстановления) |
+| `M_ADR_COUNT` | ≥1 на решение | ADR-0001…ADR-0017 (17 записей, все ACCEPTED) |
 | `M_BSOD_INCIDENTS` | 0 | PENDING (стенд) |
 | `M_DOC_FRESHNESS` | актуальность | 2026-10-01 |
 | `M_PACKAGE_PINNING` | 100 % | 0 % до окна сети (`S7-OPEN-1`) |
@@ -71,6 +71,9 @@
 | `S8-OPEN-2` | Модули рантайма и их хэши | Разместить с `F:` в `bin\`, внести SHA256 в `packages/hashes` |
 | `S8-OPEN-3` | Задачи и службы рантайма | Оформить декларацией при необходимости (агент сам не создаёт) |
 | `FINAL-OPEN-1` | Сводная приёмка на стенде | `pwsh -File ./scripts/Final_Acceptance.ps1` (все этапы), результат — `Final_Acceptance.md` |
+| `R-01` | Текст AR-206 уже́ реализованного allow-list | Решить: расширить формулировку правила или сузить код (изменение свода — только через ADR, AR-0.2) |
+| `R-02` | Правило о размещении крупных данных вне `C:` | При необходимости ввести AR-7xx через ADR (сейчас используется инвариант `SC_SSD_LONGEVITY`) |
+| `R-03` | Машинная проверка ссылок и сирот в валидаторе | Добавить после обкатки на хосте (AR-903: непроверенный код в блокирующем валидаторе опасен) |
 | — | ~~`Recovery_Procedure.md`~~ | Закрыт: `docs/artifacts/Recovery_Procedure.md` (PAT-19) |
 
 ## 5. Порядок приёмки

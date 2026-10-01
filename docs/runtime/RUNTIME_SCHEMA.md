@@ -7,7 +7,7 @@
 | `DATE` | 2026-10-01 |
 | `AUTHOR` | AI-агент (Arena.ai) |
 | `STATUS` | ACTIVE (состав каталогов — `PROPOSED`, `S8-OPEN-1`) |
-| `RELATED` | `ADR-0017`, `runtime/manifests/RuntimeManifest.json`, README §7.4, §9.8; AR-206, AR-301, AR-509, AR-804; `SC_SSD_LONGEVITY` |
+| `RELATED` | `ADR-0017`, `runtime/manifests/RuntimeManifest.json`, README §7.4, §9.8; AR-206, AR-301, SC_SSD_LONGEVITY, AR-804; `SC_SSD_LONGEVITY` |
 
 ## 1. Состав
 
@@ -53,7 +53,7 @@ C:\Vitality\
 | Тип данных | Место | Основание |
 |---|---|---|
 | Код, конфигурация, состояние | `C:\Vitality\` | README §1.3 |
-| Крупные данные, кэши, тома контейнеров, диски ВМ | `D:` (`D:\Docker`, `D:\VM`, `D:\Projects`) | `SC_SSD_LONGEVITY`, AR-509 |
+| Крупные данные, кэши, тома контейнеров, диски ВМ | `D:` (`D:\Docker`, `D:\VM`, `D:\Projects`) | `SC_SSD_LONGEVITY` |
 | Инструменты | `D:\GD_Tool\` | README §1.3, Stage 6 |
 | Бэкапы этапов | `backups/` рабочей копии репозитория | AR-308, PAT-19 |
 

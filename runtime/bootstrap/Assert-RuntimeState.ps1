@@ -30,7 +30,7 @@
     Stage      : 8
     Patterns   : PAT-20
     ADR        : ADR-0017
-    Rules      : AUTOMATION_RULES.md (AR-201, AR-206, AR-301, AR-306, AR-307, AR-509)
+    Rules      : AUTOMATION_RULES.md (AR-201, AR-206, AR-301, AR-306, AR-307, SC_SSD_LONGEVITY)
     Depends    : runtime/manifests/RuntimeManifest.json, scripts/common/*
     Author     : AI-агент (Arena.ai)
     Created    : 2026-10-01
@@ -118,7 +118,7 @@ try {
     $sizeGiB = if ($size) { [math]::Round($size / 1GB, 2) } else { 0 }
     $limit = [double]$manifest.sizeWarningGiB
     Add-VerificationCheck -Context $context -Id 'A2.2' -Check 'Объём среды' -Expected ('<= {0} GiB' -f $limit) -Actual ('{0} GiB' -f $sizeGiB) `
-        -Status $(if ($sizeGiB -le $limit) { 'PASS' } else { 'WARN' }) -Note 'AR-509: крупные данные — на D:.'
+        -Status $(if ($sizeGiB -le $limit) { 'PASS' } else { 'WARN' }) -Note 'SC_SSD_LONGEVITY: крупные данные — на D:.'
 
     if ([string]$manifest.status -ne 'RATIFIED') {
         Add-VerificationCheck -Context $context -Id 'A2.3' -Check 'Состав ратифицирован' -Expected 'status=RATIFIED' -Actual ([string]$manifest.status) -Status 'WARN' -Note 'S8-OPEN-1: состав — предложение.'

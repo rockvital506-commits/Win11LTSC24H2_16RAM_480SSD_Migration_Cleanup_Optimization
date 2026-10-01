@@ -72,7 +72,9 @@
 
 ### 2.1 Current Phase
 
-`CURRENT_PHASE` = Stage 0 (Repository Initialization).
+`CURRENT_PHASE` = Stage 8 закрыт (репозиторная часть); ожидается физический прогон `LIM-1` по
+`docs/artifacts/Stand_Runbook.md`. Предыдущие этапы: 0–7 — пакеты автоматизации DONE (`Stage0_Report.md` …
+`Stage8_Report.md`), прогоны на стенде — за владельцем.
 
 ### 2.2 Active Hypotheses
 
@@ -195,7 +197,7 @@
 
 | Metric | Target | Verification |
 |---|---|---|
-| `M_PATTERN_COVERAGE` | 28/28 | File count в `/docs/patterns/` |
+| `M_PATTERN_COVERAGE` | 29/29 (реестр: PAT-01..PAT-22 + PAT-NEW-1..7) | File count в `/docs/patterns/` |
 | `M_ADR_COUNT` | ≥1 per decision | File count в `/docs/decisions/` |
 | `M_DOC_FRESHNESS` | All updated | Timestamp check |
 | `M_PARTITION_ALIGNMENT` | 1 MiB | DiskGenius verify |
@@ -539,6 +541,11 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │  ├─ Версия/источник? → /packages/lock/Packages.lock.json
 │  └─ Описание пакета? → /packages/manifests/<PackageId>.json
 ├─ DevOps-конфигурация? → /devops/<wsl|hypervisor|cpu-policy|containers>/<FILE>
+├─ Рабочая среда (C:\Vitality)?
+│  ├─ Состав? → /runtime/manifests/RuntimeManifest.json
+│  ├─ Развёртывание/верификация? → /runtime/bootstrap/<Script>.ps1
+│  └─ Схема? → /docs/runtime/RUNTIME_SCHEMA.md
+├─ Ранбук прогонов? → /docs/artifacts/Stand_Runbook.md
 ├─ Ручной шаг? → /algorithm/manual/Stage<N>_<STEP>.md
 ├─ Автоматизированный шаг?
 │  ├─ Оркестрация этапа? → /scripts/Stage<N>_<PURPOSE>.<ext>
@@ -553,11 +560,13 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 ### 5.5 Cross-Reference Format
 
 ```
-[PAT-01](../patterns/PAT-01-ifeo-stub.md)
-[ADR-0003](../decisions/ADR-0003-ntfs-deny-system.md)
-[Stage4_Report](../artifacts/Stage4_Report.md)
-[C_drive_schema](../storage/C_drive_schema.md)
-[partitioning_research](../storage/partitioning_research.md)
+`[PAT-01](../patterns/PAT-01-ifeo-stub.md)`
+`[ADR-0003](../decisions/ADR-0003-ntfs-deny-system.md)`
+`[Stage4_Report](../artifacts/Stage4_Report.md)`
+`[C_drive_schema](../storage/C_drive_schema.md)`
+`[partitioning_research](../storage/partitioning_research.md)`
+
+> Примеры выше — образец формата (пути приведены относительно каталога `docs/`), а не ссылки из README.
 ```
 
 ### 5.6 Stage-to-Artifact Mapping
@@ -833,7 +842,6 @@ C:\
 │   ├── backup\                       (локальные слепки, PAT-19)
 │   └── .vitality.json                (маркер развёртывания: SHA256 манифеста)
 ├── Drivers\                          (INF-драйверы в Stage 4)
-├── GD_Tool\                           (инструменты в Stage 6)
 └── Recovery\                          (WinRE)
 ```
 
@@ -1054,9 +1062,10 @@ D:\
 ### 9.9 All Stages Verification
 
 - [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0017)
-- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 23/28)
+- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 23/29)
 - [ ] Все отчёты созданы (Stage0..Stage8 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
 - [ ] `Recovery_Procedure.md` создан и соответствует фактическим бэкапам (PAT-19)
 - [ ] `Stand_Runbook.md` использован при прогоне, отклонения зафиксированы
 - [ ] `pwsh -File ./scripts/Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL (проверки `F0.*`, `F1`–`F8`)
+- [ ] Системный аудит выполнен и не имеет открытых находок HIGH/MED (`docs/artifacts/Audit_Report.md`)
 - [ ] README.md обновлён
