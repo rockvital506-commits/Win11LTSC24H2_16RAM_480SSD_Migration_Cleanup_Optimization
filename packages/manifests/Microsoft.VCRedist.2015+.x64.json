@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "Microsoft.VCRedist.2015+.x64",
+  "profile": "base",
+  "purpose": "Распространяемый компонент Visual C++ x64",
+  "license": "Microsoft (перераспространяемый)",
+  "source": "winget",
+  "installArgs": [
+    "--id",
+    "Microsoft.VCRedist.2015+.x64",
+    "--exact",
+    "--version",
+    "<VERSION>",
+    "--accept-source-agreements",
+    "--accept-package-agreements",
+    "--silent",
+    "--disable-interactivity",
+    "--source",
+    "winget"
+  ],
+  "versionPolicy": "pinned-by-lock",
+  "lockFile": "packages/lock/Packages.lock.json",
+  "requiresNetwork": true,
+  "rules": [
+    "AR-601",
+    "AR-602",
+    "AR-603",
+    "AR-604"
+  ],
+  "notes": [
+    "SC_TOOLKIT_PRESERVED: Visual C++",
+    "Версия берётся из lock-файла: без неё установка блокируется (AR-602)."
+  ]
+}

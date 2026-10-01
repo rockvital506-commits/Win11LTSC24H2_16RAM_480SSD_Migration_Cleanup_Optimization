@@ -2,10 +2,10 @@
 
 Документация домена `packages/` (winget-first, AR-601).
 
-| Планируемый документ | Содержание | Статус |
+| Документ | Содержание | Статус |
 |---|---|---|
-| `PACKAGE_INDEX.md` | Каждый пакет: ID winget, назначение, лицензия, версия, источник, SHA256, дата | PLAN |
-| `WINGET_POLICY.md` | Политика запуска: `--exact --version --silent --disable-interactivity`, запрет ad-hoc upgrade/uninstall | PLAN |
-| `SOURCES.md` | Зафиксированные источники winget, состояние msstore (отключён), порядок добавления (ADR) | PLAN |
+| `PACKAGE_INDEX.md` | Каждый пакет: ID winget, назначение, лицензия, версия, источник, SHA256, дата | **DONE** |
+| `WINGET_POLICY.md` | Политика запуска: `--exact --version --silent --disable-interactivity`, запрет ad-hoc upgrade/uninstall | **DONE** |
+| `SOURCES.md` | Зафиксированные источники winget, состояние msstore (отключён), порядок добавления (ADR) | **DONE** |
 
 **Правила домена:** AR-601 … AR-607. Профили установки: `base`, `devops`, `admin`.

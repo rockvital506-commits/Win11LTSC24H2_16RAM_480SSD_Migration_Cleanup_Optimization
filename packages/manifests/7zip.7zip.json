@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "7zip.7zip",
+  "profile": "base",
+  "purpose": "Архиватор",
+  "license": "LGPL-2.1",
+  "source": "winget",
+  "installArgs": [
+    "--id",
+    "7zip.7zip",
+    "--exact",
+    "--version",
+    "<VERSION>",
+    "--accept-source-agreements",
+    "--accept-package-agreements",
+    "--silent",
+    "--disable-interactivity",
+    "--source",
+    "winget"
+  ],
+  "versionPolicy": "pinned-by-lock",
+  "lockFile": "packages/lock/Packages.lock.json",
+  "requiresNetwork": true,
+  "rules": [
+    "AR-601",
+    "AR-602",
+    "AR-603",
+    "AR-604"
+  ],
+  "notes": [
+    "Офлайн-пакеты и ISO распаковываются им",
+    "Версия берётся из lock-файла: без неё установка блокируется (AR-602)."
+  ]
+}

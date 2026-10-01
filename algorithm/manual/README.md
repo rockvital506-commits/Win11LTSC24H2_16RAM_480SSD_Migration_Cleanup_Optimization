@@ -7,6 +7,7 @@
 | `Stage1_Hardware_Preparation.md` | 1 | BIOS (ASUS Software Update → Disabled), бэкап старой системы, проверка видимости NVMe, протоколирование VMD/Secure Boot | DONE |
 | `Stage2_Ventoy_Install.md` | 2 | Рендер конфигурации Ventoy и файла ответов, установка ОС, вход в Audit Mode | DONE |
 | `Stage3_Windows_Update.md` | 3 | Накопительные обновления в Audit Mode, отсев ASUS-пакетов, мгновенная изоляция после | DONE |
-| `Stage6_Ohook_Activation.md` | 6 | Кратковременный выход в сеть, Ohook-активация, окончательное отключение сети | PLAN |
+| `Stage6_Ohook_Activation.md` | 6 | Кратковременный выход в сеть, Ohook-активация, окончательное отключение сети | DONE |
+| `Stage7_DevOps_Install.md` | 7 | Окно сети: компоненты виртуализации, дистрибутив WSL2, Docker, VMware, P+E, профиль пакетов | DONE |
 
 **Правила:** AR-408 (каждый ручной шаг документирован), AR-204 (деструктивные операции — только вручную и с подтверждением), AR-709 (скрипты не поднимают сеть самостоятельно).

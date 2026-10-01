@@ -15,8 +15,8 @@
 | `Stage6_immunity.md` | Сквозная верификация контура: ACL, задачи, брандмауэр, DoH, активация | PENDING |
 | `Stage7_Report.md` | Отчёт DevOps-окружения (ожидает окна сети и установки профиля `devops`) | IN_PROGRESS |
 | `Stage7_preflight.md` | Предпролётный отчёт Stage 7 (генерируется скриптом на хосте) | PENDING |
-| `Final_Report.md` | Итоговый отчёт проекта | PLAN |
+| `Stage7_packages.md` | Отчёт установки профиля пакетов (генерируется `Bootstrap-Packages.ps1`) | PENDING |
+| `Final_Report.md` | Итоговый отчёт проекта (метрики §3.5, критерии §1.4) | IN_PROGRESS |
 | `Recovery_Procedure.md` | Процедура восстановления (PAT-19) | PLAN |
-| `Final_Report.md` | Итоговый отчёт проекта | PLAN |
 
 Отчёт этапа генерируется скриптом с метриками §3.5 README (AR-904), а не пишется вручную.

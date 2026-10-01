@@ -35,6 +35,7 @@
 
 # --- VCS-нативные и машинные форматы: строго LF ----------------------------
 *.md            text eol=lf
+*.winget        text eol=lf
 *.json          text eol=lf
 *.yaml          text eol=lf
 *.yml           text eol=lf

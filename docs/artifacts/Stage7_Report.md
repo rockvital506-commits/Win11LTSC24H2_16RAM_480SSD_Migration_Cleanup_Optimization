@@ -40,7 +40,11 @@ VMware Workstation Pro через WHP API (сосуществование без
 | 9 | Алгоритм этапа | `algorithm/auto/Stage7_WSL_Docker_VMware.md` | DONE |
 | 10 | Схемы DevOps-контура | `docs/devops/WSL2_SCHEMA.md`, `HYPERVISOR_MATRIX.md`, `P_E_CORE_AFFINITY.md` | DONE |
 | 11 | Паттерны | `PAT-07`, `PAT-21`, `PAT-22` | DONE |
-| 12 | Прогон валидатора конвенций | — | **PASS** (166 файлов, 0 нарушений) |
+| 12 | Пакетный домен: манифесты, lock-файл, профили | `packages/manifests/*.json` (12), `packages/lock/Packages.lock.json`, `packages/winget/**` | DONE |
+| 13 | Скрипты установки пакетов | `packages/bootstrap/{Bootstrap-Packages.ps1,Invoke-PackageSync.ps1}`, `packages/hashes/PACKAGES_SHA256.txt` | DONE |
+| 14 | Документация пакетов | `docs/packages/{PACKAGE_INDEX,WINGET_POLICY,SOURCES}.md` | DONE |
+| 15 | Ручной алгоритм и итоговый отчёт | `algorithm/manual/Stage7_DevOps_Install.md`, `docs/artifacts/Final_Report.md` | DONE |
+| 16 | Прогон валидатора конвенций | — | **PASS** (194 файла, 0 нарушений) |
 
 ## 3. Состав контура (целевое состояние)
 
@@ -62,6 +66,7 @@ VMware Workstation Pro через WHP API (сосуществование без
 | `S7-OPEN-2` | Пиннинг Docker Engine (apt) | версия фиксируется в отчёте по факту установки; пофайловый хэш-пиннинг apt не даёт | OPEN (принято) |
 | `S7-OPEN-3` | Sysinternals `coreinfo` для перекрёстной проверки P/E | поставляется офлайн в `F:\TOOLS\Audit\`; при отсутствии проверка помечается `not-available` | OPEN |
 | `S7-OPEN-4` | Схема питания (`power-plan.json`) | по умолчанию сверка (WARN); применение — `-ApplyPowerPlan` | OPEN (решение владельца) |
+| `S7-OPEN-5` | **`GATE_AMBIGUITY`**: привязка ВМ к P-ядрам не выражается в `.vmx` | контракт AR-708/ADR-0002 не определяет директиву affinity; агент ключ не изобретает. Привязка — на уровне процессов (`Set-WorkloadAffinity.ps1`), либо решение владельца о директиве/стороннем инструменте | OPEN (запрос владельцу) |
 
 ## 5. Ручной контроль (заполняет владелец)
 
@@ -84,7 +89,7 @@ VMware Workstation Pro через WHP API (сосуществование без
 | `M_ADR_COUNT` | ≥1 на решение | ADR-0002, ADR-0016 закрывают Stage 7 |
 | `M_BSOD_INCIDENTS` | 0 | PENDING |
 | `M_DOC_FRESHNESS` | актуальность | 2026-10-01 |
-| `M_PACKAGE_PINNING` | 100 % версий зафиксировано | 0 % до окна сети (`S7-OPEN-1`) |
+| `M_PACKAGE_PINNING` | 100 % версий зафиксировано | 0 % до окна сети (`S7-OPEN-1`); 12 пакетов переведены в `UNPINNED`-состояние с блокировкой установки |
 
 ## 7. Критерии выхода
 

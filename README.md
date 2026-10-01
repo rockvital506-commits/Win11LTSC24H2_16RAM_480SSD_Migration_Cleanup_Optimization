@@ -443,7 +443,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │
 ├── packages/                        # Домен 2: установка ПО (winget-first)
 │   ├── README.md
-│   ├── winget/                      # Baseline + Profiles (base/devops/admin)
+│   ├── winget/                      # Baseline_Win11LTSC.winget + profiles/ (base/devops/admin)
 │   ├── lock/                        # Packages.lock.json
 │   ├── manifests/                   # <PackageId>.json
 │   ├── bootstrap/                   # Bootstrap-Packages.ps1, Invoke-PackageSync.ps1
