@@ -6,7 +6,7 @@
 | `STATUS` | ACCEPTED (решение действует с Stage 0; запись оформлена при аудите 2026-10-01) |
 | `DATE` | 2026-10-01 |
 | `AUTHOR` | AI-агент (Arena.ai) |
-| `RELATED` | README §4.5, §5.6, §9.1–§9.9; AR-805, AR-901, AR-909; `ADR-0017`; `docs/artifacts/Recovery_Procedure.md` |
+| `RELATED` | README §4.5, §5.6, §9.1–§9.9; AR-805, AR-901, AR-905; `ADR-0017`; `docs/artifacts/Recovery_Procedure.md` |
 
 ## Контекст
 
@@ -53,4 +53,4 @@
 | `V3` | Гейты перехода | незакрытый FAIL блокирует следующий этап |
 | `V4` | Финальная приёмка | `Final_Acceptance.md` без FAIL |
 
-<!-- Источник: README §4.5, §5.6, §9; AR-302, AR-805, AR-901, AR-909; ADR-0014, ADR-0017. -->
+<!-- Источник: README §4.5, §5.6, §9; AR-302, AR-805, AR-901, AR-905; ADR-0014, ADR-0017. -->

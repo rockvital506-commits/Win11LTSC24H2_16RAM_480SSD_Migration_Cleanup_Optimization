@@ -7,7 +7,7 @@
 | `rules/` | Свод правил автоматизации | `AUTOMATION_RULES.md`, `RULES_CHANGELOG.md` |
 | `decisions/` | Architecture Decision Records | `ADR-NNNN-<TITLE>.md` |
 | `patterns/` | Верифицированные паттерны | `PAT-INDEX.md`, `PAT-NN-*.md` |
-| `artifacts/` | Отчёты этапов, процедуры и приёмка | `Stage<N>_Report.md`, `Stage<N>_preflight.md`, `Stand_Runbook.md`, `Recovery_Procedure.md`, `Final_Acceptance.md`, `Final_Report.md` |
+| `artifacts/` | Отчёты этапов, процедуры и приёмка | `Stage<N>_Report.md`, `Stand_Runbook.md`, `Recovery_Procedure.md`, `Audit_Report.md`, `Final_Report.md`; отчёты прогонов (`Stage*_preflight.md`, `*_immunity.md`, `Final_Acceptance.md`) появляются на стенде |
 | `storage/` | Схемы накопителей и исследования разметки | `C_drive_schema.md`, `D_drive_schema.md`, `F_drive_schema.md`, `partitioning_research.md` |
 | `research/` | Исследовательские материалы (якорь1, step1–step5) | `anchor1.md`, `step1.md` … `step5.md` |
 | `core-tweaks/` | Карта твиков ядра и реестра | `TWEAK_INDEX.md`, `ACL_MATRIX.md`, `HOSTS_BASELINE.md` |
