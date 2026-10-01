@@ -22,6 +22,12 @@
 *.conf   text eol=crlf
 .wslconfig text eol=crlf
 
+# --- Шаблоны: EOL по целевому расширению (STRUC_010, AR-102) ---------------
+*.xml.template   text eol=crlf
+*.json.template  text eol=lf
+*.yaml.template  text eol=lf
+*.yml.template   text eol=lf
+
 # --- VCS-нативные и машинные форматы: строго LF ----------------------------
 *.md            text eol=lf
 *.json          text eol=lf
