@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": "6",
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0003",
+    "ADR-0015"
+  ],
+  "notes": [
+    "Цементирование контура (AR-501): NTFS Deny SYSTEM применяется только декларацией из этого манифеста.",
+    "Схема grant-then-deny: перед импортом политик SYSTEM временно получает (F); после импорта право на запись (W) отбирается абсолютно (DENY имеет приоритет в ntfs.sys).",
+    "Перед каждой ACL-операцией — Assert-NotSelfLocking (AR-506): Administrators и текущий пользователь сохраняют полный доступ.",
+    "Перед изменением SDDL экспортируется в backups/<UTC>_stage6/ (AR-502); восстановление — Set-Acl из бэкапа.",
+    "Каждый объект имеет ID ACL-NNN, запись в docs/core-tweaks/TWEAK_INDEX.md и ссылку на паттерн (AR-503)."
+  ],
+  "entries": [
+    {
+      "id": "ACL-001",
+      "name": "GroupPolicy: запрет записи для SYSTEM",
+      "path": "C:\\Windows\\System32\\GroupPolicy",
+      "kind": "Directory",
+      "principal": "SYSTEM",
+      "grantRights": "(F)",
+      "denyRights": "(W)",
+      "mode": "grant-then-deny",
+      "pattern": "PAT-11, PAT-NEW-2",
+      "reason": "Реаниматоры (WaaSMedicSvc, UsoSvc) работают под SYSTEM и пытаются вернуть политики обновлений. DENY-ACE для SYSTEM отбрасывает попытки на уровне ntfs.sys; ошибки доступа в журналах — ожидаемый рапорт файловой системы, а не дефект.",
+      "verify": "icacls \"C:\\Windows\\System32\\GroupPolicy\": наличие DENY-ACE для SYSTEM с правом (W)",
+      "protectedBy": "GATE_IMMUTABLE (README §2.3)"
+    },
+    {
+      "id": "ACL-002",
+      "name": "hosts: запрет записи для SYSTEM",
+      "path": "C:\\Windows\\System32\\drivers\\etc\\hosts",
+      "kind": "File",
+      "principal": "SYSTEM",
+      "grantRights": "(F)",
+      "denyRights": "(W)",
+      "mode": "grant-then-deny",
+      "pattern": "PAT-11, PAT-NEW-2, PAT-08",
+      "reason": "Файл hosts закрепляется как доверенная зона: содержимое не может быть перезаписано службами или активностью под SYSTEM. Список доменов — открытый пункт S6-OPEN-1.",
+      "verify": "icacls \"C:\\Windows\\System32\\drivers\\etc\\hosts\": наличие DENY-ACE для SYSTEM с правом (W)",
+      "protectedBy": "GATE_IMMUTABLE (README §2.3)"
+    }
+  ]
+}

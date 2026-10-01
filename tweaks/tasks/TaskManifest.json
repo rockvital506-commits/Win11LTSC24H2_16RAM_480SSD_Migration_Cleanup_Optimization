@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": "6",
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0015"
+  ],
+  "notes": [
+    "Декларация задач планировщика (AR-501): ad-hoc schtasks в stage-скриптах запрещён.",
+    "register — наша задача самозащиты System_Immunity_Core (PAT-NEW-4): триггеры «при запуске» и «при разблокировании рабочей станции», наивысшие права, запуск через wscript.exe -> D:\\GD_Tool\\Launcher.vbs.",
+    "retire — задачи-реаниматоры телеметрии: по умолчанию Disable (обратимо, XML экспортируется в бэкап AR-304); Unregister — только явным флагом (AR-204).",
+    "denyWriteToSystem — запрет записи для SYSTEM на XML-файл задачи (PAT-04 + PAT-11), чтобы задача не могла быть реактивирована системой.",
+    "TASK-001 регистрируется от SYSTEM (S-1-5-18): контур применяется при разблокировке любым пользователем и не зависит от наличия сессии администратора."
+  ],
+  "register": [
+    {
+      "id": "TASK-001",
+      "name": "System_Immunity_Core",
+      "description": "Циклическое цементирование контура: импорт эталонного слепка LGPO, правила брандмауэра, NTFS Deny SYSTEM (PAT-NEW-4).",
+      "action": {
+        "execute": "wscript.exe",
+        "arguments": "D:\\GD_Tool\\Launcher.vbs"
+      },
+      "runLevel": "Highest",
+      "principal": "SYSTEM (S-1-5-18)",
+      "principalNote": "Отличие от ручной инструкции (интерактивный пользователь с наивысшими правами): SYSTEM не зависит от активной сессии и срабатывает при разблокировке любым пользователем; ACL-операции всегда доступны.",
+      "triggers": [
+        {
+          "type": "BootTrigger",
+          "enabled": true
+        },
+        {
+          "type": "SessionStateChangeTrigger",
+          "state": "SessionUnlock",
+          "userId": "any"
+        }
+      ],
+      "settings": {
+        "allowStartOnDemand": true,
+        "startWhenAvailable": true,
+        "executionTimeLimit": "PT0S",
+        "multipleInstancesPolicy": "IgnoreNew",
+        "disallowStartIfOnBatteries": false,
+        "stopIfGoingOnBatteries": false,
+        "runOnlyIfNetworkAvailable": false,
+        "enabled": true
+      },
+      "pattern": "PAT-NEW-4",
+      "verify": "Get-ScheduledTask -TaskName 'System_Immunity_Core' -> State = Ready"
+    }
+  ],
+  "retire": [
+    {
+      "id": "TASK-101",
+      "taskPath": "\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater",
+      "action": "Disable",
+      "denyWriteToSystem": true,
+      "pattern": "PAT-04",
+      "reason": "Сбор данных о программах для телеметрии совместимости."
+    },
+    {
+      "id": "TASK-102",
+      "taskPath": "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator",
+      "action": "Disable",
+      "denyWriteToSystem": true,
+      "pattern": "PAT-04",
+      "reason": "Классический канал CEIP."
+    },
+    {
+      "id": "TASK-103",
+      "taskPath": "\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector",
+      "action": "Disable",
+      "denyWriteToSystem": true,
+      "pattern": "PAT-04",
+      "reason": "Отправка диагностики дисков."
+    },
+    {
+      "id": "TASK-104",
+      "taskPath": "\\Microsoft\\Windows\\Autochk\\Proxy",
+      "action": "Disable",
+      "denyWriteToSystem": true,
+      "pattern": "PAT-04",
+      "reason": "Прокси-задача Autochk с сетевым выходом."
+    },
+    {
+      "id": "TASK-105",
+      "taskPath": "\\Microsoft\\Windows\\Windows Error Reporting\\QueueReporting",
+      "action": "Disable",
+      "denyWriteToSystem": true,
+      "pattern": "PAT-04",
+      "reason": "Очередь отчётов об ошибках (WER)."
+    },
+    {
+      "id": "TASK-106",
+      "taskPath": "\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient",
+      "action": "Disable",
+      "denyWriteToSystem": true,
+      "pattern": "PAT-04",
+      "reason": "Клиент сбора отзывов (Siuf)."
+    }
+  ]
+}

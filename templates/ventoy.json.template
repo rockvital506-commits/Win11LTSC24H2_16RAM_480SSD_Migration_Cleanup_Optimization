@@ -1,0 +1,22 @@
+{
+  "control": [
+    { "VTOY_DEFAULT_MENU_MODE": "0" },
+    { "VTOY_MENU_TIMEOUT": "10" }
+  ],
+  "menu_alias": [
+    {
+      "image": "/ISO/en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso",
+      "alias": "Windows 11 IoT Enterprise LTSC 24H2 (auto_install)"
+    },
+    {
+      "image": "/ISO/WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso",
+      "alias": "WinPE Sergei Strelec 2026.02.05"
+    }
+  ],
+  "auto_install": [
+    {
+      "image": "/ISO/en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso",
+      "template": "/ventoy/templates/u_w11_ltsc_iot.xml"
+    }
+  ]
+}

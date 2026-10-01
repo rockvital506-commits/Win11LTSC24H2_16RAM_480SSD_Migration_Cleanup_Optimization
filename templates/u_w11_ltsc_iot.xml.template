@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  u_w11_ltsc_iot.xml.template (PAT-16, ADR-0005): первый файл ответов.
+
+  Назначение: автоматический проход windowsPE (принятие EULA), ранняя нейтрализация
+  вендорского мусора ASUS и телеметрии в проходе specialize, вход в Audit Mode.
+
+  Кодировка: UTF-8 БЕЗ BOM. Окончания строк: CRLF (AR-101, AR-102).
+  ВНИМАНИЕ: сохранение этого файла с BOM приводит к отказу setup.exe
+  ("unattend.xml contains invalid characters") на первой секунде установки.
+
+  Развёртывание: файл рендерится из шаблона под именем u_w11_ltsc_iot.xml и
+  размещается на носителе Ventoy по пути F:\ventoy\templates\u_w11_ltsc_iot.xml,
+  путь совпадает с полем "template" в ventoy.json.
+-->
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+
+  <settings pass="windowsPE">
+
+    <component name="Microsoft-Windows-Setup"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <UserData>
+        <AcceptEula>true</AcceptEula>
+      </UserData>
+      <!-- Разметка НЕ автоматизируется: раздел выбирается вручную (ADR-0007, AR-204). -->
+    </component>
+
+  </settings>
+
+  <settings pass="specialize">
+
+    <component name="Microsoft-Windows-Deployment"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <RunSynchronous>
+
+        <!-- PAT-01: IFEO NoOp-заглушка против AsusUpdateCheck.exe (внедряется BIOS через WPBT). -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Path>reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AsusUpdateCheck.exe" /v Debugger /t REG_SZ /d "ntsd -d" /f</Path>
+          <Description>IFEO stub: AsusUpdateCheck.exe (PAT-01)</Description>
+        </RunSynchronousCommand>
+
+        <!-- PAT-01: IFEO NoOp-заглушка против AsusAppService.exe. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Path>reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AsusAppService.exe" /v Debugger /t REG_SZ /d "ntsd -d" /f</Path>
+          <Description>IFEO stub: AsusAppService.exe (PAT-01)</Description>
+        </RunSynchronousCommand>
+
+        <!-- Телеметрия: DiagTrack в тип запуска 4 (Disabled). -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <Path>reg add "HKLM\SYSTEM\CurrentControlSet\Services\DiagTrack" /v Start /t REG_DWORD /d 4 /f</Path>
+          <Description>DiagTrack: Start=4</Description>
+        </RunSynchronousCommand>
+
+        <!-- Запрет автоматической подтяжки драйверов и вендорских панелей из интернета. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>4</Order>
+          <Path>reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" /v SearchOrderConfig /t REG_DWORD /d 0 /f</Path>
+          <Description>DriverSearching: SearchOrderConfig=0</Description>
+        </RunSynchronousCommand>
+
+      </RunSynchronous>
+    </component>
+
+  </settings>
+
+  <settings pass="oobeSystem">
+
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <ProtectYourPC>3</ProtectYourPC>
+
+        <!--
+          AUDIT MODE (пункт S2-OPEN-2 в docs/artifacts/Stage2_Report.md).
+          Вариант A (ниже) соответствует docs/research/anchor1.md: вход в Audit Mode
+          штатной установкой OOBE. Элемент ОТКЛЮЧЁН, так как его поддержка схемой
+          unattend требует подтверждения в виртуальной машине.
+          Вариант B (надёжный, документированный): после первой перезагрузки на экране
+          OOBE нажать Ctrl+Shift+F3. Стоимость: одно нажатие клавиш.
+          Порядок действий: проверить вариант A в ВМ; если setup отклоняет файл ответов
+          или Audit Mode не включается, оставить элемент отключённым и использовать B.
+
+        <Mode>Audit</Mode>
+        -->
+      </OOBE>
+    </component>
+
+  </settings>
+
+</unattend>

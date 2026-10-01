@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": 4,
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0012"
+  ],
+  "notes": [
+    "Целевой тип запуска 4 (Disabled) для реаниматоров и апдейтеров (PAT-03).",
+    "Окончательное цементирование ACL выполняется на Stage 6 (PAT-11, NTFS Deny SYSTEM);",
+    "здесь фиксируется только тип запуска: реаниматор может вернуть его при первом Idle-таймауте,",
+    "поэтому Assert-TweakState.ps1 обязателен в цикле проверки.",
+    "WSearch отключается ради SC_SSD_LONGEVITY (индексация -> паразитный I/O)."
+  ],
+  "services": [
+    {
+      "name": "WaaSMedicSvc",
+      "displayName": "Windows Update Medic Service",
+      "targetStart": 4,
+      "pattern": "PAT-03",
+      "reason": "Реаниматор: сбрасывает типы запуска UsoSvc/DiagTrack по Idle-таймауту.",
+      "critical": false
+    },
+    {
+      "name": "UsoSvc",
+      "displayName": "Update Orchestrator Service",
+      "targetStart": 4,
+      "pattern": "PAT-03",
+      "reason": "Оркестратор обновлений; после Stage 3 не требуется.",
+      "critical": false
+    },
+    {
+      "name": "DiagTrack",
+      "displayName": "Connected User Experiences and Telemetry",
+      "targetStart": 4,
+      "pattern": "PAT-03",
+      "reason": "Телеметрия: фоновый I/O и сетевой шум.",
+      "critical": false
+    },
+    {
+      "name": "WSearch",
+      "displayName": "Windows Search",
+      "targetStart": 4,
+      "pattern": "PAT-03",
+      "reason": "SearchIndex: постоянный дисковый I/O (SC_SSD_LONGEVITY).",
+      "critical": false
+    },
+    {
+      "name": "edgeupdate",
+      "displayName": "Microsoft Edge Update Service",
+      "targetStart": 4,
+      "pattern": "PAT-03",
+      "reason": "Автообновление Edge: фоновые задачи и трафик.",
+      "critical": false
+    },
+    {
+      "name": "edgeupdatem",
+      "displayName": "Microsoft Edge Update Service (mediator)",
+      "targetStart": 4,
+      "pattern": "PAT-03",
+      "reason": "Медиатор обновлений Edge.",
+      "critical": false
+    }
+  ]
+}

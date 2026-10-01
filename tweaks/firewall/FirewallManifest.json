@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": "6",
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0015"
+  ],
+  "gates": [
+    "GATE_STRUCTURE — домен tweaks/firewall создан по решению владельца (2026-10-01)"
+  ],
+  "notes": [
+    "Правила исходящего трафика против процессов-обходчиков (PAT-09): блокировка по программе, а не по адресу.",
+    "Единый источник: этот манифест. Апплейер Apply-FirewallManifest.ps1 применяет его в репозитории;",
+    "подготовка этапа разворачивает его как D:\\GD_Tool\\FirewallRules.json, откуда правила читает рантайм-ядро",
+    "(встроенный набор в ядре — только аварийный резерв на случай отсутствия файла).",
+    "Расширение состава — новый ADR; правила не удаляются автоматически (AR-204, только -Remove явным флагом)."
+  ],
+  "rules": [
+    {
+      "id": "FW-001",
+      "displayName": "Block Telemetry Core",
+      "direction": "Outbound",
+      "action": "Block",
+      "program": "%SystemRoot%\\System32\\CompatTelRunner.exe",
+      "profiles": "Any",
+      "enabled": true,
+      "pattern": "PAT-09",
+      "reason": "Сборщик телеметрии совместимости: обращается в сеть независимо от hosts и политик DNS."
+    },
+    {
+      "id": "FW-002",
+      "displayName": "Block WaaSMedic Outbound Agent",
+      "direction": "Outbound",
+      "action": "Block",
+      "program": "%SystemRoot%\\System32\\WaaSMedicAgent.exe",
+      "profiles": "Any",
+      "enabled": true,
+      "pattern": "PAT-09",
+      "reason": "Агент реаниматора Windows Update: восстановление каналов обновления в обход отключённых служб."
+    }
+  ]
+}

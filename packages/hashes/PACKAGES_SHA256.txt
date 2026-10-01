@@ -1,0 +1,18 @@
+# PACKAGES_SHA256.txt — контрольные суммы дистрибутивов и установщиков
+# Формат: <SHA256>  <идентификатор или путь>
+# Заполняется в окне сети (пакетный bootstrap) и вручную — для офлайн-компонентов с носителя F:.
+# Бинарники в Git не хранятся (AR-804).
+#
+# --- winget-пакеты (заполняется Invoke-PackageSync.ps1 -ResolveVersions) ---
+# <SHA256>  winget:Git.Git
+# <SHA256>  winget:Microsoft.VisualStudioCode
+#
+# --- офлайн-компоненты (носитель F:, фиксируются владельцем, AR-804) ---
+# <SHA256>  F:\WSL2\ubuntu.appx                       (дистрибутив WSL2)
+# <SHA256>  F:\VM\VMware-Workstation-Pro.exe          (гипервизор, ADR-0002)
+# <SHA256>  F:\TOOLS\Audit\coreinfo64.exe            (перекрёстная проверка P/E, ADR-0010)
+# <SHA256>  F:\TOOLS\Partitioning\DiskGenius_Portable (разметка, Stage 1)
+# <SHA256>  F:\TOOLS\Backup\                         (резервное копирование)
+#
+# Порядок: владелец фиксирует хэши после проверки носителя; до заполнения
+# соответствующие шаги помечаются WARN, но не блокируют контур (AR-306).

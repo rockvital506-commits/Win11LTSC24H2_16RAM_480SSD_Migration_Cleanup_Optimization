@@ -1,0 +1,45 @@
+# dev-stack.yaml.template — шаблон типового dev-окружения Stage 7 (ADR-0016).
+# Копируется в рабочий проект как compose.yaml; тома размещаются на /mnt/d/Docker (AR-707).
+# Запуск: docker compose -f dev-stack.yaml up -d
+name: dev-stack
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+      POSTGRES_DB: devdb
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    secrets:
+      - pg_password
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  pg_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/d/Docker/volumes/pg_data
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/d/Docker/volumes/redis_data
+
+secrets:
+  pg_password:
+    file: ./secrets/pg_password.txt

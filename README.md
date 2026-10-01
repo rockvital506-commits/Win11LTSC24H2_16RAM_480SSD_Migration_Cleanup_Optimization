@@ -72,7 +72,9 @@
 
 ### 2.1 Current Phase
 
-`CURRENT_PHASE` = Stage 0 (Repository Initialization).
+`CURRENT_PHASE` = Stage 8 закрыт (репозиторная часть); ожидается физический прогон `LIM-1` по
+`docs/artifacts/Stand_Runbook.md`. Предыдущие этапы: 0–7 — пакеты автоматизации DONE (`Stage0_Report.md` …
+`Stage8_Report.md`), прогоны на стенде — за владельцем.
 
 ### 2.2 Active Hypotheses
 
@@ -132,6 +134,14 @@
 | Recovery Procedure | `/docs/artifacts/Recovery_Procedure.md` |
 | Final Report | `/docs/artifacts/Final_Report.md` |
 | Partitioning Research | `/docs/storage/partitioning_research.md` |
+| Automation Rules | `/docs/rules/AUTOMATION_RULES.md` |
+| Rules Changelog | `/docs/rules/RULES_CHANGELOG.md` |
+| Research Material | `/docs/research/<NAME>.md` |
+| Tweak Index | `/docs/core-tweaks/TWEAK_INDEX.md` |
+| Package Index | `/docs/packages/PACKAGE_INDEX.md` |
+| DevOps Schema | `/docs/devops/<NAME>.md` |
+| Runtime Schema | `/docs/runtime/<NAME>.md` |
+| Stand Runbook | `/docs/artifacts/Stand_Runbook.md` |
 
 ### 3.3 Engineering Documentation Requirements
 
@@ -187,7 +197,7 @@
 
 | Metric | Target | Verification |
 |---|---|---|
-| `M_PATTERN_COVERAGE` | 28/28 | File count в `/docs/patterns/` |
+| `M_PATTERN_COVERAGE` | 29/29 (реестр: PAT-01..PAT-22 + PAT-NEW-1..7) | File count в `/docs/patterns/` |
 | `M_ADR_COUNT` | ≥1 per decision | File count в `/docs/decisions/` |
 | `M_DOC_FRESHNESS` | All updated | Timestamp check |
 | `M_PARTITION_ALIGNMENT` | 1 MiB | DiskGenius verify |
@@ -324,6 +334,9 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 ```
 /
 ├── README.md
+├── .editorconfig
+├── .gitattributes
+├── .gitignore
 │
 ├── algorithm/
 │   ├── manual/
@@ -342,6 +355,10 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │       └── Stage7_WSL_Docker_VMware.md
 │
 ├── docs/
+│   ├── rules/
+│   │   ├── README.md
+│   │   ├── AUTOMATION_RULES.md
+│   │   └── RULES_CHANGELOG.md
 │   ├── decisions/
 │   │   ├── README.md
 │   │   ├── ADR-0001-stage-sequencing.md
@@ -350,7 +367,36 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   ├── ADR-0004-ohook-vs-kms.md
 │   │   ├── ADR-0005-dual-stage-unattend.md
 │   │   ├── ADR-0006-fdrive-as-repository.md
-│   │   └── ADR-0007-partition-scheme.md
+│   │   ├── ADR-0007-partition-scheme.md
+│   │   ├── ADR-0008-repository-topology-domains.md
+│   │   ├── ADR-0009-automation-rules-baseline.md
+│   │   ├── ADR-0010-pe-core-affinity-policy.md
+│   │   ├── ADR-0011-size-units-and-esp-mount.md
+│   │   ├── …
+│   │   └── ADR-0015-stage6-immunity-contour.md
+│   ├── research/
+│   │   ├── README.md
+│   │   ├── anchor1.md
+│   │   └── step1.md … step5.md
+│   ├── core-tweaks/
+│   │   ├── README.md
+│   │   ├── TWEAK_INDEX.md
+│   │   ├── REGISTRY_MAP.md
+│   │   ├── BCD_REFERENCE.md
+│   │   └── ACL_MATRIX.md
+│   ├── packages/
+│   │   ├── README.md
+│   │   ├── PACKAGE_INDEX.md
+│   │   ├── WINGET_POLICY.md
+│   │   └── SOURCES.md
+│   ├── devops/
+│   │   ├── README.md
+│   │   ├── WSL2_SCHEMA.md
+│   │   ├── HYPERVISOR_MATRIX.md
+│   │   └── P_E_CORE_AFFINITY.md
+│   ├── runtime/
+│   │   ├── README.md
+│   │   └── RUNTIME_SCHEMA.md
 │   ├── patterns/
 │   │   ├── README.md
 │   │   ├── PAT-INDEX.md
@@ -359,8 +405,12 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   │   └── PAT-NEW-7-partition-scheme.md
 │   ├── artifacts/
 │   │   ├── README.md
+│   │   ├── Stage0_Report.md
 │   │   ├── Stage1_Report.md
 │   │   ├── ...
+│   │   ├── Stage8_Report.md
+│   │   ├── Stand_Runbook.md
+│   │   ├── Final_Acceptance.md
 │   │   ├── Final_Report.md
 │   │   └── Recovery_Procedure.md
 │   └── storage/
@@ -377,25 +427,75 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 │   ├── Stage4_Audit_Final_Clean.ps1
 │   ├── Stage5_Sysprep_Prepare.ps1
 │   ├── Stage6_AutoSetup.bat
+│   ├── Stage6_Immunity_Prepare.ps1
 │   ├── Stage6_Launcher.vbs
-│   └── Stage7_WSL_Docker_VMware.ps1
+│   ├── Stage7_WSL_Docker_VMware.ps1
+│   ├── Stage8_Runtime_Deploy.ps1
+│   ├── Final_Acceptance.ps1
+│   ├── common/
+│   │   ├── README.md
+│   │   ├── Logging.psm1
+│   │   ├── Backup.psm1
+│   │   ├── Verification.psm1
+│   │   └── Guard.psm1
+│   └── rules/
+│       ├── README.md
+│       └── Test-RepositoryConventions.ps1
+│
+├── tweaks/                          # Домен 1: твики ядра ОС и реестра
+│   ├── README.md
+│   ├── registry/                    # манифесты твиков реестра (*.json)
+│   ├── bcd/                         # флаги загрузчика (+ bcdedit /export)
+│   ├── services/                    # ServiceGate.json
+│   ├── tasks/                       # TaskManifest.json
+│   ├── acl/                         # AclManifest.json (NTFS Deny SYSTEM)
+│   ├── firewall/                    # FirewallManifest.json (исходящие правила, PAT-09)
+│   ├── appx/                        # AppxRemoval.json
+│   └── apply/                       # Apply-Tweaks.ps1, Assert-TweakState.ps1
+│
+├── packages/                        # Домен 2: установка ПО (winget-first)
+│   ├── README.md
+│   ├── winget/                      # Baseline_Win11LTSC.winget + profiles/ (base/devops/admin)
+│   ├── lock/                        # Packages.lock.json
+│   ├── manifests/                   # <PackageId>.json
+│   ├── bootstrap/                   # Bootstrap-Packages.ps1, Invoke-PackageSync.ps1
+│   └── hashes/                      # PACKAGES_SHA256.txt
+│
+├── devops/                          # Домен 3: WSL2 / Hyper-V / VMware / P+E
+│   ├── README.md
+│   ├── wsl/                         # .wslconfig.template, wsl.conf.template, Install-WslDistro.ps1
+│   ├── hypervisor/                  # Enable-HypervisorPlatform.ps1, Configure-WhpCoexistence.ps1
+│   │   └── vmware/                  # VM.vmx.template (изоляция кэша, PAT-22)
+│   ├── cpu-policy/                  # Get-PerformanceCoreMask.ps1, Set-WorkloadAffinity.ps1, power-plan.json
+│   └── containers/                  # Install-DockerEngine.sh, compose/dev-stack.yaml.template
+│
+├── runtime/                         # Домен 4: рабочая среда C:\Vitality (ADR-0017)
+│   ├── README.md
+│   ├── manifests/                   # RuntimeManifest.json (единственный источник состава)
+│   └── bootstrap/                   # Deploy-Runtime.ps1, Assert-RuntimeState.ps1
 │
 ├── templates/
 │   ├── README.md
 │   ├── ADR-template.md
 │   ├── Pattern-template.md
 │   ├── Stage-Report-template.md
+│   ├── Script-template.ps1
+│   ├── rules-template.md
+│   ├── ImmunityCore.ps1.template
 │   ├── u_w11_ltsc_iot.xml.template
-│   └── unattend.xml.template
+│   ├── unattend.xml.template
+│   └── ventoy.json.template
+│
+├── tests/
+│   ├── README.md
+│   ├── RepoConventions.Tests.ps1
+│   └── fixtures/
+│       └── README.md
 │
 └── tools/
     ├── README.md
-    ├── ventoy-1.1.10-windows/
-    ├── DiskGenius/
-    ├── WinPE_Strelec_2026.02.05/
-    ├── LGPO/
-    ├── ohook/
-    └── Win11_LTSC_IoT_24H2_ISO/
+    ├── runtime/                      # рантайм контура: D:\GD_Tool (ADR-0015, PAT-NEW-3)
+    └── <TOOL>/<VERSION>/             # бинарники в Git не хранятся (AR-804)
 ```
 
 ### 5.2 Directory Modification Rules
@@ -428,17 +528,31 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 
 ```
 НОВЫЙ ФАЙЛ
+├─ Правило автоматизации? → /docs/rules/AUTOMATION_RULES.md (+ RULES_CHANGELOG.md, ADR)
 ├─ Решение? → /docs/decisions/ADR-NNNN-<TITLE>.md
 ├─ Паттерн? → /docs/patterns/PAT[-NEW]-<N>-<NAME>.md
 ├─ Отчёт об этапе? → /docs/artifacts/Stage<N>_Report.md
 ├─ Схема накопителя? → /docs/storage/<DRIVE>_schema.md
-├─ Partitioning research? → /docs/storage/partitioning_research.md
+├─ Исследование? → /docs/research/<NAME>.md
+├─ Твик ядра/реестра?
+│  ├─ Декларация? → /tweaks/<registry|bcd|services|tasks|acl|appx>/<NAME>.json
+│  └─ Применение? → /tweaks/apply/<Script>.ps1
+├─ Пакет ПО?
+│  ├─ Версия/источник? → /packages/lock/Packages.lock.json
+│  └─ Описание пакета? → /packages/manifests/<PackageId>.json
+├─ DevOps-конфигурация? → /devops/<wsl|hypervisor|cpu-policy|containers>/<FILE>
+├─ Рабочая среда (C:\Vitality)?
+│  ├─ Состав? → /runtime/manifests/RuntimeManifest.json
+│  ├─ Развёртывание/верификация? → /runtime/bootstrap/<Script>.ps1
+│  └─ Схема? → /docs/runtime/RUNTIME_SCHEMA.md
+├─ Ранбук прогонов? → /docs/artifacts/Stand_Runbook.md
 ├─ Ручной шаг? → /algorithm/manual/Stage<N>_<STEP>.md
 ├─ Автоматизированный шаг?
-│  ├─ Скрипт? → /scripts/Stage<N>_<PURPOSE>.<ext>
-│  └─ Исходный код? → /tools/<TOOL>/src/<FILE>.<ext>
+│  ├─ Оркестрация этапа? → /scripts/Stage<N>_<PURPOSE>.<ext>
+│  └─ Общий модуль? → /scripts/common/<Name>.psm1
+├─ Проверка конвенций или тест? → /scripts/rules/<NAME>.ps1 или /tests/<NAME>.Tests.ps1
 ├─ Шаблон? → /templates/<NAME>.<ext>.template
-├─ Бинарник? → /tools/<TOOL>/<VERSION>/<FILE>.exe
+├─ Бинарник? → /tools/<TOOL>/<VERSION>/<FILE>.exe (в Git не коммитится — AR-804)
 ├─ Recovery-процедура? → /docs/artifacts/Recovery_Procedure.md
 └─ Схема вендорского мусора? → /docs/artifacts/<VENDOR>_bloat.md
 ```
@@ -446,24 +560,29 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 ### 5.5 Cross-Reference Format
 
 ```
-[PAT-01](../patterns/PAT-01-ifeo-stub.md)
-[ADR-0003](../decisions/ADR-0003-ntfs-deny-system.md)
-[Stage4_Report](../artifacts/Stage4_Report.md)
-[C_drive_schema](../storage/C_drive_schema.md)
-[partitioning_research](../storage/partitioning_research.md)
+`[PAT-01](../patterns/PAT-01-ifeo-stub.md)`
+`[ADR-0003](../decisions/ADR-0003-ntfs-deny-system.md)`
+`[Stage4_Report](../artifacts/Stage4_Report.md)`
+`[C_drive_schema](../storage/C_drive_schema.md)`
+`[partitioning_research](../storage/partitioning_research.md)`
+
+> Примеры выше — образец формата (пути приведены относительно каталога `docs/`), а не ссылки из README.
 ```
 
 ### 5.6 Stage-to-Artifact Mapping
 
-| Stage | Algorithm | Script | Patterns | Artifact |
-|---|---|---|---|---|
-| 1 | `manual/Stage1_Hardware_Preparation.md` + `auto/Stage1_DiskGenius_Partition.md` | `Stage1_DiskGenius_Partition.ps1` | `PAT-NEW-6, PAT-NEW-7` | `Stage1_Report.md`, `C_drive_schema.md`, `partitioning_research.md` |
-| 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
-| 3 | `manual/Stage3_Windows_Update.md` | — | — | `Stage3_Report.md` |
-| 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
-| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `PAT-16` | `Stage5_Report.md` |
-| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
-| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
+| Stage | Algorithm | Orchestration | Domain modules | Patterns | Artifact |
+|---|---|---|---|---|---|
+| 1 | `manual/Stage1_Hardware_Preparation.md` + `auto/Stage1_DiskGenius_Partition.md` | `Stage1_DiskGenius_Partition.ps1` | — | `PAT-NEW-6, PAT-NEW-7` | `Stage1_Report.md`, `C_drive_schema.md`, `partitioning_research.md` |
+| 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `templates/` (`u_w11_ltsc_iot.xml`, `ventoy.json`) | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
+| 3 | `manual/Stage3_Windows_Update.md` | — (ручной GUI-контроль, ADR не требуется) | — | — | `Stage3_Report.md` |
+| 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
+| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml.template` | `PAT-16, PAT-NEW-1` | `Stage5_Report.md` |
+| 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_Immunity_Prepare.ps1`; рантайм `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs`, `templates/ImmunityCore.ps1.template` | `tweaks/{acl,firewall,tasks,registry}`, `tweaks/apply` | `PAT-04, PAT-06, PAT-08, PAT-09, PAT-11, PAT-17, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4` | `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md` |
+| 8 | `manual/Stage8_Runtime_Handoff.md` + `auto/Stage8_Runtime_Deploy.md` | `Stage8_Runtime_Deploy.ps1`; рантайм `runtime/bootstrap/{Deploy-Runtime.ps1,Assert-RuntimeState.ps1}` | `runtime/` (манифест `RuntimeManifest.json`), `C:\Vitality\` | — | `Stage8_Report.md`, `Stage8_preflight.md`, `Stage8_runtime.md` |
+| 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1`; шаблоны `devops/wsl/.wslconfig.template`, `wsl.conf.template`, `hypervisor/vmware/VM.vmx.template`; рантайм `devops/containers/Install-DockerEngine.sh`; пакеты `packages/bootstrap/{Bootstrap-Packages.ps1,Invoke-PackageSync.ps1}` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Stage7_preflight.md`, `Final_Report.md` |
+
+---
 
 ### 5.7 F_Drive_Repository (внешний накопитель)
 
@@ -482,7 +601,7 @@ F:\ является производным репозиторием, генер
 ```
 F:\
 ├── /ISO/
-│   ├── Windows_11_IoT_Enterprise_LTSC_24H2.iso
+│   ├── en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso
 │   └── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso
 ├── /ventoy/
 │   ├── ventoy.json
@@ -538,6 +657,7 @@ F:\
 │   ├── Stage4_Audit_Final_Clean.ps1
 │   ├── Stage5_Sysprep_Prepare.ps1
 │   ├── Stage6_AutoSetup.bat
+│   ├── Stage6_Immunity_Prepare.ps1
 │   ├── Stage6_Launcher.vbs
 │   └── Stage7_WSL_Docker_VMware.ps1
 │
@@ -583,10 +703,12 @@ F:\
 
 | Partition | Type | FS | Size | Cluster | Mount | Purpose |
 |---|---|---|---|---|---|---|
-| 1 | EFI System Partition | FAT32 | 260 MB | 4K | `F:\EFI` (загрузочный) | Загрузчик Windows, BCD |
-| 2 | MSR | (none) | 16 MB | — | (hidden) | Microsoft System Reserved |
-| 3 | Windows | NTFS | 200 GB | 4K | `C:\` | ОС + Program Files + Users |
-| 4 | Data | NTFS | 279 GB | 64K | `D:\` | Data, VM-диски, Docker volumes, dev-проекты |
+| 1 | EFI System Partition | FAT32 | 260 MiB | 4K | скрытая (без буквы диска) | Загрузчик Windows, BCD |
+| 2 | MSR | (none) | 16 MiB | — | (hidden) | Microsoft System Reserved |
+| 3 | Windows | NTFS | 200 GiB | 4K | `C:\` | ОС + Program Files + Users |
+| 4 | Data | NTFS | остаток ≈246.7 GiB | 64K | `D:\` | Data, VM-диски, Docker volumes, dev-проекты |
+
+> Единицы измерения: MiB/GiB (двоичные, 1024-based); эталонные байтовые значения — `ADR-0011`, `docs/storage/partitioning_research.md` §4.5.
 
 ### 6.3 Partitioning Research Notes
 
@@ -600,38 +722,38 @@ F:\
 
 #### 6.3.2 EFI System Partition (ESP)
 
-- **Минимум:** 100 MB (FAT32 имеет ограничение 4 GB на файл, но для BCD достаточно 100 MB)
-- **Рекомендуется Microsoft:** 260 MB (для будущих обновлений)
-- **Наша рекомендация:** 260 MB (FAT32, cluster 4K)
+- **Минимум:** 100 MiB (ограничение FAT32 в 4 GiB на файл для BCD несущественно)
+- **Рекомендуется Microsoft:** 260 MiB (с запасом под обновления)
+- **Наша рекомендация:** 260 MiB (FAT32, кластер 4 КБ), **без буквы диска** (ADR-0011): буква `F:` закреплена за USB-носителем
 
 #### 6.3.3 MSR Partition
 
-- **Фиксированный размер:** 16 MB (Microsoft рекомендация)
+- **Фиксированный размер:** 16 MiB (Microsoft рекомендация)
 - **Не форматируется** — служебная область для конвертации дисков в GPT
 
 #### 6.3.4 C:\ (Windows)
 
 | Component | Typical Size | Notes |
 |---|---|---|
-| Windows LTSC IoT | ~25 GB | После Update Stage 3 |
-| Program Files | ~5 GB | VS Code, Visual C++, winget packages |
-| Users | ~10 GB | Профиль devops + Default User |
-| WinSxS | ~5 GB | После ResetBase |
-| PageFile | 4 GB | Фиксированный (InitialSize=MaximumSize=4096) |
-| Temp / Cache | ~3 GB | Очищается регулярно |
-| **Buffer** | ~150 GB | Для будущих обновлений и приложений |
-| **Total C:\** | **~200 GB** | |
+| Windows LTSC IoT | ~24 GiB | После Update Stage 3 |
+| Program Files | ~5 GiB | VS Code, Visual C++, winget packages |
+| Users | ~9 GiB | Профиль devops + Default User |
+| WinSxS | ~5 GiB | После ResetBase |
+| PageFile | 4 GiB | Фиксированный (InitialSize=MaximumSize=4096) |
+| Temp / Cache | ~3 GiB | Очищается регулярно |
+| **Buffer** | ~150 GiB | Для будущих обновлений и приложений |
+| **Total C:\** | **200 GiB** | Эталон: 214 748 364 800 байт (ADR-0011) |
 
 #### 6.3.5 D:\ (Data)
 
 | Component | Typical Size | Notes |
 |---|---|---|
-| VM disks (.vmdk) | ~100 GB | Pre-allocated для VMware |
-| Docker volumes | ~50 GB | Контейнерные данные |
-| Dev projects | ~50 GB | git clone, build artifacts |
-| Backups (config snapshots) | ~20 GB | Снимки конфигов |
-| Free space | ~60 GB | Для будущих нужд |
-| **Total D:\** | **~280 GB** | (свободно: ~209 GB для раздела 3 флешки, не путать) |
+| VM disks (.vmdk) | ~90 GiB | Pre-allocated для VMware |
+| Docker volumes | ~45 GiB | Контейнерные данные |
+| Dev projects | ~45 GiB | git clone, build artifacts |
+| Backups (config snapshots) | ~15 GiB | Снимки конфигов |
+| Free space | ~51.7 GiB | Для будущих нужд |
+| **Total D:\** | **≈246.7 GiB** | Весь остаток ёмкости накопителя (ADR-0011); не путать с разделом 3 носителя F: |
 
 ### 6.4 DiskGenius Operations
 
@@ -639,10 +761,10 @@ F:\
 |---|---|---|
 | 1 | Backup old partition table | DiskGenius → Backup Partition Table |
 | 2 | Create GPT | DiskGenius → Initialize Disk → GPT |
-| 3 | Create ESP | DiskGenius → New Partition → EFI System Partition, 260 MB, FAT32, 1 MiB alignment |
-| 4 | Create MSR | DiskGenius → New Partition → MSR, 16 MB |
-| 5 | Create C:\ | DiskGenius → New Partition → Primary, 200 GB, NTFS, 4K cluster, 1 MiB alignment |
-| 6 | Create D:\ | DiskGenius → New Partition → Primary, 279 GB, NTFS, 64K cluster, 1 MiB alignment |
+| 3 | Create ESP | DiskGenius → New Partition → EFI System Partition, 260 MiB (272 629 760 Б), FAT32, 1 MiB alignment, без буквы |
+| 4 | Create MSR | DiskGenius → New Partition → MSR, 16 MiB (16 777 216 Б) |
+| 5 | Create C:\ | DiskGenius → New Partition → Primary, **200 GiB (214 748 364 800 Б)**, NTFS, 4K cluster, 1 MiB alignment |
+| 6 | Create D:\ | DiskGenius → New Partition → Primary, **весь остаток (≈246.7 GiB)**, NTFS, 64K cluster, 1 MiB alignment |
 | 7 | Backup new partition table | DiskGenius → Backup Partition Table |
 | 8 | Verify alignment | DiskGenius → Verify → 1 MiB boundary check |
 
@@ -666,7 +788,7 @@ fsutil behavior set encryptpagingfile 0
 
 | Parameter | Value |
 |---|---|
-| Device | NVMe SSD 480 GB |
+| Device | NVMe SSD 480 GB (≈447 GiB полезной ёмкости) |
 | Partition Table | GPT |
 | Boot Mode | UEFI |
 | Total Size | 480 GB |
@@ -675,10 +797,12 @@ fsutil behavior set encryptpagingfile 0
 
 | # | Type | FS | Size | Cluster | Mount | Label | GUID |
 |---|---|---|---|---|---|---|---|
-| 1 | EFI System | FAT32 | 260 MB | 4K | `C:\EFI` (hidden) | ESP | `<EFI_GUID>` |
-| 2 | MSR | — | 16 MB | — | hidden | MSR | `<MSR_GUID>` |
-| 3 | Windows | NTFS | 200 GB | 4K | `C:\` | Windows | `<WINDOWS_GUID>` |
-| 4 | Data | NTFS | 279.7 GB | 64K | `D:\` | Data | `<DATA_GUID>` |
+| 1 | EFI System | FAT32 | 260 MiB | 4K | скрытая (без буквы) | ESP | `<EFI_GUID>` |
+| 2 | MSR | — | 16 MiB | — | hidden | MSR | `<MSR_GUID>` |
+| 3 | Windows | NTFS | 200 GiB | 4K | `C:\` | Windows | `<WINDOWS_GUID>` |
+| 4 | Data | NTFS | ≈246.7 GiB (остаток) | 64K | `D:\` | Data | `<DATA_GUID>` |
+
+Единицы — MiB/GiB (1 GiB = 2³⁰ байт); байтовые эталоны и допуски — ADR-0011, §6.2.
 
 ### 7.3 Alignment Verification
 
@@ -709,9 +833,15 @@ C:\
 │   │   └── Sysprep\                   (unattend.xml в Stage 5)
 │   ├── WinSxS\                       (сжат после ResetBase в Stage 4)
 │   └── ...
-├── Vitality\                         (runtime, после Stage 8)
+├── Vitality\                         (рабочая среда, Stage 8: ADR-0017, docs/runtime/RUNTIME_SCHEMA.md)
+│   ├── bin\                          (модули рантайма; офлайн с F:, не в Git)
+│   ├── config\                       (конфигурация; секреты — файлами, STRUC_009)
+│   ├── logs\                         (журналы, ротация)
+│   ├── state\                        (состояние и индексы)
+│   ├── workspace\                    (рабочие каталоги проектов)
+│   ├── backup\                       (локальные слепки, PAT-19)
+│   └── .vitality.json                (маркер развёртывания: SHA256 манифеста)
 ├── Drivers\                          (INF-драйверы в Stage 4)
-├── GD_Tool\                           (инструменты в Stage 6)
 └── Recovery\                          (WinRE)
 ```
 
@@ -778,8 +908,8 @@ D:\
 **Содержимое:**
 ```
 /ISO/
-├── Windows_11_IoT_Enterprise_LTSC_24H2.iso     (~6 GB)
-└── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso  (~3 GB)
+├── en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso   (~6 GB)
+└── WinPE11_10_8_Sergei_Strelec_2026.02.05_Russian.iso   (~3 GB)
 
 /ventoy/
 ├── ventoy.json                                (auto_install)
@@ -806,15 +936,15 @@ D:\
 
 - [ ] DiskGenius partition table backup создан и сохранён на F:\BACKUPS\
 - [ ] GPT создан корректно
-- [ ] ESP: 260 MB, FAT32, 1 MiB alignment
-- [ ] MSR: 16 MB
-- [ ] C:\: 200 GB, NTFS, 4K cluster, 1 MiB alignment
-- [ ] D:\: ~280 GB, NTFS, 64K cluster, 1 MiB alignment
+- [ ] ESP: 260 MiB, FAT32, 1 MiB alignment, без буквы диска (ADR-0011)
+- [ ] MSR: 16 MiB
+- [ ] C:\: 200 GiB (214 748 364 800 Б), NTFS, 4K cluster, 1 MiB alignment
+- [ ] D:\: ≈246.7 GiB (весь остаток), NTFS, 64K cluster, 1 MiB alignment
 - [ ] fsutil 8dot3 disable применён к D:\
 - [ ] fsutil disablelastaccess применён
 - [ ] `Stage1_Report.md` создан
 - [ ] `C_drive_schema.md` обновлён
-- [ ] ADR-0007 создан
+- [ ] ADR-0007 (rev.2) и ADR-0011 созданы
 
 ### 9.2 Stage 2 (Ventoy) Verification
 
@@ -824,13 +954,118 @@ D:\
 - [ ] /ISO/ содержит LTSC IoT 24H2.iso и Strelec.iso
 - [ ] /ventoy/ventoy.json содержит auto_install
 - [ ] /ventoy/templates/u_w11_ltsc_iot.xml содержит XML
+- [ ] `Stage2_Ventoy_Template_Setup.ps1`: `V0.*`/`V1.*` без FAIL, `Stage2_preflight.md` создан
 - [ ] `Stage2_Report.md` создан
 - [ ] `F_drive_schema.md` обновлён
 
-### 9.3 All Stages Verification
+### 9.3 Stage 3 (Windows Update) Verification
 
-- [ ] Все ADR созданы (ADR-0001..ADR-0007)
-- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7)
-- [ ] Все отчёты созданы (Stage1..Stage7 + Final)
-- [ ] Recovery_Procedure.md создан
+- [ ] Исходная сборка зафиксирована (`CurrentBuild`, `UBR`, `EditionID`)
+- [ ] Переключатель «Получайте последние обновления…» — Отключено
+- [ ] Два последовательных цикла закончились статусом «Установлены все актуальные обновления»
+- [ ] `CurrentBuild`/`UBR` выросли относительно исходных
+- [ ] Пакеты ASUS/OEM и необязательные обновления не устанавливались
+- [ ] Audit Mode сохранён (окно Sysprep появлялось и закрывалось после каждой перезагрузки)
+- [ ] Сеть физически изолирована (`Test-NetConnection 8.8.8.8` → False)
+- [ ] `Stage3_Report.md` заполнен
+
+### 9.4 Stage 4 (Audit Final Clean) Verification
+
+Выполняется на хосте, в Audit Mode, при 100% сетевой изоляции (AR-709):
+`scripts/Stage4_Audit_Final_Clean.ps1` → `tweaks/bcd/Set-BcdVbsFlags.ps1` → `tweaks/apply/Assert-TweakState.ps1`.
+
+- [ ] Сеть изолирована и подтверждена (нет активных адаптеров, `Test-NetConnection 8.8.8.8` → False)
+- [ ] Импорт «голых» INF из `C:\Drivers` выполнен под временным PnP-щитом
+- [ ] PnP-щит снят: `Invoke-PnpShield.ps1 -Audit` → 0 из 2 активных элементов
+- [ ] Устройства без ошибок 28/48 (тачпад, аудио)
+- [ ] Реестр: `LsaCfgFlags=0`, `EnableVirtualizationBasedSecurity=0`, HVCI `Enabled=0` (TWK-001..003)
+- [ ] BCD: `loadoptions` содержит `DISABLE-LSA-ISOLATION,DISABLE-VBS` (BCD-001, AR-505, снимок BCD создан)
+- [ ] VBS runtime: `Win32_DeviceGuard.VirtualizationBasedSecurityStatus = 0` (после перезагрузки)
+- [ ] Службы `WaaSMedicSvc`, `UsoSvc`, `DiagTrack`, `WSearch`, `edgeupdate`, `edgeupdatem` → `Start=4`
+- [ ] Provisioned AppX (Xbox/Cortana/Bing/…) удалены; защищённые пакеты не тронуты
+- [ ] `powercfg /hibernate off`; `C:\hiberfil.sys` отсутствует
+- [ ] Подкачка: `AutomaticManagedPagefile=False`, `InitialSize=MaximumSize=4096`
+- [ ] `dism /online /cleanup-image /StartComponentCleanup /ResetBase` выполнен
+- [ ] `fsutil behavior set disablelastaccess 1` применён
+- [ ] `Assert-TweakState.ps1` → все проверки PASS; отчёт `Stage4_tweakstate.md` создан
+- [ ] `Stage4_Report.md` заполнен (W1–N1), статус переведён в DONE
+- [ ] Бэкапы сессии сохранены на `F:\BACKUPS\`
+
+### 9.5 Stage 5 (Sysprep Seal) Verification
+
+Выполняется на хосте: `scripts/Stage5_Sysprep_Prepare.ps1` (подготовка) → `sysprep.exe /oobe /generalize /shutdown` (CMD от Администратора, AR-204) → тихий OOBE → создание пользователя `devops`.
+
+- [ ] Исходное состояние зафиксировано: Audit Mode активен (`SystemSetupInProgress = 1`)
+- [ ] Сеть физически изолирована (0 активных адаптеров); выход в сеть — только на стыке Stage 6→7
+- [ ] Остаток перевооружений (`slmgr /dlv`, «Remaining Windows rearm count») внесён в отчёт
+- [ ] `templates/unattend.xml.template` размещён как `C:\Windows\System32\Sysprep\unattend.xml` (UTF-8 без BOM)
+- [ ] Предпролётный отчёт `Stage5_preflight.md`: `P0.1`–`P2.2`, `P4.1` — PASS
+- [ ] Ловушка `0x80073cf2` закрыта: `P3.1` — 0 нарушений (при необходимости `-FixSysprepValidation`, AR-507)
+- [ ] Дефект 24H2: кэши `WebCache`/`INetCache` очищены (`-PurgeProfileCaches`) или зафиксирован `WARN` с переносом в Stage 6
+- [ ] `sysprep.exe /oobe /generalize /shutdown /unattend:...` выполнен, ноутбук полностью выключился
+- [ ] `sysprep_succeeded.tag` присутствует; журналы `setupact.log`/`setuperr.log` — без ошибок
+- [ ] OOBE остановился на экране создания локальной учётной записи; EULA/OEM/онлайн-экраны скрыты
+- [ ] Пользователь `devops` создан, вход выполнен; оболочка работает без дефектов (панель задач, «Пуск»)
+- [ ] Твики наследованы (`H-003`): IFEO ASUS, `DiagTrack=4`, отсутствие `hiberfil.sys`, подкачка 4096 МБ
+- [ ] `Stage5_Report.md` заполнен (P0.1–S6), статус переведён в DONE
+
+### 9.6 Stage 6 (Immunity Contour & Activation) Verification
+
+Выполняется в профиле `devops` при отключённой сети. Подготовка — `scripts/Stage6_Immunity_Prepare.ps1`; окно активации — `algorithm/manual/Stage6_Ohook_Activation.md` (только владелец, AR-204).
+
+- [ ] Предусловия `P0.1`–`P0.5` без FAIL (`Stage6_preflight.md`): сеть изолирована, `D:\GD_Tool` создан, шаблон рантайма на месте
+- [ ] Доверенная зона Defender применена **до** первой ACL-операции (`P1`; ADR-0015)
+- [ ] Рантайм развёрнут и сверен по SHA256 (`P2.*`): `ImmunityCore.ps1`, `AutoSetup.bat`, `Launcher.vbs`
+- [ ] Задача `System_Immunity_Core` зарегистрирована: принципал SYSTEM, триггеры boot + unlock (`TASK-001.1/2`)
+- [ ] Реаниматоры выведены из строя: `TR101`…`TR106` — `Disabled`, XML в бэкапе (AR-304)
+- [ ] NTFS-замки применены (`GACL-001/002`): DENY `SYSTEM:(W)` на `GroupPolicy` и `hosts`
+- [ ] Правила брандмауэра активны (`F1/F2`); твики Stage 4 не деградировали (`M1/M2`)
+- [ ] Запрет DoH подтверждён (`D1`: `DoHPolicy = 1`)
+- [ ] Окно активации: сеть включена **вручную**, Ohook выполнен, `A1` = `Licensed` (`H-004` закрыт на двух перезагрузках)
+- [ ] `System_Immunity_Core` выполнена вручную («Выполнить»), код 0, журнал `D:\GD_Tool\logs\ImmunityCore.log` заполнен
+- [ ] Сеть окончательно выключена; PIN (Windows Hello) настроен; вход выполняется
+- [ ] `Stage6_immunity.md` — без FAIL; `Stage6_Report.md` переведён в DONE
+- [ ] Открытые вопросы ратифицированы: список доменов `hosts` (`S6-OPEN-1`), дом правил брандмауэра (`S6-OPEN-2`), судьба исключения `sppc.dll` (`S6-OPEN-3`)
+
+### 9.7 Stage 7 (DevOps Contour) Verification
+
+Выполняется в профиле `devops` при открытом владельцем окне сети (стык Stage 6→7, §4.5). Оркестратор — `scripts/Stage7_WSL_Docker_VMware.ps1`.
+
+- [ ] Предусловия `P0.1`–`P0.5`: окно сети открыто, Stage 6 закрыт (задача + замок `GroupPolicy`), пакет `F:\WSL2\ubuntu.appx`, место на `C:`/`D:`
+- [ ] Компоненты: `Subsystem-Linux`, `VirtualMachinePlatform`, `HypervisorPlatform` — `Enabled`; `Microsoft-Hyper-V-All` — не включён (`C0.1`–`C0.3`)
+- [ ] `hypervisorlaunchtype = auto` (`C0.2`), снимок BCD сохранён перед правкой (AR-505)
+- [ ] Дистрибутив WSL2 установлен, Linux-пользователь создан (`W1.4`)
+- [ ] Лимиты `.wslconfig` совпадают с шаблоном (4 / 6GB / pageReporting=false) (`W1.5`), `systemd=true` активен
+- [ ] Docker Engine установлен нативно, `DockerRootDir = /mnt/d/Docker` (`P7.2`); dev-стек поднимается
+- [ ] Директивы `.vmx` применены ко всем ВМ; `*.vmem` не создаётся (`C1.*`); ВМ грузится при активном WSL2 (`P7.3`)
+- [ ] Маска P-ядер выведена динамически (`A0.1`), процессы привязаны с приоритетом ≤ `Normal` (`A1.1`)
+- [ ] Схема питания сверена с `power-plan.json` (`A2.*`) либо расхождение зафиксировано как WARN
+- [ ] Пакеты профиля `devops` установлены, `Packages.lock.json` заполнен, `PACKAGES_SHA256.txt` актуален
+- [ ] `Stage7_preflight.md` — без FAIL; `Stage6_immunity` подтверждён после этапа
+- [ ] Окно сети закрыто владельцем; `Stage7_Report.md` переведён в DONE, `Final_Report.md` заполнен
+
+### 9.8 Stage 8 (Runtime Workspace) Verification
+
+Выполняется при закрытом окне сети (этап сети не требует). Оркестратор — `scripts/Stage8_Runtime_Deploy.ps1`.
+
+- [ ] Состав ратифицирован: `RuntimeManifest.json` → `status: RATIFIED` (`S8-OPEN-1`)
+- [ ] `P0.1`–`P0.3` без FAIL; контуры Stage 6 и Stage 7 не затронуты
+- [ ] `Deploy-Runtime.ps1` создал отсутствующие каталоги, существующие не изменены (AR-201)
+- [ ] Маркер `.vitality.json` содержит SHA256 текущего манифеста; повторный прогон ничего не меняет (AR-301)
+- [ ] Права применены (`-ApplyAcl`) и подтверждены чтением `icacls` (SYSTEM FullControl, Administrators чтение)
+- [ ] `Stage8_runtime.md` без FAIL; дрейф отсутствует или объяснён в отчёте
+- [ ] Модули рантайма размещены в `bin\`, хэши внесены в `packages/hashes/PACKAGES_SHA256.txt` (`S8-OPEN-2`)
+- [ ] Секреты — файлами в `config\`, в Git отсутствуют (`STRUC_009`)
+- [ ] Задачи/службы рантайма (если нужны) оформлены декларацией, а не созданы скриптом (`S8-OPEN-3`)
+- [ ] `Stage8_Report.md` переведён в DONE; `Stand_Runbook.md` заполнен по факту прогона
+
+### 9.9 All Stages Verification
+
+- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0017)
+- [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7; `M_PATTERN_COVERAGE` = 23/29)
+- [ ] Все отчёты созданы (Stage0..Stage8 + Final); Stage 6: `Stage6_Report.md`, `Stage6_preflight.md`, `Stage6_immunity.md`
+- [ ] `Recovery_Procedure.md` создан и соответствует фактическим бэкапам (PAT-19)
+- [ ] `Stand_Runbook.md` использован при прогоне, отклонения зафиксированы
+- [ ] `pwsh -File ./scripts/Final_Acceptance.ps1` → `Final_Acceptance.md` без FAIL (проверки `F0.*`, `F1`–`F8`)
+- [ ] Системный аудит выполнен и не имеет открытых находок HIGH/MED (`docs/artifacts/Audit_Report.md`)
 - [ ] README.md обновлён

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "Microsoft.Sysinternals",
+  "profile": "devops",
+  "purpose": "Sysinternals Suite (coreinfo, procexp)",
+  "license": "Microsoft EULA",
+  "source": "winget",
+  "installArgs": [
+    "--id",
+    "Microsoft.Sysinternals",
+    "--exact",
+    "--version",
+    "<VERSION>",
+    "--accept-source-agreements",
+    "--accept-package-agreements",
+    "--silent",
+    "--disable-interactivity",
+    "--source",
+    "winget"
+  ],
+  "versionPolicy": "pinned-by-lock",
+  "lockFile": "packages/lock/Packages.lock.json",
+  "requiresNetwork": true,
+  "rules": [
+    "AR-601",
+    "AR-602",
+    "AR-603",
+    "AR-604"
+  ],
+  "notes": [
+    "coreinfo используется для перекрёстной проверки P/E (ADR-0010)",
+    "Версия берётся из lock-файла: без неё установка блокируется (AR-602)."
+  ]
+}

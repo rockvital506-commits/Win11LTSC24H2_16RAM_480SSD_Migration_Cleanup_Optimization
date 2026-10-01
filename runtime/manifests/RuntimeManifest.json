@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": 8,
+  "status": "PROPOSED",
+  "statusNote": "Состав — предложение агента (S8-OPEN-1): владелец подтверждает или правит; до ратификации deploy допускается только с -Audit.",
+  "root": "C:\\Vitality",
+  "markerFile": ".vitality.json",
+  "adr": [
+    "ADR-0017"
+  ],
+  "rules": [
+    "AR-201",
+    "AR-204",
+    "AR-206",
+    "AR-301",
+    "SC_SSD_LONGEVITY",
+    "AR-804",
+    "STRUC_009"
+  ],
+  "directories": [
+    {
+      "path": "bin",
+      "purpose": "Исполняемые модули рантайма (поставляются офлайн с F:, хэши в packages/hashes)",
+      "required": true
+    },
+    {
+      "path": "config",
+      "purpose": "Конфигурация машины; секреты — отдельными файлами (STRUC_009)",
+      "required": true
+    },
+    {
+      "path": "logs",
+      "purpose": "Журналы рантайма; ротация, в Git не коммитятся (STRUC_008)",
+      "required": true
+    },
+    {
+      "path": "state",
+      "purpose": "Состояние, локальные индексы и очереди",
+      "required": true
+    },
+    {
+      "path": "workspace",
+      "purpose": "Рабочие каталоги проектов; крупные данные — на D:",
+      "required": true
+    },
+    {
+      "path": "backup",
+      "purpose": "Локальные слепки конфигурации перед изменениями (PAT-19)",
+      "required": true
+    }
+  ],
+  "acls": [
+    {
+      "path": ".",
+      "principal": "NT AUTHORITY\\SYSTEM",
+      "sid": "*S-1-5-18",
+      "rights": "(OI)(CI)F",
+      "note": "Полный доступ системе"
+    },
+    {
+      "path": ".",
+      "principal": "BUILTIN\\Administrators",
+      "sid": "*S-1-5-32-544",
+      "rights": "(OI)(CI)(RX)",
+      "note": "Администраторы — чтение и запуск"
+    },
+    {
+      "path": "config",
+      "principal": "BUILTIN\\Administrators",
+      "sid": "*S-1-5-32-544",
+      "rights": "(OI)(CI)(RX)",
+      "note": "Секреты — только владелец и SYSTEM"
+    }
+  ],
+  "driftAllow": [
+    ".vitality.json"
+  ],
+  "sizeWarningGiB": 5,
+  "verification": [
+    {
+      "id": "R1.1",
+      "check": "Каталоги из манифеста существуют"
+    },
+    {
+      "id": "R1.2",
+      "check": "Маркер .vitality.json валиден, хэш манифеста совпадает"
+    },
+    {
+      "id": "R1.3",
+      "check": "Нет лишних элементов верхнего уровня (дрейф)"
+    },
+    {
+      "id": "R1.4",
+      "check": "Права: SYSTEM FullControl, Administrators чтение (при -ApplyAcl)"
+    },
+    {
+      "id": "R2.1",
+      "check": "Объём каталога ниже предупреждающего порога (крупные данные — на D:)"
+    }
+  ]
+}

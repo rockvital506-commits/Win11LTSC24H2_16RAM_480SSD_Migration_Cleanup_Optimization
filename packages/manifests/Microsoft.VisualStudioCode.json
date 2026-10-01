@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "Microsoft.VisualStudioCode",
+  "profile": "base",
+  "purpose": "Основная среда разработки",
+  "license": "MIT (с компонентами Microsoft)",
+  "source": "winget",
+  "installArgs": [
+    "--id",
+    "Microsoft.VisualStudioCode",
+    "--exact",
+    "--version",
+    "<VERSION>",
+    "--accept-source-agreements",
+    "--accept-package-agreements",
+    "--silent",
+    "--disable-interactivity",
+    "--source",
+    "winget"
+  ],
+  "versionPolicy": "pinned-by-lock",
+  "lockFile": "packages/lock/Packages.lock.json",
+  "requiresNetwork": true,
+  "rules": [
+    "AR-601",
+    "AR-602",
+    "AR-603",
+    "AR-604"
+  ],
+  "notes": [
+    "Расширения ставятся вручную; WSL/Remote — отдельный шаг",
+    "Версия берётся из lock-файла: без неё установка блокируется (AR-602)."
+  ]
+}

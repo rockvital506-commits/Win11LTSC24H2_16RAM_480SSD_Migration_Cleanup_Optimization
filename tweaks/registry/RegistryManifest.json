@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": "4, 6",
+  "generated": "2026-10-01",
+  "rules": ["AR-101", "AR-501", "AR-502", "AR-503"],
+  "adr": [
+    "ADR-0012",
+    "ADR-0015"
+  ],
+  "notes": [
+    "Декларация твиков реестра (AR-501): ad-hoc reg add в stage-скриптах запрещён.",
+    "Каждый твик имеет ID TWK-NNN, ссылку на паттерн и заносится в docs/core-tweaks/TWEAK_INDEX.md (AR-503).",
+    "Перед применением ветка экспортируется в backups/<UTC>_stage4/ (AR-304)."
+  ],
+  "tweaks": [
+    {
+      "id": "TWK-001",
+      "name": "LSA Protection off (LsaCfgFlags)",
+      "hive": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "nativePath": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "valueName": "LsaCfgFlags",
+      "valueType": "DWord",
+      "value": 0,
+      "pattern": "PAT-12",
+      "reason": "Отключение изоляции LSA снимает оверхед DPC и необходимо для P+E-политики (AR-706, ADR-0012).",
+      "protectedBy": "GATE_IMMUTABLE (README 2.3)"
+    },
+    {
+      "id": "TWK-002",
+      "name": "VBS off",
+      "hive": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard",
+      "nativePath": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard",
+      "valueName": "EnableVirtualizationBasedSecurity",
+      "valueType": "DWord",
+      "value": 0,
+      "pattern": "PAT-12",
+      "reason": "Виртуализация на основе безопасности снимает доступ планировщика к Thread Director (SC_VBS_HVCI_DISABLED).",
+      "protectedBy": "GATE_IMMUTABLE (README 2.3)"
+    },
+    {
+      "id": "TWK-003",
+      "name": "HVCI off",
+      "hive": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity",
+      "nativePath": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity",
+      "valueName": "Enabled",
+      "valueType": "DWord",
+      "value": 0,
+      "pattern": "PAT-12",
+      "reason": "Целостность памяти ядра (HVCI) даёт скрытый CPU-оверхед и задержки прерываний.",
+      "protectedBy": "GATE_IMMUTABLE (README 2.3)"
+    },
+    {
+      "id": "TWK-004",
+      "name": "DriverSearching off (re-assert)",
+      "hive": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DriverSearching",
+      "nativePath": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DriverSearching",
+      "valueName": "SearchOrderConfig",
+      "valueType": "DWord",
+      "value": 0,
+      "pattern": "PAT-15",
+      "reason": "Повторная фиксация после Stage 3: накопительные обновления могли вернуть значение (защита от дрейфа, AR-303)."
+    },
+    {
+      "id": "TWK-005",
+      "name": "DiagTrack disabled (re-assert)",
+      "hive": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\DiagTrack",
+      "nativePath": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\DiagTrack",
+      "valueName": "Start",
+      "valueType": "DWord",
+      "value": 4,
+      "pattern": "PAT-03",
+      "reason": "Повторное подавление телеметрии после наката обновлений; дублирует проверку в ServiceGate.json."
+    },
+    {
+      "id": "TWK-006",
+      "name": "DoH prohibited (PAT-08)",
+      "hive": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+      "nativePath": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+      "valueName": "DoHPolicy",
+      "valueType": "DWord",
+      "value": 1,
+      "pattern": "PAT-08",
+      "reason": "Запрет DNS over HTTPS: канал разрешения имён должен быть предсказуемым и управляемым локально (hosts + NTFS-замок, ACL-002). Значения DoHPolicy: 1 — запретить, 2 — разрешить, 3 — требовать DoH.",
+      "protectedBy": "ADR-0015"
+    }
+  ]
+}

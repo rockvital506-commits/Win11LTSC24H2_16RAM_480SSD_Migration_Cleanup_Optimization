@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": 7,
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0016"
+  ],
+  "notes": [
+    "Единственный источник версий (AR-602): установка пакета без записи version/sha256 блокируется.",
+    "Заполняется в окне сети: pwsh -File ./packages/bootstrap/Invoke-PackageSync.ps1 -ResolveVersions",
+    "sha256 — контрольная сумма установщика (вывод winget show), либо хэш скачанного файла.",
+    "Плавающие версии запрещены: status=UNPINNED блокирует установку (AR-602, AR-606)."
+  ],
+  "sources": [
+    {
+      "name": "winget",
+      "argument": "https://cdn.winget.microsoft.com/cache",
+      "msstore": false,
+      "adr": "ADR-0016"
+    }
+  ],
+  "packages": [
+    {
+      "id": "Git.Git",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Microsoft.VisualStudioCode",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Microsoft.WindowsTerminal",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Microsoft.PowerShell",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Microsoft.VCRedist.2015+.x64",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "7zip.7zip",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Notepad++.Notepad++",
+      "profile": "base",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "MobaXterm.MobaXterm",
+      "profile": "devops",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Microsoft.Sysinternals",
+      "profile": "devops",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Telegram.TelegramDesktop",
+      "profile": "admin",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "WinSCP.WinSCP",
+      "profile": "admin",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    },
+    {
+      "id": "Rufus.Rufus",
+      "profile": "admin",
+      "version": null,
+      "sha256": null,
+      "status": "UNPINNED",
+      "source": "winget",
+      "date": null
+    }
+  ]
+}

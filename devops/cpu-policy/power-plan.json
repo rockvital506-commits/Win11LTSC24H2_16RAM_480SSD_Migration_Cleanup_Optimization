@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": "7",
+  "generated": "2026-10-01",
+  "adr": [
+    "ADR-0010",
+    "ADR-0016"
+  ],
+  "notes": [
+    "Декларация целевой схемы питания для сборок на P-ядрах (AR-705).",
+    "Применение — только явным флагом -ApplyPowerPlan (Set-WorkloadAffinity.ps1).",
+    "Значения читаются powercfg /query SCHEME_CURRENT; имена схемы локализованы, поэтому сверка имени — информационная."
+  ],
+  "activeScheme": "High performance (Схема с высоким быстродействием)",
+  "settings": [
+    {
+      "id": "A2.2",
+      "name": "PROCTHROTTLEMIN (AC)",
+      "subgroup": "SUB_PROCESSOR",
+      "setting": "PROCTHROTTLEMIN",
+      "targetAc": 100,
+      "reason": "Минимальное состояние процессора 100% исключает парковку P-ядер во время сборок (AR-705)."
+    },
+    {
+      "id": "A2.3",
+      "name": "PROCTHROTTLEMAX (AC)",
+      "subgroup": "SUB_PROCESSOR",
+      "setting": "PROCTHROTTLEMAX",
+      "targetAc": 100,
+      "reason": "Верхняя граница не ограничивает P-ядра."
+    },
+    {
+      "id": "A2.4",
+      "name": "CORE PARKING (AC)",
+      "subgroup": "SUB_PROCESSOR",
+      "setting": "CPMINCORES",
+      "targetAc": 100,
+      "reason": "Запрет парковки ядер на время нагрузок; на E-ядрах планировщик распределяет фон сам."
+    }
+  ]
+}

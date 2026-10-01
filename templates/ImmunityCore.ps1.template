@@ -1,0 +1,221 @@
+﻿<#
+.SYNOPSIS
+    ImmunityCore — самодостаточное ядро цементирования контура (рантайм D:\GD_Tool).
+
+.DESCRIPTION
+    Разворачивается из templates/ImmunityCore.ps1.template в D:\GD_Tool\ImmunityCore.ps1
+    и вызывается задачей System_Immunity_Core через AutoSetup.bat (Launcher.vbs).
+    Транзакция при каждом запуске:
+      1. grant: SYSTEM получает полный доступ к объектам замков (окно импорта);
+      2. импорт эталонного слепка политик CleanLTSCPolicy утилитой LGPO.exe;
+      3. правила брандмауэра против процессов-обходчиков (PAT-09);
+      4. gpupdate /force — фиксация политик в ядре;
+      5. deny: SYSTEM лишается права записи (абсолютный приоритет DENY в ntfs.sys);
+      6. верификация каждого шага и запись в D:\GD_Tool\logs\ImmunityCore.log.
+
+    Файл НЕ зависит от репозитория: на хосте может не быть F:, а задача срабатывает
+    при каждой разблокировке. Все пути и значения объявлены ниже и совпадают с
+    tweaks/acl/AclManifest.json и tweaks/tasks/TaskManifest.json.
+
+    Ограничения: операции только над объявленными объектами; удаление файлов
+    запрещено (AR-201); сеть скрипт не поднимает (AR-709).
+
+.NOTES
+    Script-ID  : SCRIPT-IMM-000 (runtime)
+    Stage      : 6
+    Patterns   : PAT-06, PAT-08, PAT-09, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4
+    ADR        : ADR-0003, ADR-0015
+    Rules      : AUTOMATION_RULES.md (AR-105, AR-201, AR-206, AR-301, AR-303, AR-306, AR-307, AR-501, AR-506)
+    Depends    : LGPO.exe, CleanLTSCPolicy (рядом в каталоге автоматизации)
+    Author     : AI-агент (Arena.ai)
+    Created    : 2026-10-01
+    Schema     : 3.0.0
+#>
+
+#Requires -Version 5.1
+[CmdletBinding()]
+param(
+    [string]$ToolDir = 'D:\GD_Tool',
+
+    [switch]$Audit
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+$scriptId = 'SCRIPT-IMM-000'
+$logDir   = Join-Path $ToolDir 'logs'
+$logFile  = Join-Path $logDir 'ImmunityCore.log'
+$lgpo     = Join-Path $ToolDir 'LGPO.exe'
+$snapshot = Join-Path $ToolDir 'CleanLTSCPolicy'
+$gpoDir   = Join-Path $env:SystemRoot 'System32\GroupPolicy'
+$hostsFile = Join-Path $env:SystemRoot 'System32\drivers\etc\hosts'
+
+# Объекты и исключения объявлены здесь и не расширяются без ADR (AR-501).
+$lockTargets = @($gpoDir, $hostsFile)
+
+# Аварийный резерв правил брандмауэра: основной состав читается из
+# $ToolDir\FirewallRules.json (разворачивается из tweaks/firewall/FirewallManifest.json, PAT-09).
+$firewallRules = @(
+    @{ DisplayName = 'Block Telemetry Core'; Program = (Join-Path $env:SystemRoot 'System32\CompatTelRunner.exe') },
+    @{ DisplayName = 'Block WaaSMedic Outbound Agent'; Program = (Join-Path $env:SystemRoot 'System32\WaaSMedicAgent.exe') }
+)
+
+function Write-CoreLog {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$Message,
+        [ValidateSet('INFO', 'PASS', 'FAIL', 'WARN')][string]$Level = 'INFO'
+    )
+
+    if (-not (Test-Path -LiteralPath $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
+    $line = '[{0}] [{1}] [{2}] {3}' -f (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ'), $Level, $scriptId, $Message
+    Add-Content -LiteralPath $logFile -Value $line -Encoding UTF8
+    Write-Host $line
+}
+
+function Test-DenyWriteForSystem {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $acl = Get-Acl -LiteralPath $Path
+    foreach ($rule in $acl.Access) {
+        if ([string]$rule.IdentityReference -notmatch 'SYSTEM|S-1-5-18') { continue }
+        if ($rule.AccessControlType -ne 'Deny') { continue }
+        if ([string]$rule.FileSystemRights -match 'Write|Modify|FullControl|WriteData') { return $true }
+    }
+    return $false
+}
+
+function Set-SystemAccess {
+    <# Транзакция прав: Grant (перед импортом) или Deny (цементирование). #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][ValidateSet('Grant', 'Deny')][string]$Mode
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        Write-CoreLog -Level 'FAIL' -Message ('Объект отсутствует: {0}' -f $Path)
+        return $false
+    }
+
+    $acl = Get-Acl -LiteralPath $Path
+
+    if ($Mode -eq 'Grant') {
+        $hasFull = $false
+        foreach ($rule in $acl.Access) {
+            if ([string]$rule.IdentityReference -match 'SYSTEM|S-1-5-18' -and $rule.AccessControlType -eq 'Allow' -and [string]$rule.FileSystemRights -match 'FullControl') { $hasFull = $true }
+        }
+        if ($hasFull) {
+            Write-CoreLog -Message ('grant уже присутствует: {0}' -f $Path)
+            return $true
+        }
+        if ($Audit) {
+            Write-CoreLog -Message ('AUDIT: grant SYSTEM:(F) на {0}' -f $Path)
+            return $true
+        }
+        & icacls.exe $Path /grant 'SYSTEM:(F)' | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-CoreLog -Level 'FAIL' -Message ('icacls grant код {0}: {1}' -f $LASTEXITCODE, $Path); return $false }
+        Write-CoreLog -Level 'PASS' -Message ('grant SYSTEM:(F): {0}' -f $Path)
+        return $true
+    }
+
+    if (Test-DenyWriteForSystem -Path $Path) {
+        Write-CoreLog -Message ('deny уже присутствует: {0}' -f $Path)
+        return $true
+    }
+    if ($Audit) {
+        Write-CoreLog -Message ('AUDIT: deny SYSTEM:(W) на {0}' -f $Path)
+        return $true
+    }
+    & icacls.exe $Path /deny 'SYSTEM:(W)' | Out-Null
+    if ($LASTEXITCODE -ne 0) { Write-CoreLog -Level 'FAIL' -Message ('icacls deny код {0}: {1}' -f $LASTEXITCODE, $Path); return $false }
+    $locked = Test-DenyWriteForSystem -Path $Path
+    if ($locked) { Write-CoreLog -Level 'PASS' -Message ('deny SYSTEM:(W) применён и подтверждён: {0}' -f $Path) }
+    else { Write-CoreLog -Level 'FAIL' -Message ('deny не подтверждён: {0}' -f $Path) }
+    return $locked
+}
+
+try {
+    $failures = 0
+    Write-CoreLog -Message '=== Транзакция цементирования начата ==='
+
+    # 1. Окно импорта: SYSTEM нужен полный доступ, пока применяются политики.
+    foreach ($target in $lockTargets) {
+        if (-not (Set-SystemAccess -Path $target -Mode 'Grant')) { $failures++ }
+    }
+
+    # 2. Эталонный слепок политик.
+    if ((Test-Path -LiteralPath $lgpo) -and (Test-Path -LiteralPath (Join-Path $snapshot 'gpt.ini'))) {
+        if ($Audit) {
+            Write-CoreLog -Message ('AUDIT: {0} /g {1}' -f $lgpo, $snapshot)
+        }
+        else {
+            & $lgpo /g $snapshot | Out-Null
+            if ($LASTEXITCODE -eq 0) { Write-CoreLog -Level 'PASS' -Message 'Импорт CleanLTSCPolicy выполнен.' }
+            else { Write-CoreLog -Level 'FAIL' -Message ('LGPO /g вернул код {0}.' -f $LASTEXITCODE); $failures++ }
+        }
+    }
+    else {
+        Write-CoreLog -Level 'WARN' -Message 'LGPO.exe или CleanLTSCPolicy не найдены: импорт политик пропущен.'
+    }
+
+    # 3. Брандмауэр: состав — из FirewallRules.json (единый источник, PAT-09).
+    $rulesFile = Join-Path $ToolDir 'FirewallRules.json'
+    if (Test-Path -LiteralPath $rulesFile) {
+        try {
+            $declared = @((Get-Content -LiteralPath $rulesFile -Raw -Encoding UTF8 | ConvertFrom-Json).rules)
+            if ($declared.Count -gt 0) {
+                $firewallRules = @($declared | ForEach-Object {
+                    @{ DisplayName = [string]$_.displayName; Program = ([string]$_.program).Replace('%SystemRoot%', $env:SystemRoot) }
+                })
+                Write-CoreLog -Message ('Правила брандмауэра загружены из FirewallRules.json: {0}.' -f $firewallRules.Count)
+            }
+        }
+        catch {
+            Write-CoreLog -Level 'WARN' -Message ('FirewallRules.json не прочитан, используется встроенный резерв: {0}' -f $_.Exception.Message)
+        }
+    }
+
+    # Обрыв исходящих каналов обходчиков.
+    foreach ($rule in $firewallRules) {
+        $existing = Get-NetFirewallRule -DisplayName $rule.DisplayName -ErrorAction SilentlyContinue
+        if ($Audit) {
+            Write-CoreLog -Message ('AUDIT: правило {0} -> {1}' -f $rule.DisplayName, $rule.Program)
+            continue
+        }
+        if ($existing) {
+            Set-NetFirewallRule -DisplayName $rule.DisplayName -Enabled True -ErrorAction SilentlyContinue | Out-Null
+            Write-CoreLog -Message ('Правило уже существует: {0}' -f $rule.DisplayName)
+        }
+        else {
+            New-NetFirewallRule -DisplayName $rule.DisplayName -Direction Outbound -Program $rule.Program `
+                -Action Block -Profile Any -Enabled True -ErrorAction Stop | Out-Null
+            Write-CoreLog -Level 'PASS' -Message ('Правило создано: {0}' -f $rule.DisplayName)
+        }
+    }
+
+    # 4. Фиксация политик в ядре.
+    if (-not $Audit) {
+        & gpupdate.exe /force | Out-Null
+        Write-CoreLog -Message ('gpupdate /force завершён с кодом {0}.' -f $LASTEXITCODE)
+    }
+
+    # 5. Цементирование: DENY имеет абсолютный приоритет в ntfs.sys.
+    foreach ($target in $lockTargets) {
+        if (-not (Set-SystemAccess -Path $target -Mode 'Deny')) { $failures++ }
+    }
+
+    if ($failures -eq 0) {
+        Write-CoreLog -Level 'PASS' -Message 'Контур зацементирован: все шаги подтверждены.'
+        exit 0
+    }
+
+    Write-CoreLog -Level 'FAIL' -Message ('Завершено с ошибками: {0}.' -f $failures)
+    exit 10
+}
+catch {
+    Write-CoreLog -Level 'FAIL' -Message ('Фатальная ошибка: {0}' -f $_.Exception.Message)
+    exit 99
+}

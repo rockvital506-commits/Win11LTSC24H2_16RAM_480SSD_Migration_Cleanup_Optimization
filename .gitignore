@@ -1,0 +1,47 @@
+# .gitignore
+# Основания: AR-803 (логи/бэкапы/секреты), AR-804 (крупные бинарники и образы),
+# ADR-0006 (F:\ — производный репозиторий), STRUC_008 / STRUC_009.
+
+# --- Логи и рабочие артефакты (STRUC_008) -----------------------------------
+logs/
+*.log
+*.transcript
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+backups/
+~$*
+Thumbs.db
+desktop.ini
+
+# --- Секреты (AR-207 / STRUC_009) -------------------------------------------
+.env
+*.secret
+*.secrets
+*.token
+*.key
+*.pem
+*.pfx
+*.p12
+*-credentials.json
+
+# --- Образы, снапшоты ВМ и крупные архивы (AR-804) ---------------------------
+*.iso
+*.img
+*.vhd
+*.vhdx
+*.vmdk
+*.ova
+*.zip
+*.7z
+*.rar
+
+# --- tools/: бинарники в Git не хранятся (AR-804, ADR-0006) ------------------
+# В репозитории остаются только README.md и хэш-манифесты SHA256SUMS.txt.
+tools/**
+!tools/**/
+!tools/README.md
+!tools/**/README.md
+!tools/**/SHA256SUMS.txt

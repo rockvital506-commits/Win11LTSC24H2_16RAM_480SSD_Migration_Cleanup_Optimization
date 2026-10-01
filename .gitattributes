@@ -1,0 +1,69 @@
+# .gitattributes
+# Нормализация окончаний строк — AR-102.
+# Политика: LF по умолчанию; CRLF для файлов, потребляемых Windows-инструментами.
+# Кодировки и BOM контролируются .editorconfig + scripts/rules/Test-RepositoryConventions.ps1
+# (AR-101 / AR-104 / AR-106): git не управляет кодировками.
+
+* text=auto eol=lf
+
+# --- Windows-потребители: строго CRLF --------------------------------------
+*.ps1    text eol=crlf
+*.psm1   text eol=crlf
+*.psd1   text eol=crlf
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.vbs    text eol=crlf
+*.xml    text eol=crlf
+*.reg    text eol=crlf
+*.inf    text eol=crlf
+*.csv    text eol=crlf
+*.txt    text eol=crlf
+*.vmx    text eol=crlf
+*.conf   text eol=crlf
+*.conf.template text eol=lf
+.wslconfig.template text eol=lf
+*.sh     text eol=lf
+.wslconfig text eol=crlf
+
+# --- Шаблоны: EOL по целевому расширению (STRUC_010, AR-102) ---------------
+*.xml.template   text eol=crlf
+*.ps1.template   text eol=crlf
+*.vmx.template   text eol=crlf
+*.json.template  text eol=lf
+*.yaml.template  text eol=lf
+*.yml.template   text eol=lf
+
+# --- VCS-нативные и машинные форматы: строго LF ----------------------------
+*.md            text eol=lf
+*.winget        text eol=lf
+*.json          text eol=lf
+*.yaml          text eol=lf
+*.yml           text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+.editorconfig   text eol=lf
+
+# --- Бинарники: без нормализации -------------------------------------------
+*.exe   binary
+*.dll   binary
+*.msi   binary
+*.sys   binary
+*.iso   binary
+*.img   binary
+*.vhd   binary
+*.vhdx  binary
+*.vmdk  binary
+*.ova   binary
+*.zip   binary
+*.7z    binary
+*.rar   binary
+*.gz    binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.gif   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary

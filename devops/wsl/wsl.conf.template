@@ -1,0 +1,8 @@
+# /etc/wsl.conf — конфигурация внутри дистрибутива (AR-707, PAT-21).
+# systemd=true обязателен для нативного Docker Engine без Docker Desktop.
+[boot]
+systemd=true
+
+[interop]
+enabled=true
+appendWindowsPath=true
