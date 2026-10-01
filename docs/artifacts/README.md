@@ -4,6 +4,7 @@
 |---|---|---|
 | `Stage0_Report.md` | Отчёт инициализации репозитория | **DONE** |
 | `Stage1_Report.md` | Отчёт разметки NVMe (ожидает нативного прогона верификатора) | IN_PROGRESS |
+| `Stage1_partition_verify.md` | Верификация разметки (генерируется `Stage1_DiskGenius_Partition.ps1`) | PENDING |
 | `Stage2_Report.md` | Отчёт Ventoy-контура и Audit Mode (ожидает проверок A1–A7) | IN_PROGRESS |
 | `Stage2_preflight.md` | Проверка шаблонов Ventoy и файла ответов (генерируется `Stage2_Ventoy_Template_Setup.ps1`) | PENDING |
 | `Stage3_Report.md` | Отчёт накопительных обновлений (ожидает прогона U1–U7) | IN_PROGRESS |
