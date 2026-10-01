@@ -48,6 +48,8 @@ function Get-AllowedRoot {
         Разрешённые корни записи (AR-206):
           - каталог репозитория (передаётся вызывающим скриптом);
           - C:\Vitality, D:\GD_Tool, D:\Drivers (рабочие каталоги проекта);
+          - %SystemRoot%\System32\Sysprep — размещение второго файла ответов
+            unattend.xml (Stage 5, ADR-0014 п.1);
           - %TEMP% (транзитные файлы инструментов).
         Расширение списка — только через ADR.
     #>
@@ -61,6 +63,10 @@ function Get-AllowedRoot {
     $roots.Add('C:\Vitality')
     $roots.Add('D:\GD_Tool')
     $roots.Add('D:\Drivers')
+
+    # ADR-0014 п.1: каталог размещения второго файла ответов (Stage 5, Sysprep Seal).
+    if ($env:SystemRoot) { $roots.Add((Join-Path $env:SystemRoot 'System32\Sysprep')) }
+
     if ($env:TEMP) { $roots.Add($env:TEMP) }
 
     return $roots

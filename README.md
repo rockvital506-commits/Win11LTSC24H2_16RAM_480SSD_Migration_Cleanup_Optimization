@@ -545,7 +545,7 @@ BACKUP OLD SYSTEM: ДО Stage 1 (на WinPE)
 | 2 | `manual/Stage2_Ventoy_Install.md` + `auto/Stage2_Audit_Mode_Workflow.md` | `Stage2_Ventoy_Template_Setup.ps1` | `templates/` (`u_w11_ltsc_iot.xml`, `ventoy.json`) | `PAT-01, PAT-02, PAT-10, PAT-16, PAT-NEW-1` | `Stage2_Report.md`, `F_drive_schema.md` |
 | 3 | `manual/Stage3_Windows_Update.md` | — (ручной GUI-контроль, ADR не требуется) | — | — | `Stage3_Report.md` |
 | 4 | `auto/Stage4_Audit_Final_Clean.md` | `Stage4_Audit_Final_Clean.ps1` | `tweaks/{bcd,services,tasks,acl,appx,registry}` | `PAT-12, PAT-13, PAT-14, PAT-15, PAT-18` | `Stage4_Report.md` |
-| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml` | `PAT-16` | `Stage5_Report.md` |
+| 5 | `auto/Stage5_Sysprep_Seal.md` | `Stage5_Sysprep_Prepare.ps1` | `templates/unattend.xml.template` | `PAT-16, PAT-NEW-1` | `Stage5_Report.md` |
 | 6 | `manual/Stage6_Ohook_Activation.md` + `auto/Stage6_AutoSetup.md` | `Stage6_AutoSetup.bat`, `Stage6_Launcher.vbs` | `tweaks/{acl,services}` | `PAT-06, PAT-08, PAT-11, PAT-NEW-2, PAT-NEW-3, PAT-NEW-4, PAT-NEW-5` | `Stage6_Report.md` |
 | 7 | `auto/Stage7_WSL_Docker_VMware.md` | `Stage7_WSL_Docker_VMware.ps1` | `devops/{wsl,hypervisor,cpu-policy,containers}`, `packages/` (профиль `devops`) | `PAT-07, PAT-21, PAT-22` | `Stage7_Report.md`, `Final_Report.md` |
 
@@ -950,9 +950,27 @@ D:\
 - [ ] `Stage4_Report.md` заполнен (W1–N1), статус переведён в DONE
 - [ ] Бэкапы сессии сохранены на `F:\BACKUPS\`
 
-### 9.5 All Stages Verification
+### 9.5 Stage 5 (Sysprep Seal) Verification
 
-- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0013)
+Выполняется на хосте: `scripts/Stage5_Sysprep_Prepare.ps1` (подготовка) → `sysprep.exe /oobe /generalize /shutdown` (CMD от Администратора, AR-204) → тихий OOBE → создание пользователя `devops`.
+
+- [ ] Исходное состояние зафиксировано: Audit Mode активен (`SystemSetupInProgress = 1`)
+- [ ] Сеть физически изолирована (0 активных адаптеров); выход в сеть — только на стыке Stage 6→7
+- [ ] Остаток перевооружений (`slmgr /dlv`, «Remaining Windows rearm count») внесён в отчёт
+- [ ] `templates/unattend.xml.template` размещён как `C:\Windows\System32\Sysprep\unattend.xml` (UTF-8 без BOM)
+- [ ] Предпролётный отчёт `Stage5_preflight.md`: `P0.1`–`P2.2`, `P4.1` — PASS
+- [ ] Ловушка `0x80073cf2` закрыта: `P3.1` — 0 нарушений (при необходимости `-FixSysprepValidation`, AR-507)
+- [ ] Дефект 24H2: кэши `WebCache`/`INetCache` очищены (`-PurgeProfileCaches`) или зафиксирован `WARN` с переносом в Stage 6
+- [ ] `sysprep.exe /oobe /generalize /shutdown /unattend:...` выполнен, ноутбук полностью выключился
+- [ ] `sysprep_succeeded.tag` присутствует; журналы `setupact.log`/`setuperr.log` — без ошибок
+- [ ] OOBE остановился на экране создания локальной учётной записи; EULA/OEM/онлайн-экраны скрыты
+- [ ] Пользователь `devops` создан, вход выполнен; оболочка работает без дефектов (панель задач, «Пуск»)
+- [ ] Твики наследованы (`H-003`): IFEO ASUS, `DiagTrack=4`, отсутствие `hiberfil.sys`, подкачка 4096 МБ
+- [ ] `Stage5_Report.md` заполнен (P0.1–S6), статус переведён в DONE
+
+### 9.6 All Stages Verification
+
+- [ ] Все ADR созданы (актуальный диапазон: ADR-0001..ADR-0014)
 - [ ] Все паттерны задокументированы (PAT-01..PAT-NEW-7)
 - [ ] Все отчёты созданы (Stage1..Stage7 + Final)
 - [ ] Recovery_Procedure.md создан

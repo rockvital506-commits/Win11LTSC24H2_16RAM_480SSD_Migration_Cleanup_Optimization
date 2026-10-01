@@ -17,5 +17,6 @@
 | `ADR-0011-size-units-and-esp-mount.md` | Единицы GiB и скрытая ESP | **ACCEPTED** |
 | `ADR-0012-vbs-hvci-lsa-disable.md` | Демонтаж VBS/HVCI/LSA (реестр + BCD) | **ACCEPTED** |
 | `ADR-0013-ssd-longevity-memory.md` | Долговечность SSD: hiberfil + фиксированная подкачка | **ACCEPTED** |
+| `ADR-0014-sysprep-seal.md` | Запечатывание Sysprep: размещение файла ответов, CopyProfile, предпролётные защиты | **ACCEPTED** |
 
 **Правило:** ADR-0001…ADR-0007 создаются на соответствующих этапах; ранние номера не занимаются задним числом без записи в отчёте.

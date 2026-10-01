@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  unattend.xml.template (PAT-16, ADR-0005, ADR-0014): второй файл ответов — Stage 5.
+
+  Назначение: sysprep.exe /oobe /generalize /shutdown /unattend:... — запечатывание
+  монолита хоста. Переносит настроенный в Audit Mode профиль в шаблон Default User
+  (CopyProfile) и фиксирует политики, которые должны быть перепроверены на первом
+  старте запечатанного образа.
+
+  Размещение: C:\Windows\System32\Sysprep\unattend.xml (ADR-0005 п.1, ADR-0014 п.1).
+  Файл НИКОГДА не попадает на носитель Ventoy: файл № 1 (u_w11_ltsc_iot.xml) и файл № 2
+  различаются областями действия и не взаимозаменяемы.
+
+  Кодировка: UTF-8 без BOM. Окончания строк: CRLF (AR-101, AR-102).
+  ВНИМАНИЕ: BOM приводит к отказу парсера setup.exe ("unattend.xml contains invalid
+  characters") либо к молчаливому игнорированию файла ответов.
+
+  Отличия от docs/research/step4.md (S5-DEV-1..S5-DEV-4, см. Stage5_Sysprep_Seal.md §4):
+    S5-DEV-1  Элемент <HideLocalAccountScreen> удалён: по документации Microsoft он
+              применим только к Windows Server; на клиенте экран создания локальной
+              учётной записи показывается по умолчанию (значение false = поведение
+              по умолчанию), а неподдерживаемый элемент рискует сорвать разбор файла.
+    S5-DEV-2  Компонент Microsoft-Windows-MPR заменён политиками
+              HKLM\SOFTWARE\Policies\Microsoft\MRT (подтверждённая схема MSRT).
+    S5-DEV-3  Удаление AppX в specialize не выполняется: оно уже зафиксировано
+              декларативно на Stage 4 (tweaks/appx/AppxRemoval.json, AR-507) и
+              контролируется предпролётной проверкой ловушки 0x80073cf2
+              (scripts/Stage5_Sysprep_Prepare.ps1, -FixSysprepValidation).
+    S5-DEV-4  Вместо PowerShell-однострочников — атомарные reg.exe-команды: каждая
+              инъекция вынесена в отдельный RunSynchronousCommand (AR-303, AR-502).
+
+  Исправлены пространства имён против docs/research/step4.md:
+    wcm = http://schemas.microsoft.com/WMIConfig/2002/State
+    xsi = http://www.w3.org/2001/XMLSchema-instance
+  При неверных значениях setup игнорирует атрибуты wcm:action и инъекции не применяются.
+
+  Source of truth: docs/research/step4.md; README §5.6, §9.5; ADR-0014.
+-->
+
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+
+  <!-- ==================== specialize: первый старт после generalize ==================== -->
+  <settings pass="specialize">
+
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+      <!--
+        H-003, README §2.3: значение CopyProfile=true менять запрещено.
+        Профиль встроенного Администратора (Audit Mode) переносится в Default User,
+        поэтому все твики этапов 2 и 4 наследуются новым пользователем devops.
+
+        Ограничение Microsoft (ADR-0014 п.3): часть современных настроек профиля
+        (в первую очередь сопоставления приложений по умолчанию) шифруется ключом,
+        привязанным к пользователю, и не поддерживается механизмом CopyProfile —
+        такие настройки намеренно остаются вне задачи и не считаются дефектом.
+      -->
+      <CopyProfile>true</CopyProfile>
+
+      <!-- Отказ от программы улучшения качества ПО (телеметрия установки). -->
+      <CEIPEnabled>0</CEIPEnabled>
+
+    </component>
+
+    <component name="Microsoft-Windows-Deployment"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <RunSynchronous>
+
+        <!-- Канал обновлений: политика «не устанавливать обновления автоматически».
+             Инвариант проекта: Stage 3 был единственным окном доступа во внешний мир. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f</Path>
+          <Description>WindowsUpdate AU: NoAutoUpdate=1</Description>
+        </RunSynchronousCommand>
+
+        <!-- Перепроверка канала драйверов: Windows Update не подтягивает провайдерские
+             драйверы и панели поверх чистых INF, интегрированных на Stage 4.
+             Путь согласован с TWK-004 (tweaks/registry/RegistryManifest.json). -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Path>reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" /v SearchOrderConfig /t REG_DWORD /d 0 /f</Path>
+          <Description>DriverSearching: SearchOrderConfig=0</Description>
+        </RunSynchronousCommand>
+
+        <!-- Иммунизация Edge: фоновая активность и боковая панель выключены,
+             автообновление обездвижено. Движок WebView2 не затрагивается:
+             он остаётся рабочим для Docker UI, VS Code и CLI. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f</Path>
+          <Description>Edge: BackgroundModeEnabled=0</Description>
+        </RunSynchronousCommand>
+
+        <RunSynchronousCommand wcm:action="add">
+          <Order>4</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HubsSidebarEnabled /t REG_DWORD /d 0 /f</Path>
+          <Description>Edge: HubsSidebarEnabled=0</Description>
+        </RunSynchronousCommand>
+
+        <RunSynchronousCommand wcm:action="add">
+          <Order>5</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\EdgeUpdate" /v AutoUpdateCheckPeriodMinutes /t REG_DWORD /d 0 /f</Path>
+          <Description>EdgeUpdate: AutoUpdateCheckPeriodMinutes=0</Description>
+        </RunSynchronousCommand>
+
+        <!-- Поиск: Cortana и веб-поиск в меню «Пуск» отключены на уровне политик. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>6</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f</Path>
+          <Description>Windows Search: AllowCortana=0</Description>
+        </RunSynchronousCommand>
+
+        <RunSynchronousCommand wcm:action="add">
+          <Order>7</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v DisableWebSearch /t REG_DWORD /d 1 /f</Path>
+          <Description>Windows Search: DisableWebSearch=1</Description>
+        </RunSynchronousCommand>
+
+        <!-- OneDrive: синхронизация файлов запрещена политикой (приложение не удаляется). -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>8</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f</Path>
+          <Description>OneDrive: DisableFileSyncNGSC=1</Description>
+        </RunSynchronousCommand>
+
+        <!-- Телеметрия: режим Security (0) и в политике, и в ветке ядра системы. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>9</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f</Path>
+          <Description>DataCollection (policy): AllowTelemetry=0</Description>
+        </RunSynchronousCommand>
+
+        <RunSynchronousCommand wcm:action="add">
+          <Order>10</Order>
+          <Path>reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f</Path>
+          <Description>DataCollection (system): AllowTelemetry=0</Description>
+        </RunSynchronousCommand>
+
+        <!-- Потребительский контент: автоустановка рекомендованных приложений запрещена. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>11</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f</Path>
+          <Description>CloudContent: DisableWindowsConsumerFeatures=1</Description>
+        </RunSynchronousCommand>
+
+        <!-- S5-DEV-2: MSRT (KB890830) — не предлагать через Windows Update и не отправлять
+             отчёт об обнаружениях. Подтверждённые политики
+             HKLM\SOFTWARE\Policies\Microsoft\MRT. -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>12</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\MRT" /v DontOfferThroughWUAU /t REG_DWORD /d 1 /f</Path>
+          <Description>MRT: DontOfferThroughWUAU=1</Description>
+        </RunSynchronousCommand>
+
+        <RunSynchronousCommand wcm:action="add">
+          <Order>13</Order>
+          <Path>reg add "HKLM\SOFTWARE\Policies\Microsoft\MRT" /v DontReportInfectionInformation /t REG_DWORD /d 1 /f</Path>
+          <Description>MRT: DontReportInfectionInformation=1</Description>
+        </RunSynchronousCommand>
+
+      </RunSynchronous>
+    </component>
+
+  </settings>
+
+  <!-- ==================== oobeSystem: экраны первого запуска ==================== -->
+  <settings pass="oobeSystem">
+
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <OOBE>
+        <!-- Тихий первый запуск: скрыты EULA, регистрация OEM, экраны онлайн-учётной
+             записи и настройка беспроводной сети. Экран создания локального
+             пользователя остаётся (S5-DEV-1): здесь создаётся пользователь devops. -->
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+
+        <!-- 3 = не показывать экран экспресс-настроек и не собирать данные. -->
+        <ProtectYourPC>3</ProtectYourPC>
+      </OOBE>
+
+      <!--
+        Часовой пояс по docs/research/step4.md. При применённом флаге
+        RealTimeIsUniversal аппаратные часы ведутся в UTC, а отображение зависит
+        от этого значения. Контрольная точка S5-OPEN-1: если хост должен работать
+        в UTC+5, значение меняется на "Ekaterinburg Standard Time" одной строкой.
+      -->
+      <TimeZone>Russian Standard Time</TimeZone>
+    </component>
+
+  </settings>
+
+</unattend>
